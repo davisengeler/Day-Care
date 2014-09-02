@@ -5,12 +5,16 @@ Day-Care
 
 > Child management system for day care centers. Quickly sign children in and out. 
 > Leave notes for children. Keep track of classroom changes. Parent notifications
-> for events, issues, or complements. More features to be announced soon.
+> for events, issues, or complements. This document will be tweaked as we go.
 
 Features and Requirements:
 ----
 
-* Feature 1
-* Feature 2
-* Feature 3
+* __Example Feature__
+ * _This is a point in more detail_
+ * _So is this... just another point explained_
+* __Feature 2__
+ * _Another sub-point_ 
+* __Feature 3__
+ * _Consistency is wonderful_
 * So on...
