@@ -17,3 +17,6 @@ Features and Requirements:
 * Parents app includes reminders, balance notifications. (Simulated) payment portal.
 
 
+Java Projects on GitHub
+----
+	We will have to play around with GitHub and Java. I'm not sure how those projects will translate between Windows and OS X. We might have to tweak .gitignore to make this flow well. 
