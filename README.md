@@ -10,11 +10,10 @@ Day-Care
 Features and Requirements:
 ----
 
-* __Example Feature__
- * _This is a point in more detail_
- * _So is this... just another point explained_
-* __Feature 2__
- * _Another sub-point_ 
-* __Feature 3__
- * _Consistency is wonderful_
-* So on...
+* Sign in/out kids
+* Parent’s app with NFC (compatible device required)
+* Teachers’ app can send notifications (classroom news, child is sick, etc.) to parents as push notifications (compatible device required), sms messages, or email
+* Teachers/Administrative app can assign/move kids between classes
+* Parents app includes reminders, balance notifications. (Simulated) payment portal.
+
+
