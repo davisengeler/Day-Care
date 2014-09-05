@@ -240,7 +240,7 @@
       </children>
       <children xsi:type="menu:ToolBar" xmi:id="_dr7pgDN5EeSPeOdl8IwebA" elementId="org.eclipse.ui.workbench.file">
         <tags>Draggable</tags>
-        <children xsi:type="menu:HandledToolItem" xmi:id="_dsAiADN5EeSPeOdl8IwebA" elementId="print" iconURI="platform:/plugin/org.eclipse.ui/icons/full/etool16/print_edit.png" tooltip="Print" enabled="false" command="_dXoNcjN5EeSPeOdl8IwebA"/>
+        <children xsi:type="menu:HandledToolItem" xmi:id="_CEtR4DUFEeShe5nju_692A" elementId="print" iconURI="platform:/plugin/org.eclipse.ui/icons/full/etool16/print_edit.png" tooltip="Print" enabled="false" command="_dXoNcjN5EeSPeOdl8IwebA"/>
       </children>
       <children xsi:type="menu:ToolBar" xmi:id="_dr8QkDN5EeSPeOdl8IwebA" elementId="additions" toBeRendered="false">
         <tags>toolbarSeparator</tags>
@@ -264,7 +264,7 @@
       </children>
       <children xsi:type="menu:ToolBar" xmi:id="_dr83oDN5EeSPeOdl8IwebA" elementId="org.eclipse.ui.workbench.navigate">
         <tags>Draggable</tags>
-        <children xsi:type="menu:HandledToolItem" xmi:id="_dsLhIDN5EeSPeOdl8IwebA" elementId="org.eclipse.ui.window.pinEditor" visible="false" iconURI="platform:/plugin/org.eclipse.ui/icons/full/etool16/pin_editor.png" tooltip="Pin Editor" type="Check" command="_dXfqpTN5EeSPeOdl8IwebA"/>
+        <children xsi:type="menu:HandledToolItem" xmi:id="_CEyKYTUFEeShe5nju_692A" elementId="org.eclipse.ui.window.pinEditor" visible="false" iconURI="platform:/plugin/org.eclipse.ui/icons/full/etool16/pin_editor.png" tooltip="Pin Editor" type="Check" command="_dXfqpTN5EeSPeOdl8IwebA"/>
       </children>
       <children xsi:type="menu:ToolBar" xmi:id="_dr83oTN5EeSPeOdl8IwebA" elementId="group.editor" toBeRendered="false">
         <tags>toolbarSeparator</tags>
@@ -567,7 +567,7 @@
       <tags>platform:cocoa</tags>
     </bindings>
     <bindings xmi:id="_dYphIzN5EeSPeOdl8IwebA" keySequence="ALT+CTRL+H" command="_dXg4vDN5EeSPeOdl8IwebA"/>
-    <bindings xmi:id="_dY2VcTN5EeSPeOdl8IwebA" keySequence="COMMAND+CTRL+F" command="_dY1uYzN5EeSPeOdl8IwebA"/>
+    <bindings xmi:id="_BsOgcTUFEeShe5nju_692A" keySequence="COMMAND+CTRL+F" command="_dY1uYzN5EeSPeOdl8IwebA"/>
   </bindingTables>
   <bindingTables xmi:id="_dYMOIDN5EeSPeOdl8IwebA" elementId="org.eclipse.ui.textEditorScope" bindingContext="_dXu7IzN5EeSPeOdl8IwebA">
     <bindings xmi:id="_dYMOITN5EeSPeOdl8IwebA" keySequence="COMMAND+SHIFT+NUMPAD_MULTIPLY" command="_dXfqsDN5EeSPeOdl8IwebA"/>
@@ -761,7 +761,7 @@
     <bindings xmi:id="_dYphITN5EeSPeOdl8IwebA" keySequence="CTRL+D" command="_dXjVCDN5EeSPeOdl8IwebA"/>
   </bindingTables>
   <bindingTables xmi:id="_dY28gDN5EeSPeOdl8IwebA" contributorURI="platform:/fragment/org.eclipse.e4.ui.workbench.renderers.swt.cocoa" bindingContext="_dW_URzN5EeSPeOdl8IwebA">
-    <bindings xmi:id="_dY28gTN5EeSPeOdl8IwebA" keySequence="M1+W" command="_dY2VdDN5EeSPeOdl8IwebA"/>
+    <bindings xmi:id="_BsPHgDUFEeShe5nju_692A" keySequence="M1+W" command="_dY2VdDN5EeSPeOdl8IwebA"/>
   </bindingTables>
   <bindingTables xmi:id="_dwFJsTN5EeSPeOdl8IwebA" bindingContext="_dwFJsDN5EeSPeOdl8IwebA"/>
   <bindingTables xmi:id="_dwFJszN5EeSPeOdl8IwebA" bindingContext="_dwFJsjN5EeSPeOdl8IwebA"/>
