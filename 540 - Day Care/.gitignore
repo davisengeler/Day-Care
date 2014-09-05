@@ -1,2 +1,8 @@
+# Ignore everything
+*
 
-/bin/
+# But not these files...
+!.gitignore
+!.class
+!.java
+!.md
