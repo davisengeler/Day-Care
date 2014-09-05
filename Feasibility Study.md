@@ -80,7 +80,6 @@ Main features for each different type of views:
 		- Medical needs, etc for children
 		- Login information and permissions for all types of accounts
 	- Child, parent, and default teacher links (know which children go with which parents and teachers)
-	- 
 
 
 ##### Technical Requirements - Feasibility
