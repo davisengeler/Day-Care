@@ -1,19 +1,23 @@
 Feasibility Study
 =====
 
-#### The Group
+------
+
+### The Group
 
 Davis Engeler, Michael Hetzel, Jesse Leonard, John Sloan
 
-#### The Client
+### The Client
 
 Single site child development center (daycare center) looking for a digital system to organize and sync day-to-day routines to move away from their pen and paper system.
 
-#### Project Description
+### Project Description
 
 Our project helps alleviate the accountability issues from a daycare center's day to day child organization routines. It offers a streamlined workflow for teachers and parents, with secure and simple sign in/out for the children.
 
-#### Benefits
+### Benefits
+
+	Paragraph Form
 
 Some benefits of our system vs. pen and paper system currently in use:
 
@@ -28,7 +32,7 @@ Some benefits of our system vs. pen and paper system currently in use:
 - Streamlines sign in / out process.
 - Medication / routine reminders for teachers.
 
-#### A Preliminary Requirements Analysis
+### A Preliminary Requirements Analysis
 
 Main features for each different type of views:
 
@@ -82,7 +86,9 @@ Main features for each different type of views:
 	- Child, parent, and default teacher links (know which children go with which parents and teachers)
 
 
-#### Technical Requirements - Feasibility
+### Technical Requirements - Feasibility
+
+	Paragraph Form
 
 - Android Tablet (NFC Enabled)
 - Android Phone (possibly NFC Enabled)
@@ -94,7 +100,7 @@ Main features for each different type of views:
 
 
 
-#### Scope
+### Scope
 
 The administrative client will allow new users to be created. Either parent, student, or staff. Permissions and information can be set and sent to the database. That database information and permission will determine a particular user's access to different features and clients. 
 
@@ -104,13 +110,17 @@ Each teacher's client is updated when one of their students is signed in or out 
 
 The system will keep track of parent sign out times based off when the parent scans their RFID tag and signs their children out. This allows the day care staff to analyze parents who might be consistently late for possible overage charges.
 
-#### Risk Analysis
+Our system will *not* tie into employee payroll, time management system, or their current website login information. This is mainly due to the fact that, in this project, there's no true systems that are already in place. We would have to create the "existing" systems to tie into.
 
-Potential platform communication issues.
+### Risk Analysis
 
-#### Conclusion
+We may come across communication issues with the different platforms, including web and android. To avoid these possible issues, we plan to build the main functionalities into the server and develop an API. The clients will simply use the API to send/retrieve information while the server handles most of the functionality. This will also avoid wasting time with developing the same features on different platforms.
 
+A risk in Android development is the fragmentation of hardware and software compatibility. The main issued would rise when creating the parent client since we will build around the daycare center's devices. To help with this, we will develop the parent client for a version of Android with a high level of adoption and compatibility.
 
+### Conclusion
+
+We feel that the risks of this project do not pose an unsolvable threat to the time restraints of this project. We have access to the necessary technology to successfully create and develop our software package.
 
 
 
