@@ -17,20 +17,7 @@ Our project helps alleviate the accountability issues from a daycare center's da
 
 ### Benefits
 
-	Paragraph Form
-
-Some benefits of our system vs. pen and paper system currently in use:
-
-- Always in sync between the staff.
-- Improves communication between teachers and parents.
-	- Sickness
-	- Special Needs
-	- Classroom Changes
-	- Issues / Praise throughout the day
-	- etc
-- Improve the record keeping - more accountability.
-- Streamlines sign in / out process.
-- Medication / routine reminders for teachers.
+Most day care facilities use a pen and paper system, our program will bring it to a user-friendly system that will help the personnel and the customers.  One of the main benefits will be an always up-to-date view of children on site and specificially under an individual teacher and room.  This will be acheived through an automated sign-in and out system for all children attending the day care facility. It will also improve communication between teachers and parents through classroom changes, issues that may arise, any reminders for parents, illness updates and missed days for the child, and special needs requirements for any child.  Also, if any particular child is in need of timely or frequent medication it will alert the correct teacher and remind them to administer appropriately.  This will increase accountability, improve record keeping for the day care, and provide an overall increase in care for the children.
 
 ### A Preliminary Requirements Analysis
 
@@ -88,17 +75,7 @@ Main features for each different type of views:
 
 ### Technical Requirements - Feasibility
 
-	Paragraph Form
-
-- Android Tablet (NFC Enabled)
-- Android Phone (possibly NFC Enabled)
-- RFID tags
-- Web Server
-- Eclipse for development of Android apps (Java, Android SDK, etc)
-- HTML, CSS, PHP, Javascript (JQuery) for web development
-- MySQL for database
-
-
+We will be using the Android platform for the majority of the system. An Android Tablet with NFC enabled and an Adroid phone, with or without NFC, will be required in order for testing and implementation.  The development of the Android apps will be in Eclipse with the appropriate Android SDK.  Multiple RFID tags will be utilized for the sign-in/out process.  Web server will be needed for the process and delivery of the web page.  HTML, CSS, PHP, and Javascript (JQuery) is how the web page will be developed.  In addition, MySQL will be how the database is implemented for all the stored records.  
 
 ### Scope
 
