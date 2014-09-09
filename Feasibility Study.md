@@ -75,7 +75,7 @@ Main features for each different type of views:
 
 ### Technical Requirements - Feasibility
 
-We will be using the Android platform for the majority of the system. An Android Tablet with NFC enabled and an Adroid phone, with or without NFC, will be required in order for testing and implementation.  The development of the Android apps will be in Eclipse with the appropriate Android SDK.  Multiple RFID tags will be utilized for the sign-in/out process.  Web server will be needed for the process and delivery of the web page.  HTML, CSS, PHP, and Javascript (JQuery) is how the web page will be developed.  In addition, MySQL will be how the database is implemented for all the stored records.  
+We will be using the Android platform for the majority of the system. An Android Tablet with NFC enabled and an Android phone, with or without NFC, will be required in order for testing and implementation.  The development of the Android apps will be in Eclipse with the appropriate Android SDK.  Multiple RFID tags will be utilized for the sign-in/out process.  Web server will be needed for the process and delivery of the web page.  HTML, CSS, PHP, and Javascript (JQuery) is how the web page will be developed.  In addition, MySQL will be how the database is implemented for all the stored records.  
 
 ### Scope
 
