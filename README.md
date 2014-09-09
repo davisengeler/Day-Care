@@ -15,7 +15,7 @@ Our project helps alleviate the accountability issues from a daycare center's da
 
 ### Benefits
 
-Most day care facilities use an inefficient pen and paper system. Our program will provide a transition into a user-friendly system that will help the personnel and the customers. One of the main benefits will be a consistently up-to-date view of children on site and fix organizational downfalls of the old paper system. This will be achieved through an automated sign in/out system for all children attending the day care facility. It will also improve communication between teachers and parents through classroom changes, issues that may arise, reminders from parents, illness updates and missed days, and any special need requirements for children. If any particular child is in need of timely or frequent medication it will alert the correct teacher and remind them to administer appropriately. This will increase accountability, improve and streamline record keeping for the day care, and provide an overall increase in care for the children.
+Most day care facilities use an inefficient pen and paper system. Our program will allow a transition into a user-friendly system that will help the personnel and the customers. One of the main benefits will be a consistently up-to-date view of children on site and fix organizational downfalls of the old paper system. This will be achieved through an automated sign in/out system for all children attending the day care facility. It will also improve communication between teachers and parents through classroom changes, issues that may arise, reminders from parents, illness updates and missed days, and any special need requirements for children. If any particular child is in need of timely or frequent medication it will alert the correct teacher and remind them to administer appropriately. This will increase accountability, improve and streamline record keeping for the day care, and provide an overall increase in care for the children.
 
 ### A Preliminary Requirements Analysis
 
@@ -95,7 +95,7 @@ A risk in Android development is the fragmentation of hardware and software comp
 
 ### Conclusion
 
-We feel that the risks of this project do not pose an unsolvable threat to the time restraints of this project. We have access to the necessary technology to successfully create and develop our software package.
+We feel that the risks of this project do not pose any unsolvable threats to the time restraints of this project. We have access to the necessary technology to successfully create and develop our software package.
 
 
 
