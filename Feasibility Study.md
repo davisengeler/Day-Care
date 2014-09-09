@@ -1,19 +1,19 @@
 Feasibility Study
 =====
 
-##### The Group
+#### The Group
 
 Davis Engeler, Michael Hetzel, Jesse Leonard, John Sloan
 
-##### The Client
+#### The Client
 
 Single site child development center (daycare center) looking for a digital system to organize and sync day-to-day routines to move away from their pen and paper system.
 
-##### Project Description
+#### Project Description
 
+Our project helps alleviate the accountability issues from a daycare center's day to day child organization routines. It offers a streamlined workflow for teachers and parents, with secure and simple sign in/out for the children.
 
-
-##### Benefits
+#### Benefits
 
 Some benefits of our system vs. pen and paper system currently in use:
 
@@ -28,7 +28,7 @@ Some benefits of our system vs. pen and paper system currently in use:
 - Streamlines sign in / out process.
 - Medication / routine reminders for teachers.
 
-##### A Preliminary Requirements Analysis
+#### A Preliminary Requirements Analysis
 
 Main features for each different type of views:
 
@@ -82,19 +82,33 @@ Main features for each different type of views:
 	- Child, parent, and default teacher links (know which children go with which parents and teachers)
 
 
-##### Technical Requirements - Feasibility
+#### Technical Requirements - Feasibility
+
+- Android Tablet (NFC Enabled)
+- Android Phone (possibly NFC Enabled)
+- RFID tags
+- Web Server
+- Eclipse for development of Android apps (Java, Android SDK, etc)
+- HTML, CSS, PHP, Javascript (JQuery) for web development
+- MySQL for database
 
 
 
-##### Scope
+#### Scope
 
+The administrative client will allow new users to be created. Either parent, student, or staff. Permissions and information can be set and sent to the database. That database information and permission will determine a particular user's access to different features and clients. 
 
+RFID tags assigned to parents allow them to quickly log in when dropping their kids off. This will access their account information from the database and give options based on their children's accounts. Sign the children in or out and add daily notes to the child profiles. The information is synced with the database and can be access by the day care staff.
 
-##### Risk Analysis
+Each teacher's client is updated when one of their students is signed in or out and notifies them of any timed reminders that the parents or other staff has set for the children. They can add new notes or communicate with the parents. Those notifications are sent either through email or push notification (if the parent has a supported device). They can transfer single or groups of children to other classrooms/teachers. This will all be synced and accessible to the parents in real time from their computer or Android phone and when they scan their RFID tag at pickup time.
 
+The system will keep track of parent sign out times based off when the parent scans their RFID tag and signs their children out. This allows the day care staff to analyze parents who might be consistently late for possible overage charges.
 
+#### Risk Analysis
 
-##### Conclusion
+Potential platform communication issues.
+
+#### Conclusion
 
 
 
