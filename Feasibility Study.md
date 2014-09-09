@@ -1,8 +1,6 @@
 Feasibility Study
 =====
 
-------
-
 ### The Group
 
 Davis Engeler, Michael Hetzel, Jesse Leonard, John Sloan
@@ -17,7 +15,7 @@ Our project helps alleviate the accountability issues from a daycare center's da
 
 ### Benefits
 
-Most day care facilities use a pen and paper system, our program will bring it to a user-friendly system that will help the personnel and the customers.  One of the main benefits will be an always up-to-date view of children on site and specificially under an individual teacher and room.  This will be acheived through an automated sign-in and out system for all children attending the day care facility. It will also improve communication between teachers and parents through classroom changes, issues that may arise, any reminders for parents, illness updates and missed days for the child, and special needs requirements for any child.  Also, if any particular child is in need of timely or frequent medication it will alert the correct teacher and remind them to administer appropriately.  This will increase accountability, improve record keeping for the day care, and provide an overall increase in care for the children.
+Most day care facilities use an inefficient pen and paper system. Our program will provide a transition into a user-friendly system that will help the personnel and the customers. One of the main benefits will be a consistently up-to-date view of children on site and fix organizational downfalls of the old paper system. This will be achieved through an automated sign in/out system for all children attending the day care facility. It will also improve communication between teachers and parents through classroom changes, issues that may arise, reminders from parents, illness updates and missed days, and any special need requirements for children. If any particular child is in need of timely or frequent medication it will alert the correct teacher and remind them to administer appropriately. This will increase accountability, improve and streamline record keeping for the day care, and provide an overall increase in care for the children.
 
 ### A Preliminary Requirements Analysis
 
