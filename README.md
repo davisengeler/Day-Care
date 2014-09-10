@@ -69,6 +69,12 @@ Main features for each different type of views:
 		- Medical needs, etc for children
 		- Login information and permissions for all types of accounts
 	- Child, parent, and default teacher links (know which children go with which parents and teachers)
+	
+- **Server**
+	- Houses our database
+	- Handles most of the processing
+	- Interface with other clients through API
+	- Host and serve files for web client
 
 
 ### Technical Requirements - Feasibility
