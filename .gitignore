@@ -10,6 +10,8 @@ tmp/
 local.properties
 .settings/
 .loadpath
+
+# Noticed this showing up from John's commits. Don't think it's necessary.
 .recommenders
 
 # External tool builders
