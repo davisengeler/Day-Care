@@ -85,7 +85,7 @@ We will be using the Android platform for the majority of the system. An Android
 
 The administrative client will allow new users to be created. Either parent, student, or staff. Permissions and information can be set and sent to the database. That database information and permission will determine a particular user's access to different features and clients. 
 
-RFID tags assigned to parents allow them to quickly log in when dropping their kids off. This will access their account information from the database and give options based on their children's accounts. Sign the children in or out and add daily notes to the child profiles. The information is synced with the database and can be access by the day care staff.
+RFID tags will be assigned to parents allow them to quickly log in when dropping their kids off. This will access their account information from the database and give options based on their children's accounts. Sign the children in or out and add daily notes to the child profiles. The information is synced with the database and can be access by the day care staff.
 
 Each teacher's client is updated when one of their students is signed in or out and notifies them of any timed reminders that the parents or other staff has set for the children. They can add new notes or communicate with the parents. Those notifications are sent either through email or push notification (if the parent has a supported device). They can transfer single or groups of children to other classrooms/teachers. This will all be synced and accessible to the parents in real time from their computer or Android phone and when they scan their RFID tag at pickup time.
 
