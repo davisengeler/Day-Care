@@ -11,17 +11,18 @@ Single site child development center (daycare center) looking for a digital syst
 
 ### Project Description
 
-Our project helps alleviate the accountability issues from a daycare center's day to day child organization routines. It offers a streamlined workflow for teachers and parents, with secure and simple sign in/out for the children.
+Most day care facilities use an inefficient pen and paper system. Our program will allow a transition into a user-friendly system that will help the personnel and the customers. One of the main benefits will be a consistently up-to-date view of children on site and fix organizational downfalls of the old paper system. This will be achieved through an automated sign in/out system for all children attending the day care facility. It will also improve communication between teachers and parents through classroom changes, issues that may arise, reminders from parents, illness updates and missed days, and any special need requirements for children. If any particular child is in need of timely or frequent medication it will alert the correct teacher and remind them to administer appropriately. This will increase accountability, improve and streamline record keeping for the day care, and provide an overall increase in care for the children.
 
 ### Benefits
 
-Most day care facilities use an inefficient pen and paper system. Our program will allow a transition into a user-friendly system that will help the personnel and the customers. One of the main benefits will be a consistently up-to-date view of children on site and fix organizational downfalls of the old paper system. This will be achieved through an automated sign in/out system for all children attending the day care facility. It will also improve communication between teachers and parents through classroom changes, issues that may arise, reminders from parents, illness updates and missed days, and any special need requirements for children. If any particular child is in need of timely or frequent medication it will alert the correct teacher and remind them to administer appropriately. This will increase accountability, improve and streamline record keeping for the day care, and provide an overall increase in care for the children.
+Our project helps alleviate the accountability issues from a daycare center's day to day child organization routines. It offers a streamlined workflow for teachers and parents, with secure and simple sign in/out for the children.
+
 
 ### A Preliminary Requirements Analysis
 
 Main features for each different type of views:
 
-- **On-Site Public Client** 	
+- **Main Lobby Access** *(tablet that allows parents to sign in their children in the lobby)*
 	- RFID reader to quickly pull up child information
 	- Sign children in / out
 	- View child current classroom
@@ -43,7 +44,6 @@ Main features for each different type of views:
 	- Web client
 	- Different account types for particular areas of the system
 	- View of all information
-	- Time scheduling
 	- Staff management
 		- Add new staff user accounts
 		- Change their permissions
