@@ -8,7 +8,7 @@ Roles and Contributions
 
 #### Davis Engeler
 
-*Project Manager, API Engineer, Database Manager* 
+*Team Roles* 
 
 | Title | Contributions | Time |
 |---|---|---|
@@ -24,7 +24,7 @@ Roles and Contributions
 
 #### Michael Hetzel
 
-*Assistant Project Manager, API Engineer, Database Manager*
+*Team Roles*
 
 | Title | Contributions | Time |
 |---|---|---|
@@ -36,7 +36,7 @@ Roles and Contributions
 
 #### John Sloan
 
-*Android Engineer* 
+*Team Roles* 
 
 | Title | Contributions | Time |
 |---|---|---|
@@ -45,7 +45,7 @@ Roles and Contributions
 
 #### Jesse Leonard
 
-	*Team Roles* 
+*Team Roles* 
 
 | Title | Contributions | Time |
 |---|---|---|
