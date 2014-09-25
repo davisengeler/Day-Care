@@ -1,7 +1,7 @@
 Roles and Contributions
 ======
 
-**This is just to begin finding a good format** for presenting member roles and their contributions. Be sure to keep track of your time for each section you work on. I've made some very rough estimates to get a start, but **this will be heavily tweaked** as we move forward. The roles and contributions are obviously not set in stone since we haven't even discussed it yet. *Send any additions to Davis Engeler via email.* If you lost it, contact me directly.
+This is a running total of all contributions and time spent.
 
 
 -------
@@ -19,7 +19,7 @@ Roles and Contributions
 | **Requirements Documentation Draft** | Input on first draft for the Requirements, graphics. | 2hr30m |
 | **API Development** | Main API functionality and development. | ***...*** |
 | **Database Management** | Implementation and Organization of database on the server. | ***...*** |
-
+| **Set up server and database** | Configured initial database environment, virtualhost, and database. | 1hr0m |
 
 
 #### Michael Hetzel
@@ -30,7 +30,7 @@ Roles and Contributions
 |---|---|---|
 | **Initial Ideas** | Assisted with ideas and discussions for projects | 30m |
 | **Feasibility Study Documentation** | Input on study, converted two sections from bullets to paragraph. | 1hr30m |
-| **Requirements Documentation Draft** | Input, typing, and transferring information into Requirements | 2hr45m |
+| **Requirements Documentation Draft** | Input, typing, and transferring information into Requirements | 7hr0m|
 | **Initial Android JSON Test** | Developed a prototype Android app to test JSON | 3hr30m |
 
 
@@ -42,6 +42,7 @@ Roles and Contributions
 |---|---|---|
 | **Initial Ideas** | Assisted with ideas and discussions for projects. Suggested final idea. | 30m |
 | **Feasibility Study Documentation** | Input on study. | 1hr0m |
+| **Android Design Mockups** | Mocked up some android screens | 4hr0m |
 
 #### Jesse Leonard
 
