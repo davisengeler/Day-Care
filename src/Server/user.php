@@ -6,11 +6,11 @@
 	$last = $_GET["last"];
 	$SSN = $_GET["ssn"];
 
-	echo $first . "'s API key is " . create_user($first, $last, "", "", "", $SSN, "");
+	echo $first . "'s API key is " . generate_key($first, $last, "", "", "", $SSN, "");
 
-	function create_user($first, $last, $email, $phone, $birthday, $SSN, $accountType)
+	function generate_key($first, $last, $email, $phone, $birthday, $SSN, $accountType)
 	{
-		$userID = $last . $first;
+		$userID = $last . $first . $SSN;
 		$apiKey = md5($userID);
 	
 		return $apiKey;
