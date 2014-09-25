@@ -1,15 +1,19 @@
-// API for user functions: registration, user info, permissions, logins, etc
+<?php
 
-$first = $_GET["first"];
-$last = $_GET["last"];
-$SSN = $_GET["ssn"];
+	// API for user functions: registration, user info, permissions, logins, etc
 
-echo $first . "'s API key is " . create_user($first, $last, "", "", "", $SSN, "");
+	$first = $_GET["first"];
+	$last = $_GET["last"];
+	$SSN = $_GET["ssn"];
 
-function create_user($first, $last, $email, $phone, $birthday, $SSN, $accountType)
-{
-	$userID = $last . $first;
-	$apiKey = md5($userID);
+	echo $first . "'s API key is " . create_user($first, $last, "", "", "", $SSN, "");
+
+	function create_user($first, $last, $email, $phone, $birthday, $SSN, $accountType)
+	{
+		$userID = $last . $first;
+		$apiKey = md5($userID);
 	
-	return $apiKey;
-}
+		return $apiKey;
+	}
+	
+?>
