@@ -20,6 +20,8 @@ This is a running total of all contributions and time spent.
 | **API Development** | Main API functionality and development. | ***...*** |
 | **Database Management** | Implementation and Organization of database on the server. | ***...*** |
 | **Set up server and database** | Configured initial database environment, virtualhost, and database. | 1hr0m |
+| Admin Portal Mockup | Designed mockup for Admin Portal | 25m |
+| Whiteboaring | Sketched ideas for layouts/diagrams | 20m |
 
 
 #### Michael Hetzel
