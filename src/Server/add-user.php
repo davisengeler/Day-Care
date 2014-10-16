@@ -22,7 +22,7 @@
   $accID = $_GET["accid"];
 
 
-  if ($result = mysql_query("INSERT INTO Account(SSN, FirstName, LastName, Address, Phone, Email, Pass, AccID) VALUES ('$ssn', '$firstName', '$lastName','$address','$phone','$email','$pass','$accID', 'verified');"))
+  if ($result = mysql_query("INSERT INTO Account(SSN, FirstName, LastName, Address, Phone, Email, Pass, AccID) VALUES ('$ssn', '$firstName', '$lastName','$address','$phone','$email','$pass','$accID');"))
   {
     // New Request Submitted
     echo "You have requested authentication for " . $firstName . " " . $lastName;
