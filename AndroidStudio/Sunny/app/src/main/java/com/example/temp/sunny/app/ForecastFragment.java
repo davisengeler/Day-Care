@@ -297,11 +297,14 @@ public class ForecastFragment extends Fragment
             return resultStrs;
         }
 
-        /*private String[] getDataFromJson(String jsonStr)
+        private String[] getDataFromJson(String jsonStr)
                 throws JSONException {
             JSONObject example = new JSONObject(jsonStr);
+            String[] test = new String[10];
+            return test;
+            //testing for git ignore and what not
 
-        }*/
+        }
 
     }
 }
