@@ -10,7 +10,7 @@
 
   $deviceID = $_GET["deviceID"];
 
-  if(mysql_query("INSERT INTO Devices(DeviceID) VALUES ($deviceID);"))
+  if(mysql_query("INSERT INTO Devices(DeviceID) VALUES ('$deviceID');"))
   {
     echo "SHIT'S DONE";
   }
