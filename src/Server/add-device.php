@@ -14,5 +14,9 @@
   {
     echo "SHIT'S DONE";
   }
+  else
+  {
+    echo "NOPE";
+  }
 
 ?>
