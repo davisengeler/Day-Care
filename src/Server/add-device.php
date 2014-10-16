@@ -1,10 +1,10 @@
 <?php
 
   //include("config.php");
-  //include("default-functions.php");
+  include("default-functions.php");
 
   // Connect to DB. Comes from default-functions.php
-  //db_connect();
+  db_connect();
 
   echo "HEY THEREs";
 

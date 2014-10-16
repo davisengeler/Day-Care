@@ -2,7 +2,9 @@
 
   // Default Functions
 
-  function connect()
+  include("config.php");
+
+  function db_connect()
   {
     $con = mysql_connect(DB_HOST,DB_USER,DB_PASS);
     if (!$con)
