@@ -8,8 +8,11 @@
 
   echo "HEY THEREs";
 
-  //$deviceID = $_GET["deviceID"];
+  $deviceID = $_GET["deviceID"];
 
-  //mysql_query("INSERT INTO Devices(DeviceID) VALUES ($deviceID)");
+  if(mysql_query("INSERT INTO Devices(DeviceID) VALUES ($deviceID)"))
+  {
+    echo "SHIT'S DONE";
+  }
 
 ?>
