@@ -6,7 +6,7 @@
   // Connect to DB. Comes from default-functions.php
   //db_connect();
 
-  echo "HEY THERE";
+  echo "HEY THEREs";
 
   //$deviceID = $_GET["deviceID"];
 
