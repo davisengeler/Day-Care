@@ -1,29 +1,23 @@
 <?php
 
-  //include("config.php");
   include("default-functions.php");
   include("config.php");
 
   // Connect to DB. Comes from default-functions.php
+  db_connect();
 
-  $con = mysql_connect(DB_HOST,DB_USER,DB_PASS);
-  if (!$con)
+  if(isset($_GET["deviceID"]))
   {
-    die('Could not connect to database: ' . mysql_error());
-  }
-  mysql_select_db(DB_NAME, $con);
+    $deviceID = $_GET["deviceID"];
+    if ($result = mysql_query("INSERT INTO Devices(DeviceID) VALUES ('$deviceID');"))
+    {
+      echo "You have requested authentication for the device: " . $deviceID;
+    }
+    else
+    {
+      echo "Couldn't request authentication: " . mysql_error();
+    }
 
-  echo "HEY THEREs";
-
-  $deviceID = $_GET["deviceID"];
-
-  if(mysql_query("INSERT INTO Devices(DeviceID) VALUES ('$deviceID');"))
-  {
-    echo "SHIT'S DONE";
-  }
-  else
-  {
-    echo "NOPE";
   }
 
 ?>
