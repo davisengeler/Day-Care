@@ -6,21 +6,36 @@
   // Connect to DB. Comes from default-functions.php
   db_connect();
 
-  // TODO: change _GET to _SET
+  // TODO: change _GET to _POST
   if(isset($_GET["deviceID"]))
   {
+
     // Gets the device ID from the request.
     $deviceID = $_GET["deviceID"];
 
     if ($result = mysql_query("INSERT INTO Devices(DeviceID) VALUES ('$deviceID');"))
     {
       // New Request Submitted
-      echo "You have requested authentication for the device: " . $deviceID;
+      $response = array(
+        "successful" => true,
+        "statusMessage" => "This device has requested authentication from an administrator.",
+        "deviceID" => $deviceID
+        );
+
+      echo json_encode($response);
+
+
     }
     else
     {
       // New Request Denied
-      echo "Couldn't request authentication: " . mysql_error();
+      $response = array(
+        "successful" => false,
+        "statusMessage" => "This device did not request an authentication. It may already be pending.",
+        "deviceID" => $deviceID
+        );
+
+      echo json_encode($response);
     }
 
   }
