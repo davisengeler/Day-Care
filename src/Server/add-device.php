@@ -12,7 +12,7 @@
     // Gets the device ID from the request.
     $deviceID = $_GET["deviceID"];
 
-    if (mysqli_query($connection, "CALL add_device('$deviceID')"))
+    if (mysqli_query($database, "CALL add_device('$deviceID');"))
     {
       // New Request Submitted
       $response = array(
@@ -30,7 +30,7 @@
       // New Request Denied
       $response = array(
         "successful" => false,
-        "statusMessage" => "This device did not request an authentication. It may already be pending.",
+        "statusMessage" => "This device did not request an authentication. It may already be pending." . $mysqlierror,
         "deviceID" => $deviceID
         );
 
