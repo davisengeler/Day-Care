@@ -26,6 +26,10 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -261,6 +265,8 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor>{
         @Override
         protected Boolean doInBackground(Void... params) {
             // TODO: attempt authentication against a network service.
+            HttpURLConnection urlConnection = null;
+            String LOG_TAG = "Test Info";
 
             final String DE = "davisengeler.gwdnow.com/add-device.php?deviceID=";
 
@@ -268,11 +274,23 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor>{
                     Secure.ANDROID_ID);
 
             Log.d("Android", "Android ID : " + android_id);
-            Uri building = Uri.parse(DE).buildUpon().appendPath(android_id).build();
+
             try {
+
+                Uri building = Uri.parse(DE).buildUpon().appendPath(android_id).build();
+                URL url = new URL(building.toString());
+                Log.v(LOG_TAG, "Built URI " + building.toString());
                 // Simulate network access.
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
+                urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection.setRequestMethod("GET");
+                urlConnection.connect();
+
+            }catch (MalformedURLException e)
+            {
+                Log.v(LOG_TAG, "Error with URL");
+                return false;
+            }
+            catch (IOException e) {
                 return false;
             }
 
