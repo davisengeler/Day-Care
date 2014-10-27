@@ -5,17 +5,17 @@ import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.LoaderManager.LoaderCallbacks;
-import android.content.ContentResolver;
 import android.content.CursorLoader;
 import android.content.Loader;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
-
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
+import android.provider.Settings.Secure;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -25,6 +25,7 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -261,6 +262,13 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor>{
         protected Boolean doInBackground(Void... params) {
             // TODO: attempt authentication against a network service.
 
+            final String DE = "davisengeler.gwdnow.com/add-device.php?deviceID=";
+
+            String android_id = Secure.getString(getApplicationContext().getContentResolver(),
+                    Secure.ANDROID_ID);
+
+            Log.d("Android", "Android ID : " + android_id);
+            Uri building = Uri.parse(DE).buildUpon().appendPath(android_id).build();
             try {
                 // Simulate network access.
                 Thread.sleep(2000);
