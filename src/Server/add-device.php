@@ -1,10 +1,9 @@
 <?php
 
   include("config.php");
-  include("default-functions.php");
 
   // Connect to DB. Comes from default-functions.php
-  db_connect();
+  $database = mysqli_connect(Database_HOST, Database_USER, Database_PASS, Database_NAME);
 
   // TODO: change _GET to _POST
   if(isset($_GET["deviceID"]))
@@ -13,7 +12,7 @@
     // Gets the device ID from the request.
     $deviceID = $_GET["deviceID"];
 
-    if ($result = mysql_query("INSERT INTO Devices(DeviceID) VALUES ('$deviceID');"))
+    if (mysqli_query($connection, "CALL add_device('$deviceID')"))
     {
       // New Request Submitted
       $response = array(

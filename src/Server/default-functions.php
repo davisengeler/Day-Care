@@ -6,12 +6,13 @@
 
   function db_connect()
   {
-    $con = mysql_connect(Database_HOST,Database_USER,Database_PASS);
+
+    $con = mysqli_connect(Database_HOST, Database_USER, Database_PASS, Database_NAME);
     if (!$con)
     {
       die('Could not connect to database: ' . mysql_error());
     }
-    mysql_select_db(Database_NAME, $con);
+    
   }
 
 ?>
