@@ -135,7 +135,7 @@ public class StudentListActivity extends Activity
                 Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.fragment_student_list, container, false);
             ListView student_list = (ListView) rootView.findViewById(R.id.student_list);
-            ArrayAdapter<String> adapter = new ArrayAdapter<String>(rootView.getContext(), R.layout.student_list_design, students);
+            ArrayAdapter<String> adapter = new ArrayAdapter<String>(rootView.getContext(), R.layout.fragment_student_list, students);
             student_list.setAdapter(adapter);
             return rootView;
         }
