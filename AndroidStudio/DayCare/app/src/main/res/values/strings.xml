@@ -27,5 +27,14 @@
     </string-array>
 
     <string name="title_activity_admin">AdminActivity</string>
+    <string name="title_activity_add_account">AddAccountActivity</string>
+
+    <string name="name_label">Name</string>
+    <string name="phone_number_label">Phone #</string>
+    <string name="street_address_label">Street</string>
+    <string name="city_label">City</string>
+    <string name="state_label">State</string>
+    <string name="zip_code_label">Zip</string>
+    <string name="email_label">Email</string>
 
 </resources>
