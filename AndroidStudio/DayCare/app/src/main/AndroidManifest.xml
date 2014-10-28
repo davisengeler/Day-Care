@@ -25,9 +25,7 @@
             android:label="@string/title_activity_student_list"
             android:screenOrientation="portrait" >
             <intent-filter>
-                <action android:name="android.intent.action.view" />
-
-                <category android:name="android.intent.category.OPENABLE" />
+                <action android:name="android.intent.action.VIEW" />
             </intent-filter>
         </activity>
     </application>
@@ -36,5 +34,7 @@
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <uses-permission android:name="android.permission.READ_PROFILE" />
     <uses-permission android:name="android.permission.READ_CONTACTS" />
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.READ_PHONE_STAT"/>
 
 </manifest>

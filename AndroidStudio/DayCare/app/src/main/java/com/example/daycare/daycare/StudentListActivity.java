@@ -37,6 +37,8 @@ public class StudentListActivity extends Activity
                 getFragmentManager().findFragmentById(R.id.navigation_drawer);
         mTitle = getTitle();
 
+        String email = this.getIntent().getStringExtra("email"); //go to loginactvitiy onpostexecute, token
+
         // Set up the drawer.
         mNavigationDrawerFragment.setUp(
                 R.id.navigation_drawer,

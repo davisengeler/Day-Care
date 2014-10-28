@@ -6,6 +6,7 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.LoaderManager.LoaderCallbacks;
 import android.content.CursorLoader;
+import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
 import android.net.Uri;
@@ -26,7 +27,10 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -68,10 +72,13 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor>{
         populateAutoComplete();
 
         mPasswordView = (EditText) findViewById(R.id.password);
-        mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+        mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener()
+        {
             @Override
-            public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
-                if (id == R.id.login || id == EditorInfo.IME_NULL) {
+            public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent)
+            {
+                if (id == R.id.login || id == EditorInfo.IME_NULL)
+                {
                     attemptLogin();
                     return true;
                 }
@@ -266,34 +273,70 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor>{
         protected Boolean doInBackground(Void... params) {
             // TODO: attempt authentication against a network service.
             HttpURLConnection urlConnection = null;
+            BufferedReader reader = null;
+            String jsonStr = null;
             String LOG_TAG = "Test Info";
 
-            final String DE = "davisengeler.gwdnow.com/add-device.php?deviceID=";
+            final String DE = "http://davisengeler.gwdnow.com/add-device.php?deviceID=";
 
             String android_id = Secure.getString(getApplicationContext().getContentResolver(),
                     Secure.ANDROID_ID);
 
             Log.d("Android", "Android ID : " + android_id);
 
-            try {
+            try
+            {
+                String building = DE + android_id; //Putting together the URL
+                Log.v(LOG_TAG, "Built URL " + building);
+                URL url = new URL(building);
 
-                Uri building = Uri.parse(DE).buildUpon().appendPath(android_id).build();
-                URL url = new URL(building.toString());
-                Log.v(LOG_TAG, "Built URI " + building.toString());
-                // Simulate network access.
                 urlConnection = (HttpURLConnection) url.openConnection();
                 urlConnection.setRequestMethod("GET");
                 urlConnection.connect();
 
-            }catch (MalformedURLException e)
+                // Read the input stream into a String
+                InputStream inputStream = urlConnection.getInputStream();
+                StringBuffer buffer = new StringBuffer();
+                if (inputStream != null)
+                {
+                    reader = new BufferedReader(new InputStreamReader(inputStream));
+
+                    String line;
+                    while ((line = reader.readLine()) != null)
+                    {
+                        //makes easy to read in logs
+                        buffer.append(line + "\n");
+                    }
+                    if (buffer.length() != 0)
+                    {
+                        jsonStr = buffer.toString();
+                        Log.v(LOG_TAG, "JSON String: " + jsonStr);
+                    }
+                }
+            }
+            catch (MalformedURLException e)
             {
-                Log.v(LOG_TAG, "Error with URL");
+                Log.e(LOG_TAG, "Error with URL: " + e.getMessage());
                 return false;
             }
             catch (IOException e) {
+            // If the code didn't successfully get the weather data,
+                Log.e(LOG_TAG, "Error: " + e.getMessage());
                 return false;
             }
+            finally
+            {
+               urlConnection.disconnect();
+               try
+               {
+                    reader.close();
+               }
+               catch (final IOException e)
+               {
+                    Log.e(LOG_TAG, "Error closing stream", e);
+               }
 
+            }
             for (String credential : DUMMY_CREDENTIALS) {
                 String[] pieces = credential.split(":");
                 if (pieces[0].equals(mEmail)) {
@@ -312,6 +355,9 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor>{
             showProgress(false);
 
             if (success) {
+                Intent i = new Intent(getApplicationContext(), StudentListActivity.class);
+                i.putExtra("email", mEmail); //in studentlistactivity oncreate
+                startActivity(i);
                 finish();
             } else {
                 mPasswordView.setError(getString(R.string.error_incorrect_password));
