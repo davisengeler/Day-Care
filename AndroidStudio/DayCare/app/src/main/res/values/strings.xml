@@ -10,10 +10,22 @@
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="action_example">Example action</string>
     <string name="action_settings">Settings</string>
-    <string-array name="navigation_drawer" >
+
+    <string-array name="navigation_drawer">
         <item name="roster">Class Roster</item>
         <item name="announcement">Announcement</item>
         <item name="notes">Notes</item>
     </string-array>
+
+    <string name="title_admin_list">AdminFragment</string>
+
+    <string-array name="admin_list">
+        <item name="editAccounts">Add or Edit Accounts</item>
+        <item name="approveAccount">Account Approval</item>
+        <item name="announcement">Announcement</item>
+        <item name="notes">Notes</item>
+    </string-array>
+
+    <string name="title_activity_admin">AdminActivity</string>
 
 </resources>
