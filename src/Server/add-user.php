@@ -1,14 +1,14 @@
 <?php
 
-  include("config.php");
+include("config.php");
 
   // Connect to database
-  $database = mysqli_connect(Database_HOST, Database_USER, Database_PASS, Database_NAME);
-
+  $database = mysqli_connect(Database_HOST, Database_USER, Database_PASS, Database_NAME) or die("Could not connect to database");
+  
   // Is this a request for a list of the account types?
   if (isset($_GET['getaccounttypes']))
   {
-    $accountTypes = [];
+    $accountTypes = array();
     $result = mysqli_query($database, "SELECT * FROM AccountType;");
     while($row = mysqli_fetch_array($result))
     {
