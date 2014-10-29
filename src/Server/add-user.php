@@ -1,36 +1,58 @@
 <?php
 
   include("config.php");
-  include("default-functions.php");
 
-  // Connect to DB. Comes from default-functions.php
-  db_connect();
+  // Connect to database
+  $database = mysqli_connect(Database_HOST, Database_USER, Database_PASS, Database_NAME);
 
-  // Gets the device ID from the request.
-  $deviceID = $_GET["deviceID"];
-
-
-  // TODO: Add verification logic for whoever requested the user creation
-  // TODO: change _GET to _SET
-  $ssn = $_GET["ssn"];
-  $firstName = $_GET["firstname"];
-  $lastName = $_GET["lastname"];
-  $address = $_GET["address"];
-  $phone = $_GET["phone"];
-  $email = $_GET["email"];
-  $pass = $_GET["pass"];
-  $accID = $_GET["accid"];
-
-
-  if ($result = mysql_query("INSERT INTO Account(SSN, FirstName, LastName, Address, Phone, Email, Pass, AccID) VALUES ('$ssn', '$firstName', '$lastName','$address','$phone','$email','$pass','$accID');"))
+  // Is this a request for a list of the account types?
+  if (isset($_GET['getaccounttypes']))
   {
-    // New Request Submitted
-    echo "You have requested authentication for " . $firstName . " " . $lastName;
+    $accountTypes = [];
+    $result = mysqli_query($database, "SELECT * FROM AccountType;");
+    while($row = mysqli_fetch_array($result))
+    {
+      $accountTypes[$row['AccID']] = $row['Title'];
+    }
+    echo json_encode($accountTypes);
+    die();
   }
   else
   {
-    // New Request Denied
-    echo "Couldn't request authentication: " . mysql_error();
+    // Gets the device ID from the request.
+    $ssn = $_GET["ssn"];
+    $firstName = $_GET["firstname"];
+    $lastName = $_GET["lastname"];
+    $address = $_GET["address"];
+    $phone = $_GET["phone"];
+    $email = $_GET["email"];
+    $pass = $_GET["pass"];
+    $accID = $_GET["accid"];;
+
+    if (mysqli_query($database, "CALL add_device('$ssn', '$firstName', '$lastName','$address','$phone','$email','$pass','$accID');"))
+    {
+      // New Request Submitted
+      $response = array(
+        "successful" => true,
+        "statusMessage" => "This account has requested authentication from an administrator.",
+        "deviceID" => $deviceID
+        );
+
+      echo json_encode($response);
+
+
+    }
+    else
+    {
+      // New Request Denied
+      $response = array(
+        "successful" => false,
+        "statusMessage" => "This account did not request an authentication. It may already be pending." . $mysqlierror,
+        "deviceID" => $deviceID
+        );
+
+      echo json_encode($response);
+    }
   }
 
 ?>

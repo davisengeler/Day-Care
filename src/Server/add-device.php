@@ -2,7 +2,7 @@
 
   include("config.php");
 
-  // Connect to DB. Comes from default-functions.php
+  // Connect to database
   $database = mysqli_connect(Database_HOST, Database_USER, Database_PASS, Database_NAME);
 
   // TODO: change _GET to _POST
