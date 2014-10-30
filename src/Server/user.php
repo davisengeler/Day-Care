@@ -8,16 +8,15 @@
   // Is this a request for a list of the account types?
   if (isset($_GET['getaccounttypes']))
   {
-    $accountTypes = [];
-    $result = mysqli_query($database, "SELECT * FROM AccountType;");
+    $accountTypes = array();
+    $result = mysqli_query($database, "CALL get_account_types();");
     while($row = mysqli_fetch_array($result))
     {
       $accountTypes[$row['AccID']] = $row['Title'];
     }
     echo json_encode($accountTypes);
-    die();
   }
-  else
+  else if (isset($_GET['add']))
   {
     // Gets the device ID from the request.
     $ssn = $_GET["ssn"];
@@ -29,7 +28,7 @@
     $pass = $_GET["pass"];
     $accID = $_GET["accid"];;
 
-    if (mysqli_query($database, "CALL add_device('$ssn', '$firstName', '$lastName','$address','$phone','$email','$pass','$accID');"))
+    if (mysqli_query($database, "CALL add_new_account('$ssn', '$firstName', '$lastName','$address','$phone','$email','$pass','$accID');"))
     {
       // New Request Submitted
       $response = array(
