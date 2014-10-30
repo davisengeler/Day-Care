@@ -38,5 +38,7 @@
     <string name="zip_code_label">Zip</string>
     <string name="email_label">Email</string>
     <string name="ssn_label">Social Security Number</string>
+    <string name="pass_label">Password</string>
+    <string name="acctType_label">Account Type</string>
 
 </resources>
