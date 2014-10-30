@@ -15,30 +15,20 @@ import android.widget.Spinner;
 
 import com.example.daycare.daycare.R;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 
 public class AddAccountActivity extends Activity {
 
     Button submitButton;
-    private static String [] typesList;
-    private static String [] test = {"1", "2", "3", "4"};
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
+        String [] test = this.getIntent().getStringArrayExtra("AcctTypeList");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_account);
-        AcctTypes a1 = new AcctTypes();
-        a1.execute();
-        Log.v("Array length:", " " + typesList.length);
+
 
         Spinner dropdown = (Spinner)findViewById(R.id.spinner1);
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, test);
@@ -77,84 +67,7 @@ public class AddAccountActivity extends Activity {
             }
         });
     }
-    public class AcctTypes extends AsyncTask<Void, Void, Void>
-    {
-        public Void doInBackground(Void... params)
-        {
-            HttpURLConnection urlConnection = null;
-            BufferedReader reader = null;
-            String jsonStr = "";
-            try
-            {
-                String userUrl = "http://davisengeler.gwdnow.com/user.php?getaccounttypes";
-                URL url = new URL(userUrl);
 
-                urlConnection = (HttpURLConnection) url.openConnection();
-                urlConnection.setRequestMethod("GET");
-                urlConnection.connect();
-
-                // Read the input stream into a String
-                InputStream inputStream = urlConnection.getInputStream();
-                StringBuffer buffer = new StringBuffer();
-                if (inputStream != null)
-                {
-                    reader = new BufferedReader(new InputStreamReader(inputStream));
-
-                    String line;
-                    while ((line = reader.readLine()) != null)
-                    {
-                        //makes easy to read in logs
-                        buffer.append(line + "\n");
-                    }
-                    if (buffer.length() != 0)
-                    {
-                        jsonStr = buffer.toString();
-                        Log.v("JSON String: ", jsonStr);
-                    }
-                }
-            }
-            catch (MalformedURLException e)
-            {
-                Log.e("URL Error: ", e.getMessage());
-            }
-            catch (IOException e)
-            {
-                Log.e("Connection: ", e.getMessage());
-            }
-            finally
-            {
-                urlConnection.disconnect();
-                try
-                {
-                    if (reader != null)
-                        reader.close();
-                } catch (IOException e)
-                {
-                    Log.e("Error closing stream", e.getMessage());
-                }
-            }
-
-            try
-            {
-                JSONObject account_Type = new JSONObject(jsonStr);
-
-                typesList = new String[account_Type.length()];
-                for(int i=0; i<account_Type.length(); ++i)
-                {
-                    String convert = Integer.toString(i+1);
-                    typesList[i] = account_Type.getString(convert);
-                }
-
-            }
-            catch(JSONException e)
-            {
-                Log.e("JSON Error: ", e.getMessage());
-            }
-
-            return null;
-        }
-
-    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
