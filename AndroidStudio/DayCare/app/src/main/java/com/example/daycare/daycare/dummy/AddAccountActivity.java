@@ -1,6 +1,7 @@
 package com.example.daycare.daycare.dummy;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -13,8 +14,12 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.Toast;
 
+import com.example.daycare.daycare.AdminActivity;
 import com.example.daycare.daycare.R;
+
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -108,15 +113,16 @@ public class AddAccountActivity extends Activity {
     }
 
 
-    public class SendUserInfo extends AsyncTask<String, Void, Void>
+    public class SendUserInfo extends AsyncTask<String, Void, String>
     {
         private final String LOG_TAG = SendUserInfo.class.getSimpleName();
 
-        protected Void doInBackground(String...params)
+        protected String doInBackground(String...params)
         {
             HttpURLConnection urlConnection = null;
             BufferedReader reader = null;
             String jsonStr;
+            String suc ="";
             try
             {
                 final String USER_BASE_URL = "http://davisengeler.gwdnow.com/user.php?add";
@@ -147,6 +153,7 @@ public class AddAccountActivity extends Activity {
 
                 InputStream inputStream = urlConnection.getInputStream();
                 StringBuffer buffer = new StringBuffer();
+
                 if (inputStream != null)
                 {
                     reader = new BufferedReader(new InputStreamReader(inputStream));
@@ -161,6 +168,8 @@ public class AddAccountActivity extends Activity {
                     {
                         jsonStr = buffer.toString();
                         Log.v("JSON String: ", jsonStr);
+                        JSONObject jObj = new JSONObject(jsonStr);
+                        suc = jObj.getString("successful");
                     }
                 }
             }
@@ -168,7 +177,21 @@ public class AddAccountActivity extends Activity {
             {
                 System.out.println(e.getMessage());
             }
-            return null;
+            return suc ;
+        }
+
+        protected void onPostExecute(String message)
+        {
+            if(message.compareTo("true")==0)
+            {
+                Toast.makeText(getApplicationContext(), "Successful", Toast.LENGTH_LONG).show();
+                Intent intent = new Intent(getApplicationContext(), AdminActivity.class);
+                startActivity(intent);
+            }
+            else
+            {
+                Toast.makeText(getApplicationContext(), "Try Again", Toast.LENGTH_LONG).show();
+            }
         }
     }
 }
