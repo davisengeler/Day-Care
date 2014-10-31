@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -15,12 +16,16 @@ import android.widget.Spinner;
 
 import com.example.daycare.daycare.R;
 
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
 import java.net.URL;
 
 public class AddAccountActivity extends Activity {
 
     Button submitButton;
-
+    private int typeID;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -28,12 +33,26 @@ public class AddAccountActivity extends Activity {
         String [] test = this.getIntent().getStringArrayExtra("AcctTypeList");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_account);
-
+        Spinner s1 = (Spinner) findViewById(R.id.spinner1);
 
         Spinner dropdown = (Spinner)findViewById(R.id.spinner1);
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, test);
         dropdown.setAdapter(adapter);
 
+        s1.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                Log.v("Item Selected", "list num" + i);
+                typeID = i+1;
+
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
         final EditText fName = (EditText) findViewById(R.id.first_name);
         final EditText lName = (EditText) findViewById(R.id.last_name);
         final EditText sAddress = (EditText) findViewById(R.id.street_address);
@@ -50,18 +69,18 @@ public class AddAccountActivity extends Activity {
             @Override
             public void onClick(View view) {
                 //take the info and send to php
-                String firstName, lastName, fullAddress, email, phone, ssn, pass, typeID;
+                String firstName, lastName, fullAddress, email, phone, ssn, pass, sTypeID;
                 firstName = fName.getText().toString();
                 lastName = lName.getText().toString();
-                fullAddress = sAddress.getText().toString() + sCity.getText().toString() + sState.getText().toString() +
-                        sZip.getText().toString();
+                fullAddress = sAddress.getText().toString() +"," + sCity.getText().toString() + ","+
+                        sState.getText().toString() + "," + sZip.getText().toString();
                 email = emailAddress.getText().toString();
                 phone = pNum.getText().toString();
                 pass = sPass.getText().toString();
-                typeID = "put type here";
+                sTypeID = Integer.toString(typeID);
                 ssn = s_Ssn.getText().toString();
                 SendUserInfo sendInfo = new SendUserInfo();
-                sendInfo.execute(ssn, firstName, lastName, fullAddress, email, phone, pass, typeID);
+                sendInfo.execute(ssn, firstName, lastName, fullAddress, email, phone, pass, sTypeID);
 
 
             }
@@ -95,9 +114,12 @@ public class AddAccountActivity extends Activity {
 
         protected Void doInBackground(String...params)
         {
+            HttpURLConnection urlConnection = null;
+            BufferedReader reader = null;
+            String jsonStr;
             try
             {
-                final String USER_BASE_URL = "http://davisengeler.gwdnow.com/add-device.php?";
+                final String USER_BASE_URL = "http://davisengeler.gwdnow.com/user.php?add";
                 final String SSN_PARAM = "ssn";
                 final String F_NAME_PARAM = "firstname";
                 final String L_NAME_PARAM = "lastname";
@@ -119,7 +141,28 @@ public class AddAccountActivity extends Activity {
                         .build();
                 URL url = new URL(builtUri.toString());
 
-                Log.v(LOG_TAG, "Built URI " + builtUri.toString());
+                urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection.setRequestMethod("GET");
+                urlConnection.connect();
+
+                InputStream inputStream = urlConnection.getInputStream();
+                StringBuffer buffer = new StringBuffer();
+                if (inputStream != null)
+                {
+                    reader = new BufferedReader(new InputStreamReader(inputStream));
+
+                    String line;
+                    while ((line = reader.readLine()) != null)
+                    {
+                        //makes easy to read in logs
+                        buffer.append(line + "\n");
+                    }
+                    if (buffer.length() != 0)
+                    {
+                        jsonStr = buffer.toString();
+                        Log.v("JSON String: ", jsonStr);
+                    }
+                }
             }
             catch (Exception e)
             {
