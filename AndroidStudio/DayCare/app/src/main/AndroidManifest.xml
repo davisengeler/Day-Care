@@ -28,9 +28,7 @@
             android:name=".AdminActivity"
             android:label="@string/title_activity_admin" >
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
+                <action android:name="android.intent.action.VIEW"/>
             </intent-filter>
         </activity>
         <activity
@@ -41,6 +39,16 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.daycare.daycare.AdminActivity" />
         </activity>
+        <activity
+            android:name=".NewsFeedActivity"
+            android:label="@string/title_activity_news_feed"
+            android:screenOrientation="portrait">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
     </application>
 
     <!-- To auto-complete the email text field in the login form with the user's emails -->

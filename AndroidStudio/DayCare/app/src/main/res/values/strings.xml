@@ -28,7 +28,6 @@
 
     <string name="title_activity_admin">AdminActivity</string>
     <string name="title_activity_add_account">AddAccountActivity</string>
-
     <string name="first_name_label">First Name</string>
     <string name="last_name_label">Last Name</string>
     <string name="phone_number_label">Phone #</string>
@@ -40,5 +39,7 @@
     <string name="ssn_label">Social Security Number</string>
     <string name="pass_label">Password</string>
     <string name="acctType_label">Account Type</string>
+    <string name="title_activity_news_feed">NewsFeedActivity</string>
+    <string name="hello_world">Hello world!</string>
 
 </resources>
