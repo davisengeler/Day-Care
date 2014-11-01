@@ -49,7 +49,8 @@ public class AdminActivity extends Activity
 
 
         mListView = (ListView) findViewById(R.id.container);
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.simple_list_item, getResources().getStringArray(R.array.admin_list));
+        ArrayAdapter<String> adapter =
+                new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, getResources().getStringArray(R.array.admin_list));
         mListView.setAdapter(adapter);
         final AcctTypes a2 = new AcctTypes();
         a2.execute();

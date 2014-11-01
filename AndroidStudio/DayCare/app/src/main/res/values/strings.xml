@@ -41,5 +41,6 @@
     <string name="acctType_label">Account Type</string>
     <string name="title_activity_news_feed">NewsFeedActivity</string>
     <string name="hello_world">Hello world!</string>
+    <string name="title_activity_student_view">StudentViewActivity</string>
 
 </resources>

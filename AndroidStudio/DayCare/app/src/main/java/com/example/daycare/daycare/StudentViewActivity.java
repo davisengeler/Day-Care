@@ -7,26 +7,24 @@ import android.view.MenuItem;
 import android.widget.ArrayAdapter;
 
 
-public class NewsFeedActivity extends ListActivity {
+public class StudentViewActivity extends ListActivity {
+    String [] actions = {"Contact Parent", "Add Note", "Move Student"};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_news_feed);
+        setContentView(R.layout.activity_student_view);
 
-        final String [] testChildren = {"Johnny", "Jackie"};
-        final String[] testNotes = {"Pooped Pants", "School Field Trip","Slapped Clarissa"};
-
-       ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1, testNotes);
-       setListAdapter(adapter);
-
+        ArrayAdapter adapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, actions);
+        setListAdapter(adapter);
+        String chosenStudent = this.getIntent().getStringExtra("chosenStudent");
     }
 
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.news_feed, menu);
+        getMenuInflater().inflate(R.menu.menu_student_view, menu);
         return true;
     }
 
@@ -36,9 +34,12 @@ public class NewsFeedActivity extends ListActivity {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             return true;
         }
+
         return super.onOptionsItemSelected(item);
     }
 }
