@@ -42,5 +42,9 @@
     <string name="title_activity_news_feed">NewsFeedActivity</string>
     <string name="hello_world">Hello world!</string>
     <string name="title_activity_student_view">StudentViewActivity</string>
+    <string name="pick_teacher">Pick a Teacher</string>
+    <string name="add_note_title">Add a Note</string>
+    <string name="save_label">Save</string>
+    <string name="cancel_label">Cancel</string>
 
 </resources>
