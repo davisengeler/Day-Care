@@ -102,18 +102,29 @@ include("config.php");
       $accountInfo["AccID"] = $row["AccID"];
       $accountInfo["Verified"] = $row["Verified"];
 
-      return json_encode($accountInfo);
+      if ($accountInfo != null)
+      {
+        echo json_encode($accountInfo);
+      }
+      else
+      {
+        echo json_encode(generateError("The username/password combo was incorrect."));
+      }
     }
     else
     {
-      // New Request Denied
-      $response = array(
-        "successful" => false,
-        "statusMessage" => "The username/password combination was incorrect. " . $mysqlierror
-        );
-
-      echo json_encode($response);
+      echo json_encode(generateError("There was an issue with the database. " . $mysqlierror));
     }
+  }
+
+  function generateError($message)
+  {
+    $response = array(
+      "successful" => false,
+      "statusMessage" => $message
+      );
+
+    return $response;
   }
 
 ?>
