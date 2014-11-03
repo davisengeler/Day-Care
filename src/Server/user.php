@@ -1,6 +1,6 @@
 <?php
 
-include("config.php");
+  include("config.php");
 
   // Connect to database
   $database = mysqli_connect(Database_HOST, Database_USER, Database_PASS, Database_NAME) or die("Could not connect to database");
@@ -108,7 +108,7 @@ include("config.php");
       }
       else
       {
-        echo json_encode(generateError("The username/password combo was incorrect."));
+        echo json_encode(generateError("The username and password combo was incorrect."));
       }
     }
     else
