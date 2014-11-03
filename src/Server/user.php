@@ -102,7 +102,7 @@ include("config.php");
       $accountInfo["AccID"] = $row["AccID"];
       $accountInfo["Verified"] = $row["Verified"];
 
-      if ($accountInfo != null)
+      if ($accountInfo["UserID"] != null)
       {
         echo json_encode($accountInfo);
       }
