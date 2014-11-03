@@ -26,7 +26,7 @@ include("config.php");
     $address = $_GET["address"];
     $phone = $_GET["phone"];
     $email = $_GET["email"];
-    $pass = $_GET["pass"];
+    $pass = md5($_GET["pass"]);
     $accID = $_GET["accid"];
 
     if (mysqli_query($database, "CALL add_new_account('$ssn', '$firstName', '$lastName','$address','$phone','$email','$pass','$accID');"))
@@ -34,21 +34,17 @@ include("config.php");
       // New Request Submitted
       $response = array(
         "successful" => true,
-        "statusMessage" => "This account has requested authentication from an administrator.",
-        "deviceID" => $deviceID
+        "statusMessage" => "This account has requested authentication from an administrator."
         );
 
       echo json_encode($response);
-
-
     }
     else
     {
       // New Request Denied
       $response = array(
         "successful" => false,
-        "statusMessage" => "This account did not request an authentication. It may already be pending." . $mysqlierror,
-        "deviceID" => $deviceID
+        "statusMessage" => "This account did not request an authentication. It may already be pending. " . $mysqlierror
         );
 
       echo json_encode($response);
@@ -71,8 +67,7 @@ include("config.php");
       // New Request Submitted
       $response = array(
         "successful" => true,
-        "statusMessage" => "The account information has been updated.",
-        "deviceID" => $deviceID
+        "statusMessage" => "The account information has been updated."
         );
 
       echo json_encode($response);
@@ -82,8 +77,39 @@ include("config.php");
       // New Request Denied
       $response = array(
         "successful" => false,
-        "statusMessage" => "The account information was not changed. " . $mysqlierror,
-        "deviceID" => $deviceID
+        "statusMessage" => "The account information was not changed. " . $mysqlierror
+        );
+
+      echo json_encode($response);
+    }
+  }
+  else if (isset($_GET['login']))
+  {
+    // Gets the account information from the request.
+    $email = $_GET["email"];
+    $pass = md5($_GET["pass"]);
+
+    $accountInfo = array();
+    if ($result = mysqli_query($database, "CALL get_account('$email', '$pass');"))
+    {
+      $row = mysqli_fetch_array($result);
+      $accountInfo["UserID"] = $row["UserID"];
+      $accountInfo["FirstName"] = $row["Firstname"];
+      $accountInfo["LastName"] = $row["LastName"];
+      $accountInfo["Address"] = $row["Address"];
+      $accountInfo["Phone"] = $row["Phone"];
+      $accountInfo["Email"] = $row["Email"];
+      $accountInfo["AccID"] = $row["AccID"];
+      $accountInfo["Verified"] = $row["Verified"];
+
+      return json_encode($accountInfo);
+    }
+    else
+    {
+      // New Request Denied
+      $response = array(
+        "successful" => false,
+        "statusMessage" => "The username/password combination was incorrect. " . $mysqlierror
         );
 
       echo json_encode($response);
