@@ -92,7 +92,15 @@
     $accountInfo = array();
     if ($result = mysqli_query($database, "CALL get_account('$email', '$pass');"))
     {
-      $accountInfo = mysqli_fetch_array($result);
+      $row = mysqli_fetch_array($result);
+      $accountInfo["UserID"] = $row["UserID"];
+      $accountInfo["FirstName"] = $row["FirstName"];
+      $accountInfo["LastName"] = $row["LastName"];
+      $accountInfo["Address"] = $row["Address"];
+      $accountInfo["Phone"] = $row["Phone"];
+      $accountInfo["Email"] = $row["Email"];
+      $accountInfo["AccID"] = $row["AccID"];
+      $accountInfo["Verified"] = $row["Verified"];
 
       if ($accountInfo["UserID"] != null)
       {
