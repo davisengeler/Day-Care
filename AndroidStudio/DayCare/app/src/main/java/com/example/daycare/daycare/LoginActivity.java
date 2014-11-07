@@ -4,8 +4,12 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.DialogFragment;
 import android.app.LoaderManager.LoaderCallbacks;
 import android.content.CursorLoader;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
@@ -26,6 +30,9 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -49,13 +56,13 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor>{
      * TODO: remove after connecting to a real authentication system.
      */
     private static final String[] DUMMY_CREDENTIALS = new String[]{
-            "foo@example.com:hello", "bar@example.com:world"
+            "foo@example.com:abc", "bar@example.com:world"
     };
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
      */
-    private UserLoginTask mAuthTask = null;
-
+    private AccountAuthorize mAuthTask = null;
+    private UserLoginTask mUserTask = null;
     // UI references.
     private AutoCompleteTextView mEmailView;
     private EditText mPasswordView;
@@ -85,7 +92,8 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor>{
                 return false;
             }
         });
-
+        mAuthTask = new AccountAuthorize();
+        mAuthTask.execute( );
         Button mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
         mEmailSignInButton.setOnClickListener(new OnClickListener() {
             @Override
@@ -109,7 +117,7 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor>{
      * errors are presented and no actual login attempt is made.
      */
     public void attemptLogin() {
-        if (mAuthTask != null) {
+        if (mUserTask != null) {
             return;
         }
 
@@ -151,8 +159,8 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor>{
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
             showProgress(true);
-            mAuthTask = new UserLoginTask(email, password);
-            mAuthTask.execute((Void) null);
+            mUserTask = new UserLoginTask(email, password);
+            mUserTask.execute((Void) null);
         }
     }
     private boolean isEmailValid(String email) {
@@ -162,7 +170,7 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor>{
 
     private boolean isPasswordValid(String password) {
         //TODO: Replace this with your own logic
-        return password.length() > 4;
+        return password.length() > 2;
     }
 
     /**
@@ -260,9 +268,12 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor>{
      * the user.
      */
     public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
-
+        private int acctType;
+        private String jsonStr;
         private final String mEmail;
         private final String mPassword;
+        protected final String VALIDATE = "Verified", USER_ID = "UserID", F_NAME = "FirstName",
+                L_NAME = "LastName", ADDRESS = "Address", PHONE = "Phone", EMAIL = "Email", ACCT_ID = "AccID";
 
         UserLoginTask(String email, String password) {
             mEmail = email;
@@ -274,21 +285,21 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor>{
             // TODO: attempt authentication against a network service.
             HttpURLConnection urlConnection = null;
             BufferedReader reader = null;
-            String jsonStr = null;
             String LOG_TAG = "Test Info";
 
-            final String DE = "http://davisengeler.gwdnow.com/add-device.php?deviceID=";
+            final String BASE_URL = "http://davisengeler.gwdnow.com/user.php?login";
+            final String EMAIL_PARAM = "email";
+            final String PASS_PARAM = "pass";
 
-            String android_id = Secure.getString(getApplicationContext().getContentResolver(),
-                    Secure.ANDROID_ID);
-
-            Log.d("Android", "Android ID : " + android_id);
 
             try
             {
-                String building = DE + android_id; //Putting together the URL
-                Log.v(LOG_TAG, "Built URL " + building);
-                URL url = new URL(building);
+                Uri builtUri = Uri.parse(BASE_URL).buildUpon()
+                        .appendQueryParameter(EMAIL_PARAM, mEmail)
+                        .appendQueryParameter(PASS_PARAM, mPassword).build();
+
+                Log.v(LOG_TAG, "Built URI " + builtUri.toString());
+                URL url = new URL(builtUri.toString());
 
                 urlConnection = (HttpURLConnection) url.openConnection();
                 urlConnection.setRequestMethod("GET");
@@ -312,6 +323,10 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor>{
                         jsonStr = buffer.toString();
                         Log.v(LOG_TAG, "JSON String: " + jsonStr);
                     }
+                    else
+                    {
+                        return false;
+                    }
                 }
             }
             catch (MalformedURLException e)
@@ -320,7 +335,7 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor>{
                 return false;
             }
             catch (IOException e) {
-            // If the code didn't successfully get the weather data,
+            // If the code didn't successfully get the data,
                 Log.e(LOG_TAG, "Error: " + e.getMessage());
                 return false;
             }
@@ -337,15 +352,38 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor>{
                }
 
             }
-            for (String credential : DUMMY_CREDENTIALS) {
-                String[] pieces = credential.split(":");
-                if (pieces[0].equals(mEmail)) {
-                    // Account exists, return true if the password matches.
-                    return pieces[1].equals(mPassword);
+            //get true from json
+            try
+            {
+                JSONObject acctValidate = new JSONObject(jsonStr);
+                Bundle b = new Bundle();
+                Log.v("JSON string ", acctValidate.toString());
+                String verified = acctValidate.getString(VALIDATE);
+                b.putString("verified", verified);
+                if(verified != null)
+                {
+
+                    if(verified.compareTo("1")==0)
+                    {
+
+                        acctType = Integer.parseInt(acctValidate.getString(ACCT_ID));
+
+                    }
+                    else
+                    {
+                        DialogFragment eDialog = new ErrorMessageDialog();
+                        eDialog.setArguments(b);
+                        eDialog.show(getFragmentManager(), "error");
+                        return false;
+                    }
                 }
             }
+            catch (JSONException e)
+            {
+                Log.e("Error", e.getMessage());
+            }
 
-            // TODO: register the new account here.
+
             return true;
         }
 
@@ -354,11 +392,33 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor>{
             mAuthTask = null;
             showProgress(false);
 
-            if (success) {
-                Intent i = new Intent(getApplicationContext(), StudentListActivity.class);
-                i.putExtra("email", mEmail); //in studentlistactivity oncreate
-                startActivity(i);
-                finish();
+            if (success) { //work on switch
+                switch (acctType)
+                {
+                    case 1:
+                        break;
+                    case 2:
+                        Intent teachIntent = new Intent(getApplicationContext(), StudentViewActivity.class);
+                        teachIntent.putExtra("JSONString", jsonStr);
+                        startActivity(teachIntent);
+                        finish();
+                        break;
+                    case 3:
+                        Intent parentIntent = new Intent(getApplicationContext(), NewsFeedActivity.class);
+                        parentIntent.putExtra("JSONString", jsonStr);
+                        startActivity(parentIntent);
+                        finish();
+                        break;
+                    case 4:
+                        Intent adminIntent = new Intent(getApplicationContext(), AdminActivity.class);
+                        adminIntent.putExtra("JSONString", jsonStr);
+                        startActivity(adminIntent);
+                        finish();
+                        break;
+                    default:
+                        break;
+                }
+
             } else {
                 mPasswordView.setError(getString(R.string.error_incorrect_password));
                 mPasswordView.requestFocus();
@@ -370,6 +430,104 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor>{
             mAuthTask = null;
             showProgress(false);
         }
+    }
+    public class AccountAuthorize extends AsyncTask<Void, Void, Boolean>{
+
+        protected Boolean doInBackground(Void...params) {
+            HttpURLConnection urlConnection = null;
+            BufferedReader reader = null;
+            String jsonStr = null;
+            String LOG_TAG = "Test Info";
+
+            final String DE = "http://davisengeler.gwdnow.com/add-device.php?deviceID=";
+
+            String android_id = Secure.getString(getApplicationContext().getContentResolver(),
+                    Secure.ANDROID_ID);
+
+            Log.d("Android", "Android ID : " + android_id);
+
+            try {
+                String building = DE + android_id; //Putting together the URL
+                Log.v(LOG_TAG, "Built URL " + building);
+                URL url = new URL(building);
+
+                urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection.setRequestMethod("GET");
+                urlConnection.connect();
+
+                // Read the input stream into a String
+                InputStream inputStream = urlConnection.getInputStream();
+                StringBuffer buffer = new StringBuffer();
+                if (inputStream != null) {
+                    reader = new BufferedReader(new InputStreamReader(inputStream));
+
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        //makes easy to read in logs
+                        buffer.append(line + "\n");
+                    }
+                    if (buffer.length() != 0) {
+                        jsonStr = buffer.toString();
+                        Log.v(LOG_TAG, "JSON String: " + jsonStr);
+                    }
+                }
+            } catch (MalformedURLException e) {
+                Log.e(LOG_TAG, "Error with URL: " + e.getMessage());
+                return false;
+            } catch (IOException e) {
+                // If the code didn't successfully get the data,
+                Log.e(LOG_TAG, "Error: " + e.getMessage());
+                return false;
+            } finally {
+                urlConnection.disconnect();
+                try {
+                    reader.close();
+                } catch (final IOException e) {
+                    Log.e(LOG_TAG, "Error closing stream", e);
+                }
+
+            }
+
+            return true;
+
+        }
+    }
+    public static class ErrorMessageDialog extends DialogFragment
+    {
+        public Dialog onCreateDialog(Bundle savedInstanceState)
+        {
+            String verified = getArguments().getString("verified");
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), AlertDialog.THEME_DEVICE_DEFAULT_DARK);
+            if(verified.compareTo("0")==0)
+            {
+                builder.setTitle("Account Approval")
+                        .setMessage("Your account was not approved by the Administrator!")
+                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                ErrorMessageDialog.this.getDialog().cancel();
+
+                            }
+                        })
+                        .setIcon(android.R.drawable.ic_dialog_alert);
+            }
+            else
+            {
+                builder.setTitle("Account Approval")
+                        .setMessage("Your account must first be approved by the Administrator!")
+                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                ErrorMessageDialog.this.getDialog().cancel();
+
+                            }
+                        })
+                        .setIcon(android.R.drawable.ic_dialog_alert);
+            }
+            return builder.create();
+        }
+
+
     }
 }
 
