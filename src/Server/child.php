@@ -42,6 +42,7 @@
     $childIDs = json_decode($_GET['childids']);
     $noteList = array();
 
+
     // TODO: Echoing the errors as the loops goes could give an overall invalid JSON string, therefore not being decodable.
     foreach ($childIDs as $currentChild)
     {
@@ -64,9 +65,9 @@
         }
       }
     }
-
-    echo json_encode($noteList);
   }
+
+  echo json_encode($noteList);
 
   function generateError($message)
   {
