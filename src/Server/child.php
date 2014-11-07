@@ -38,6 +38,7 @@
   }
   else if (isset($_GET['getnotes']))
   {
+    $childIDs = array();
     $childIDs = json_decode($_GET['childids']);
     $noteList = array();
 
@@ -55,10 +56,11 @@
           $note["Message"] = $row["Message"];
           $note["SubjectID"] = $row["SubjectID"];
           $note["NoteType"] = $row["NoteType"];
-        }
-        if ($note["NoteID"] != null)
-        {
-          $noteList += $note;
+
+          if ($note["NoteID"] != null)
+          {
+            $noteList[] = $note;
+          }
         }
       }
     }
