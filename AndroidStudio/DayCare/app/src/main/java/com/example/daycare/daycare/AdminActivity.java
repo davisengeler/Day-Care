@@ -1,7 +1,11 @@
 package com.example.daycare.daycare;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.DialogFragment;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -30,12 +34,11 @@ import java.net.URL;
 public class AdminActivity extends Activity
        {
     private static String [] typesList;
-    /**
-     * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
-     */
+    private String actType;
 
 
     private ListView mListView;
+    private ListView currentItem;
 
 
     private CharSequence mTitle;
@@ -45,8 +48,11 @@ public class AdminActivity extends Activity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_admin);
-
-
+        String JSONString = this.getIntent().getStringExtra("JSONString");
+        if(JSONString!=null)
+        {
+            processJSON(JSONString);
+        }
 
         mListView = (ListView) findViewById(R.id.container);
         ArrayAdapter<String> adapter =
@@ -54,11 +60,12 @@ public class AdminActivity extends Activity
         mListView.setAdapter(adapter);
         final AcctTypes a2 = new AcctTypes();
         a2.execute();
+
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 Intent intent;
-                switch(i) { //add acct, edit acct, add child, edit child, acct approve, announcement, notes
+                switch(i) { //add acct, edit acct, add child, edit child, acct approve, notes, meds, sign inout
                     case 0:
                         intent = new Intent(getApplicationContext(), AddAccountActivity.class);
                         intent.putExtra("AcctTypeList", typesList);
@@ -70,6 +77,34 @@ public class AdminActivity extends Activity
                         intent = new Intent(getApplicationContext(), AddChildActivity.class);
                         startActivity(intent);
                         break;
+                    case 3:
+                        break;
+                    case 4:
+                        if(actType.compareTo("1")!=0)
+                        {
+
+                        }
+                        else
+                        {
+                            RestrictDialog dialog = new RestrictDialog();
+                            dialog.show(getFragmentManager(), "restrict");
+                        }
+                        break;
+                    case 5:
+                        break;
+                    case 6:
+                        if(actType.compareTo("1")!=0)
+                        {
+
+                        }
+                        else
+                        {
+                            RestrictDialog dialog = new RestrictDialog();
+                            dialog.show(getFragmentManager(), "restrict");
+                        }
+                        break;
+                    case 7:
+                        break;
                     default:
                         break;
                 }
@@ -78,11 +113,18 @@ public class AdminActivity extends Activity
 
     }
 
+    public void processJSON(String JSONString)
+    {
+        try {
+            JSONObject j = new JSONObject(JSONString);
+            actType = j.getString("AccID");
 
-
-
-
-
+        }
+        catch(JSONException e)
+        {
+            Log.e("JSON", e.getMessage());
+        }
+    }
 
 
     @Override
@@ -190,5 +232,20 @@ public class AdminActivity extends Activity
         }
 
     }
-
+    public static class RestrictDialog extends DialogFragment{
+        public Dialog onCreateDialog(Bundle savedInstanceState)
+        {
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), AlertDialog.THEME_DEVICE_DEFAULT_DARK);
+            builder.setTitle("Restricted Access")
+                    .setIcon(android.R.drawable.ic_dialog_alert)
+                    .setMessage("Must be an Administrator!")
+                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            RestrictDialog.this.getDialog().cancel();
+                        }
+                    });
+            return builder.create();
+        }
+    }
 }

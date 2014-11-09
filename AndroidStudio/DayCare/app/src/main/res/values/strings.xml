@@ -2,7 +2,7 @@
 <resources>
 
     <string name="app_name">Day Care</string>
-    <string name="title_activity_student_list">StudentListActivity</string>
+    <string name="title_activity_student_list">Student List</string>
     <string name="title_section1">Section 1</string>
     <string name="title_section2">Section 2</string>
     <string name="title_section3">Section 3</string>
@@ -21,16 +21,17 @@
 
     <string-array name="admin_list">
         <item name="addAccounts">Add Account</item>
-        <item name="editAccounts">Edit Account</item>
-        <item name="addChildren">Add Child Information</item>
+        <item name="editAccounts">Edit Accounts</item>
+        <item name="addChildren">Add Child</item>
         <item name="editChildren">Edit Child Information</item>
-        <item name="approveAccount">Account Approval</item>
-        <item name="announcement">Announcement</item>
+        <item name="approveAccount">Approve Accounts</item>
         <item name="notes">Notes</item>
+        <item name="medicalInfo">Medical Information</item>
+        <item name="childrenInOut">Sign Children In and Out</item>
     </string-array>
 
-    <string name="title_activity_admin">AdminActivity</string>
-    <string name="title_activity_add_account">AddAccountActivity</string>
+    <string name="title_activity_admin">Admin Home</string>
+    <string name="title_activity_add_account">Add Account</string>
     <string name="first_name_label">First Name</string>
     <string name="last_name_label">Last Name</string>
     <string name="phone_number_label">Phone Number</string>
@@ -42,15 +43,18 @@
     <string name="ssn_label">Social Security Number</string>
     <string name="pass_label">Password</string>
     <string name="acctType_label">Account Type</string>
-    <string name="title_activity_news_feed">NewsFeedActivity</string>
-    <string name="title_activity_student_view">StudentViewActivity</string>
+    <string name="title_activity_news_feed">News Feed</string>
+    <string name="title_activity_student_view">Student View</string>
     <string name="pick_teacher">Pick a Teacher</string>
     <string name="add_note_title">Add a Note</string>
     <string name="save_label">Save</string>
     <string name="cancel_label">Cancel</string>
     <string name="no_label">No</string>
-    <string name="title_activity_add_child">AddChildActivity</string>
+    <string name="title_activity_add_child">Add Child</string>
     <string name="DOB_label">Date of Birth</string>
+    <string name="dob_label_view">Date of Birth: </string>
     <string name="yes_label">Yes</string>
-
+    <string name="student_name">Student\'s Name: </string>
+    <string name="primary_teach_name">Primary Teacher: </string>
+    <string name="primary_contact_name">Primary Contact: </string>
 </resources>

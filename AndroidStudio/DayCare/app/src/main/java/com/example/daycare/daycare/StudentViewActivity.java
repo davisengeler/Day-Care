@@ -14,22 +14,35 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;
 
 
 public class StudentViewActivity extends Activity {
     protected String [] actions = {"Contact Parent", "Add Note", "Move Student"};
     static final String [] teachers = {"Jane Smith", "John Doe", "Davis Engeler", "John Sloan", "Michael Hetzel"};
     private ListView mListView;
+    private TextView tView, dView, teachView, pView;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_student_view);
 
         String chosenStudent = this.getIntent().getStringExtra("chosenStudent");
-
+        tView = (TextView) findViewById(R.id.student_name_info);
+        tView.setText(chosenStudent);
+        dView = (TextView) findViewById(R.id.dob_info);
+        dView.setText("03/13/1990");
+        teachView = (TextView) findViewById(R.id.teacher_name);
+        teachView.setText(teachers[0]);
+        pView = (TextView) findViewById(R.id.contact_name);
+        pView.setText("Parent Name");
         mListView = (ListView) findViewById(R.id.container);
-        ArrayAdapter adapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, actions);
+
+        ArrayAdapter adapter = new ArrayAdapter(this,android.R.layout.simple_list_item_1, actions);
+
+        //android ic_menu_edit, ic_perm_group_phone_calls.png, ic_menu_myplaces.png
         mListView.setAdapter(adapter);
+
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {

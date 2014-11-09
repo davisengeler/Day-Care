@@ -396,6 +396,7 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor>{
                 switch (acctType)
                 {
                     case 1:
+                        //office
                         break;
                     case 2:
                         Intent teachIntent = new Intent(getApplicationContext(), StudentViewActivity.class);

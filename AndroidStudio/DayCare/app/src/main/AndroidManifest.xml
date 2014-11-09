@@ -36,16 +36,18 @@
             android:label="@string/title_activity_student_list"
             android:screenOrientation="portrait" >
             <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+                <!--<action android:name="android.intent.action.VIEW" />-->
             </intent-filter>
         </activity>
         <activity
             android:name="com.example.daycare.daycare.AdminActivity"
             android:label="@string/title_activity_admin" >
             <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="android.intent.category.LAUNCHER"/>
-                <!--<action android:name="android.intent.action.VIEW" />-->
+                <!--<action android:name="android.intent.action.MAIN"/>-->
+                <!--<category android:name="android.intent.category.LAUNCHER"/>-->
+                <action android:name="android.intent.action.VIEW" />
             </intent-filter>
         </activity>
         <activity
