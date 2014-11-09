@@ -57,10 +57,17 @@ public class AdminActivity extends Activity
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                switch(i) {
+                Intent intent;
+                switch(i) { //add acct, edit acct, add child, edit child, acct approve, announcement, notes
                     case 0:
-                        Intent intent = new Intent(getApplicationContext(), AddAccountActivity.class);
+                        intent = new Intent(getApplicationContext(), AddAccountActivity.class);
                         intent.putExtra("AcctTypeList", typesList);
+                        startActivity(intent);
+                        break;
+                    case 1:
+                        break;
+                    case 2:
+                        intent = new Intent(getApplicationContext(), AddChildActivity.class);
                         startActivity(intent);
                         break;
                     default:

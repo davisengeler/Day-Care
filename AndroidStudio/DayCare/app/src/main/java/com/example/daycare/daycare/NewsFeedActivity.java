@@ -4,6 +4,7 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.app.ListActivity;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -13,8 +14,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 
+import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -23,6 +24,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 
 
 public class NewsFeedActivity extends ListActivity {
@@ -69,15 +71,26 @@ public class NewsFeedActivity extends ListActivity {
 
     public class GetNotes extends AsyncTask<Void, Void, Void>
     {
+
         public Void doInBackground(Void...params)
         {
+            ArrayList<Integer> childID = new ArrayList<Integer>();
+            childID.add(4);
+            childID.add(5);
+            final String BASE_URL = "http://davisengeler.gwdnow.com/child.php?getnotes";
+            final String CHILD_ID = "childids";
             HttpURLConnection urlConnection = null;
             BufferedReader reader = null;
             String jsonStr = "";
             try
             {
-                String userUrl = "http://davisengeler.gwdnow.com/child.php?getnotes";
-                URL url = new URL(userUrl);
+                JSONArray ja = new JSONArray(childID);
+
+                Uri builtUri = Uri.parse(BASE_URL).buildUpon()
+                        .appendQueryParameter(CHILD_ID, ja.toString()).build();
+                Log.v("TEST:   ", builtUri.toString());
+
+                URL url = new URL(builtUri.toString());
 
                 urlConnection = (HttpURLConnection) url.openConnection();
                 urlConnection.setRequestMethod("GET");
@@ -127,7 +140,7 @@ public class NewsFeedActivity extends ListActivity {
             try
             {
 
-                JSONObject account_Type = new JSONObject(jsonStr);
+                JSONArray notes = new JSONArray(jsonStr);
 
                 //save note information here
 

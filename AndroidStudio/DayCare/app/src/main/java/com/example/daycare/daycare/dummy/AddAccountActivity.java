@@ -1,6 +1,10 @@
 package com.example.daycare.daycare.dummy;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.DialogFragment;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -16,15 +20,19 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import com.example.daycare.daycare.AddChildActivity;
 import com.example.daycare.daycare.AdminActivity;
 import com.example.daycare.daycare.R;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 
 public class AddAccountActivity extends Activity {
@@ -116,24 +124,24 @@ public class AddAccountActivity extends Activity {
     public class SendUserInfo extends AsyncTask<String, Void, String>
     {
         private final String LOG_TAG = SendUserInfo.class.getSimpleName();
-
-        protected String doInBackground(String...params)
-        {
+        private String acctID, idNum;
+        protected String doInBackground(String...params) {
+            acctID = params[7];
             HttpURLConnection urlConnection = null;
             BufferedReader reader = null;
             String jsonStr;
-            String suc ="";
-            try
-            {
-                final String USER_BASE_URL = "http://davisengeler.gwdnow.com/user.php?add";
-                final String SSN_PARAM = "ssn";
-                final String F_NAME_PARAM = "firstname";
-                final String L_NAME_PARAM = "lastname";
-                final String ADDRESS_PARAM = "address";
-                final String EMAIL_PARAM = "email";
-                final String PHONE_PARAM = "phone";
-                final String PASS_PARAM = "pass";
-                final String TYPE_ID_PARAM = "accid";
+            String suc = "";
+            final String USER_BASE_URL = "http://davisengeler.gwdnow.com/user.php?add";
+            final String SSN_PARAM = "ssn";
+            final String F_NAME_PARAM = "firstname";
+            final String L_NAME_PARAM = "lastname";
+            final String ADDRESS_PARAM = "address";
+            final String EMAIL_PARAM = "email";
+            final String PHONE_PARAM = "phone";
+            final String PASS_PARAM = "pass";
+            final String TYPE_ID_PARAM = "accid";
+            try {
+
 
                 Uri builtUri = Uri.parse(USER_BASE_URL).buildUpon()
                         .appendQueryParameter(SSN_PARAM, params[0])
@@ -154,44 +162,130 @@ public class AddAccountActivity extends Activity {
                 InputStream inputStream = urlConnection.getInputStream();
                 StringBuffer buffer = new StringBuffer();
 
-                if (inputStream != null)
-                {
+                if (inputStream != null) {
                     reader = new BufferedReader(new InputStreamReader(inputStream));
 
                     String line;
-                    while ((line = reader.readLine()) != null)
-                    {
+                    while ((line = reader.readLine()) != null) {
                         //makes easy to read in logs
                         buffer.append(line + "\n");
                     }
-                    if (buffer.length() != 0)
-                    {
+                    if (buffer.length() != 0) {
                         jsonStr = buffer.toString();
                         Log.v("JSON String: ", jsonStr);
                         JSONObject jObj = new JSONObject(jsonStr);
                         suc = jObj.getString("successful");
                     }
                 }
-            }
-            catch (Exception e)
-            {
+            } catch (Exception e) {
                 System.out.println(e.getMessage());
             }
-            return suc ;
+            final String BASE_URL_LOGIN = "http://davisengeler.gwdnow.com/user.php?login";
+
+
+            try {
+                Uri builtUri = Uri.parse(BASE_URL_LOGIN).buildUpon()
+                        .appendQueryParameter(EMAIL_PARAM, params[4])
+                        .appendQueryParameter(PASS_PARAM,params[6]).build();
+
+                Log.v(LOG_TAG, "Built URI " + builtUri.toString());
+                URL getID = new URL(builtUri.toString());
+
+                urlConnection = (HttpURLConnection) getID.openConnection();
+                urlConnection.setRequestMethod("GET");
+                urlConnection.connect();
+
+                // Read the input stream into a String
+                InputStream inputStream = urlConnection.getInputStream();
+                StringBuffer buffer = new StringBuffer();
+                if (inputStream != null) {
+                    reader = new BufferedReader(new InputStreamReader(inputStream));
+
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        //makes easy to read in logs
+                        buffer.append(line + "\n");
+                    }
+                    if (buffer.length() != 0) {
+                        jsonStr = buffer.toString();
+                        Log.v(LOG_TAG, "JSON String: " + jsonStr);
+                        JSONObject userID = new JSONObject(jsonStr);
+                        idNum = userID.getString("UserID");
+                    }
+                }
+
+
+            } catch (MalformedURLException e) {
+                Log.e(LOG_TAG, "Error with URL: " + e.getMessage());
+
+            } catch (IOException e) {
+                // If the code didn't successfully get the data,
+                Log.e(LOG_TAG, "Error: " + e.getMessage());
+
+            } catch (JSONException e)
+            {
+                Log.e("JSON ERROR", e.getMessage());
+            }
+            finally {
+                urlConnection.disconnect();
+                try {
+                    reader.close();
+                } catch (final IOException e) {
+                    Log.e(LOG_TAG, "Error closing stream", e);
+                }
+            }
+
+            return suc;
         }
 
         protected void onPostExecute(String message)
         {
             if(message.compareTo("true")==0)
             {
-                Toast.makeText(getApplicationContext(), "Successful", Toast.LENGTH_LONG).show();
-                Intent intent = new Intent(getApplicationContext(), AdminActivity.class);
-                startActivity(intent);
+                Toast.makeText(getApplicationContext(), "Added Parent", Toast.LENGTH_LONG).show();
+                if(acctID.compareTo("3")==0)
+                {
+                    Bundle b = new Bundle();
+                    b.putString("idNum", idNum);
+                    ChildDialogFragment dialog = new ChildDialogFragment();
+                    dialog.setArguments(b);
+                    dialog.show(getFragmentManager(), "child");
+                }
+                else
+                {
+                    Intent intent = new Intent(getApplicationContext(), AdminActivity.class);
+                    startActivity(intent);
+                }
             }
             else
             {
                 Toast.makeText(getApplicationContext(), "Try Again", Toast.LENGTH_LONG).show();
             }
+        }
+    }
+    public static class ChildDialogFragment extends DialogFragment {
+
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            final String idNum = getArguments().getString("idNum");
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setTitle("Add a Child")
+                    .setMessage("Do you want to add a child now?")
+                    .setPositiveButton(R.string.yes_label, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                           Intent cIntent = new Intent(getActivity(), AddChildActivity.class);
+                            cIntent.putExtra("UserID", idNum);
+                            Log.v("Parent ID; ", idNum);
+                           startActivity(cIntent);
+                        }
+                    })
+                    .setNegativeButton(R.string.cancel_label, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            ChildDialogFragment.this.getDialog().cancel();
+                        }
+                    });
+            return builder.create();
         }
     }
 }

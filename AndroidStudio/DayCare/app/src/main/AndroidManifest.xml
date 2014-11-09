@@ -26,25 +26,26 @@
             android:label="@string/app_name"
             android:windowSoftInputMode="adjustResize|stateVisible" >
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
+                <!--<action android:name="android.intent.action.MAIN" />-->
+                <action android:name="android.intent.action.VIEW"/>
+                <!--<category android:name="android.intent.category.LAUNCHER" />-->
             </intent-filter>
-
         </activity>
         <activity
             android:name="com.example.daycare.daycare.StudentListActivity"
             android:label="@string/title_activity_student_list"
             android:screenOrientation="portrait" >
             <intent-filter>
-                <action android:name="android.intent.action.VIEW"/>
+                <action android:name="android.intent.action.VIEW" />
             </intent-filter>
         </activity>
         <activity
             android:name="com.example.daycare.daycare.AdminActivity"
             android:label="@string/title_activity_admin" >
             <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+                <!--<action android:name="android.intent.action.VIEW" />-->
             </intent-filter>
         </activity>
         <activity
@@ -70,6 +71,15 @@
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.daycare.daycare.StudentListActivity" />
+        </activity>
+        <activity
+            android:name="com.example.daycare.daycare.AddChildActivity"
+            android:label="@string/title_activity_add_child"
+            android:screenOrientation="portrait"
+            android:parentActivityName="com.example.daycare.daycare.AdminActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.daycare.daycare.AdminActivity" />
         </activity>
     </application>
 

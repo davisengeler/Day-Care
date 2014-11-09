@@ -20,7 +20,10 @@
     <string name="title_admin_list">AdminFragment</string>
 
     <string-array name="admin_list">
-        <item name="editAccounts">Add or Edit Accounts</item>
+        <item name="addAccounts">Add Account</item>
+        <item name="editAccounts">Edit Account</item>
+        <item name="addChildren">Add Child Information</item>
+        <item name="editChildren">Edit Child Information</item>
         <item name="approveAccount">Account Approval</item>
         <item name="announcement">Announcement</item>
         <item name="notes">Notes</item>
@@ -30,7 +33,7 @@
     <string name="title_activity_add_account">AddAccountActivity</string>
     <string name="first_name_label">First Name</string>
     <string name="last_name_label">Last Name</string>
-    <string name="phone_number_label">Phone #</string>
+    <string name="phone_number_label">Phone Number</string>
     <string name="street_address_label">Street</string>
     <string name="city_label">City</string>
     <string name="state_label">State</string>
@@ -40,11 +43,14 @@
     <string name="pass_label">Password</string>
     <string name="acctType_label">Account Type</string>
     <string name="title_activity_news_feed">NewsFeedActivity</string>
-    <string name="hello_world">Hello world!</string>
     <string name="title_activity_student_view">StudentViewActivity</string>
     <string name="pick_teacher">Pick a Teacher</string>
     <string name="add_note_title">Add a Note</string>
     <string name="save_label">Save</string>
     <string name="cancel_label">Cancel</string>
+    <string name="no_label">No</string>
+    <string name="title_activity_add_child">AddChildActivity</string>
+    <string name="DOB_label">Date of Birth</string>
+    <string name="yes_label">Yes</string>
 
 </resources>

@@ -14,27 +14,19 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
-        <TextView
-            android:text="@string/first_name_label"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-
-        <EditText
+       <EditText
             android:id="@+id/first_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"/>
-
-        <TextView
-            android:text="@string/last_name_label"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_weight="1"
+            android:hint="@string/first_name_label"/>
 
         <EditText
             android:id="@+id/last_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"/>
+            android:layout_weight="1"
+            android:hint="@string/last_name_label"/>
 
     </LinearLayout>
 
@@ -43,110 +35,87 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal">
     
-        <TextView
-            android:text="@string/street_address_label"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-        
-        <EditText
+       <EditText
             android:id="@+id/street_address"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="8"/>
+            android:layout_weight="8"
+            android:inputType="textPostalAddress|textCapWords|textNoSuggestions"
+            android:hint="@string/street_address_label"/>
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
-
-        <TextView
-            android:text="@string/city_label"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
 
         <EditText
             android:id="@+id/city"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="4"/>
-        
-        <TextView
-            android:text="@string/state_label"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_weight="7"
+            android:inputType="textCapWords"
+            android:hint="@string/city_label"/>
 
         <EditText
             android:id="@+id/state"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1" />
-
-        <TextView
-            android:text="@string/zip_code_label"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_weight="1"
+            android:inputType="textCapCharacters"
+            android:hint="@string/state_label"/>
 
         <EditText
             android:id="@+id/zip"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="3"/>
+            android:layout_weight="3"
+            android:inputType="number"
+            android:hint="@string/zip_code_label"/>
 
     </LinearLayout>
-
-    <LinearLayout
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="horizontal">
-
-    <TextView
-        android:text="@string/email_label"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
-
-    <EditText
-        android:id="@+id/email"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_weight="2"/>
-
-</LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
-        <TextView
-            android:text="@string/phone_number_label"
+        <EditText
+            android:id="@+id/email"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            />
+            android:layout_weight="2"
+            android:inputType="textEmailAddress"
+            android:hint="@string/email_label"/>
 
-        <EditText
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+       <EditText
             android:id="@+id/phone"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"/>
+            android:layout_weight="1"
+            android:inputType="phone"
+            android:hint="@string/phone_number_label"/>
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
-
-        <TextView
-            android:text="@string/ssn_label"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            />
 
         <EditText
             android:id="@+id/ssn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"/>
+            android:layout_weight="1"
+            android:inputType="number"
+            android:hint="@string/ssn_label"/>
 
 
     </LinearLayout>
@@ -156,16 +125,13 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
-        <TextView
-            android:text="@string/pass_label"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-
         <EditText
             android:id="@+id/pass"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="2"/>
+            android:layout_weight="2"
+            android:inputType="textPassword"
+            android:hint="@string/pass_label"/>
 
     </LinearLayout>
 

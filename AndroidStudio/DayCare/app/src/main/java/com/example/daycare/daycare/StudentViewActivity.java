@@ -106,6 +106,7 @@ public class StudentViewActivity extends Activity {
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
             final EditText message = new EditText(getActivity());
             message.setHint("Enter Message Here");
+            message.setInputType(41); //check to see if this works
             builder.setTitle(R.string.add_note_title)
                     .setSingleChoiceItems(noteID, noteIDChosen, new DialogInterface.OnClickListener() {
                         @Override
