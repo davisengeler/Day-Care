@@ -5,6 +5,7 @@
   $database = mysqli_connect(Database_HOST, Database_USER, Database_PASS, Database_NAME) or die("Could not connect to database");
 
   // What is the request for?
+  // Add New Child
   if (isset($_GET['add']))
   {
     // Gets the child information from the request.
@@ -18,30 +19,62 @@
     if (mysqli_query($database, "CALL add_new_child($ssn, '$firstName', '$lastName', $dob, $parentID, $classID);"))
     {
       // New Request Submitted
-      $response = array(
-        "successful" => true,
-        "statusMessage" => "The child has been added to the parent account."
-        );
-
-      echo json_encode($response);
+      echo json_encode($generateResult(true, "The child has been added to the parent account."));
     }
     else
     {
       // New Request Denied
-      $response = array(
-        "successful" => false,
-        "statusMessage" => "Something was wrong with this request to add a child. " . $mysqlierror
-        );
-
-      echo json_encode($response);
+      echo json_encode(generateResult(false, "Something was wrong with this request to add a child. " . mysqli_error($database)));
     }
   }
+  // Gather the info about a child
+  else if (isset($_GET['getinfo']))
+  {
+    $childID = $_GET['childid'];
+    if ($result = mysqli_query($database, "CALL get_child_info($childID);"))
+    {
+      $row = mysqli_fetch_array($result);
+      $childInfo["SSN"] = $row["SSN"];
+      $childInfo["FirstName"] = $row["FirstName"];
+      $childInfo["LastName"] = $row["LastName"];
+      $childInfo["DOB"] = $row["DOB"];
+      $childInfo["ParentID"] = $row["ParentID"];
+      $childInfo["ClassID"] = $row["ClassID"];
+
+      if ($childInfo["SSN"] != null)
+      {
+        echo json_encode($childInfo);
+      }
+      else
+      {
+        echo json_encode(generateResult(false, "There was an issue with the request for child information. Make sure you have the correct ChildID."));
+      }
+    }
+    else
+    {
+      echo json_encode(generateResult(false, "There was a database error for the request to get the child information. " . mysqli_error($database)));
+    }
+  }
+  else if (isset($_GET['setclass']))
+  {
+    $childID = $_GET['childid'];
+    $classID = $_GET['classid'];
+
+    if ($result = mysqli_query($database, "CALL change_child_class($childID, $classID);"))
+    {
+      echo json_encode(generateResult(true, "The child's classroom was changed successfully."));
+    }
+    else
+    {
+      echo json_encode(generateResult(false, "There was an error changing that child's classroom: " . mysqli_error($database)));
+    }
+  }
+  // Get Child Notes
+  // TODO: Something weird with the loop when it gets multiple child IDs.
   else if (isset($_GET['getnotes']))
   {
-    $childIDs = array();
     $childIDs = json_decode($_GET['childids']);
     $noteList = array();
-
 
     // TODO: Echoing the errors as the loops goes could give an overall invalid JSON string, therefore not being decodable.
     foreach ($childIDs as $currentChild)
@@ -67,12 +100,10 @@
     }
   }
 
-  echo json_encode($noteList);
-
-  function generateError($message)
+  function generateResult($successful, $message)
   {
     $response = array(
-      "successful" => false,
+      "successful" => $successful,
       "statusMessage" => $message
       );
 

@@ -6,6 +6,7 @@
   $database = mysqli_connect(Database_HOST, Database_USER, Database_PASS, Database_NAME) or die("Could not connect to database");
 
   // What is the request for?
+  // Get Account Types
   if (isset($_GET['getaccounttypes']))
   {
     $accountTypes = array();
@@ -17,6 +18,7 @@
     }
     echo json_encode($accountTypes);
   }
+  // Add New Account
   else if (isset($_GET['add']))
   {
     // Gets the account information from the request.
@@ -44,15 +46,17 @@
       // New Request Denied
       $response = array(
         "successful" => false,
-        "statusMessage" => "This account did not request an authentication. It may already be pending. " . $mysqlierror
+        "statusMessage" => "This account did not request an authentication. It may already be pending. " . mysqli_error($database)
         );
 
       echo json_encode($response);
     }
   }
+  // Edit Account
   else if (isset($_GET['edit']))
   {
     // Gets the account information from the request.
+    $userID = $_GET["userid"];
     $ssn = $_GET["ssn"];
     $firstName = $_GET["firstname"];
     $lastName = $_GET["lastname"];
@@ -62,7 +66,7 @@
     $pass = $_GET["pass"];
     $accID = $_GET["accid"];
 
-    if (mysqli_query($database, "CALL edit_account('$ssn', '$firstName', '$lastName','$address','$phone','$email','$pass','$accID');"))
+    if (mysqli_query($database, "CALL edit_account('$userID', '$ssn', '$firstName', '$lastName','$address','$phone','$email','$pass','$accID');"))
     {
       // New Request Submitted
       $response = array(
@@ -77,12 +81,13 @@
       // New Request Denied
       $response = array(
         "successful" => false,
-        "statusMessage" => "The account information was not changed. " . $mysqlierror
+        "statusMessage" => "The account information was not changed. " . mysqli_error($database)
         );
 
       echo json_encode($response);
     }
   }
+  // Log In
   else if (isset($_GET['login']))
   {
     // Gets the account information from the request.
@@ -108,19 +113,36 @@
       }
       else
       {
-        echo json_encode(generateError("The username and password combo was incorrect."));
+        echo json_encode(generateResult(false, "The username and password combo was incorrect."));
       }
     }
     else
     {
-      echo json_encode(generateError("There was an issue with the database. " . $mysqlierror));
+      echo json_encode(generateResult(false, "There was an issue with the database. " . mysqli_error($database)));
+    }
+  }
+  // Setting Approval
+  else if (isset($_GET['setapproval']))
+  {
+    // Accepts "approve" or "deny"
+
+    $userID = $_GET['userid'];
+    $decision = $_GET['decision'];
+
+    if ($result = mysqli_query($database, "CALL " . $decision . "_account('$userID');"))
+    {
+      echo json_encode(generateResult(true, "The request to " . $decision . " the account was successful."));
+    }
+    else
+    {
+      echo json_encode(generateResult(false, "There was an issue with the " . $decision . " request. " . mysqli_error($database)));
     }
   }
 
-  function generateError($message)
+  function generateResult($successful, $message)
   {
     $response = array(
-      "successful" => false,
+      "successful" => $successful,
       "statusMessage" => $message
       );
 
