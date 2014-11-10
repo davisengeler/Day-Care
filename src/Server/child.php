@@ -76,28 +76,47 @@
     $childIDs = json_decode($_GET['childids']);
     $noteList = array();
 
-    // TODO: Echoing the errors as the loops goes could give an overall invalid JSON string, therefore not being decodable.
-    foreach ($childIDs as $currentChild)
+    if ($result = mysqli_query($database, "CALL get_notes($childIDs);"))
     {
-      if ($result = mysqli_query($database, "CALL get_notes($currentChild);"))
+      // Gathers all the notes for the child
+      while($row = mysqli_fetch_array($result))
       {
-        // Gathers all the notes for the child
-        while($row = mysqli_fetch_array($result))
-        {
-          $note = array();
-          $note["ChildID"] = $currentChild;
-          $note["NoteID"] = $row["NoteID"];
-          $note["Message"] = $row["Message"];
-          $note["SubjectID"] = $row["SubjectID"];
-          $note["NoteType"] = $row["NoteType"];
+        $note = array();
+        $note["ChildID"] = $currentChild;
+        $note["NoteID"] = $row["NoteID"];
+        $note["Message"] = $row["Message"];
+        $note["SubjectID"] = $row["SubjectID"];
+        $note["NoteType"] = $row["NoteType"];
 
-          if ($note["NoteID"] != null)
-          {
-            $noteList[] = $note;
-          }
+        if ($note["NoteID"] != null)
+        {
+          $noteList[] = $note;
         }
       }
     }
+
+    // TODO: Echoing the errors as the loops goes could give an overall invalid JSON string, therefore not being decodable.
+    // foreach ($childIDs as $currentChild)
+    // {
+    //   if ($result = mysqli_query($database, "CALL get_notes($currentChild);"))
+    //   {
+    //     // Gathers all the notes for the child
+    //     while($row = mysqli_fetch_array($result))
+    //     {
+    //       $note = array();
+    //       $note["ChildID"] = $currentChild;
+    //       $note["NoteID"] = $row["NoteID"];
+    //       $note["Message"] = $row["Message"];
+    //       $note["SubjectID"] = $row["SubjectID"];
+    //       $note["NoteType"] = $row["NoteType"];
+    //
+    //       if ($note["NoteID"] != null)
+    //       {
+    //         $noteList[] = $note;
+    //       }
+    //     }
+    //   }
+    // }
   }
 
   function generateResult($successful, $message)

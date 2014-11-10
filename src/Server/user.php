@@ -107,6 +107,18 @@
       $accountInfo["AccID"] = $row["AccID"];
       $accountInfo["Verified"] = $row["Verified"];
 
+      // Gathers list of children
+      $childIDs = array();
+      $children = mysqli_query($database, "CALL get_children('$accountInfo["UserID"]');")
+      if (mysqli_num_rows($children))
+      {
+        while ($row = mysqli_fetch_array($children))
+        {
+          $childIDs[] = $row["ChildID"];
+        }
+        $accountInfo["ChildIDs"] = $childIDs;
+      }
+
       if ($accountInfo["UserID"] != null)
       {
         echo json_encode($accountInfo);
