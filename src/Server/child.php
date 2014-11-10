@@ -73,7 +73,7 @@
   // TODO: Something weird with the loop when it gets multiple child IDs.
   else if (isset($_GET['getnotes']))
   {
-    $childIDs = json_decode($_GET['childids']);
+    $childIDs = $_GET['childids'];
     $noteList = array();
 
     if ($result = mysqli_query($database, "CALL get_notes($childIDs);"))
@@ -82,7 +82,7 @@
       while($row = mysqli_fetch_array($result))
       {
         $note = array();
-        $note["ChildID"] = $currentChild;
+        $note["ChildID"] = $childIDs;
         $note["NoteID"] = $row["NoteID"];
         $note["Message"] = $row["Message"];
         $note["SubjectID"] = $row["SubjectID"];
@@ -93,6 +93,11 @@
           $noteList[] = $note;
         }
       }
+      echo json_encode($noteList);
+    }
+    else
+    {
+      echo "PROBLEM";
     }
 
     // TODO: Echoing the errors as the loops goes could give an overall invalid JSON string, therefore not being decodable.
