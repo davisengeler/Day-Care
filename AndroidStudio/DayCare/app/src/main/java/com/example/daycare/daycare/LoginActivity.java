@@ -45,22 +45,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-/**
- * A login screen that offers login via email/password.
 
- */
 public class LoginActivity extends Activity implements LoaderCallbacks<Cursor>{
 
-    /**
-     * A dummy authentication store containing known user names and passwords.
-     * TODO: remove after connecting to a real authentication system.
-     */
-    private static final String[] DUMMY_CREDENTIALS = new String[]{
-            "foo@example.com:abc", "bar@example.com:world"
-    };
-    /**
-     * Keep track of the login task to ensure we can cancel it if requested.
-     */
+
     private AccountAuthorize mAuthTask = null;
     private UserLoginTask mUserTask = null;
     // UI references.
@@ -396,10 +384,13 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor>{
                 switch (acctType)
                 {
                     case 1:
-                        //office
+                        Intent officeIntent = new Intent(getApplicationContext(), AdminActivity.class);
+                        officeIntent.putExtra("JSONString", jsonStr);
+                        startActivity(officeIntent);
+                        finish();
                         break;
                     case 2:
-                        Intent teachIntent = new Intent(getApplicationContext(), StudentViewActivity.class);
+                        Intent teachIntent = new Intent(getApplicationContext(), StudentListActivity.class);
                         teachIntent.putExtra("JSONString", jsonStr);
                         startActivity(teachIntent);
                         finish();

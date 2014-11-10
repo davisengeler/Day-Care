@@ -18,7 +18,7 @@ import android.widget.TextView;
 
 
 public class StudentViewActivity extends Activity {
-    protected String [] actions = {"Contact Parent", "Add Note", "Move Student"};
+    protected String [] actions = {"Contact Parent", "Add Note","View Notes", "Move Student"};
     static final String [] teachers = {"Jane Smith", "John Doe", "Davis Engeler", "John Sloan", "Michael Hetzel"};
     private ListView mListView;
     private TextView tView, dView, teachView, pView;
@@ -58,6 +58,9 @@ public class StudentViewActivity extends Activity {
                         dg2.show(getFragmentManager(), "notes");
                         break;
                     case 2:
+
+                        break;
+                    case 3:
                         DialogFragment dg1 = new TeacherDialogFragment();
                         dg1.show(getFragmentManager(), "teachers");
                         break;
@@ -111,17 +114,17 @@ public class StudentViewActivity extends Activity {
 
     public static class NoteDialogFragment extends DialogFragment
     {
-        String[] noteID = {"Meal", "Nap", "Accident", "Needs", "Misc"};
+
         int noteIDChosen =4;
         public Dialog onCreateDialog(Bundle savedInstanceState)
         {
 
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
             final EditText message = new EditText(getActivity());
-            message.setHint("Enter Message Here");
+            message.setHint(R.string.enter_message);
             message.setInputType(41); //check to see if this works
             builder.setTitle(R.string.add_note_title)
-                    .setSingleChoiceItems(noteID, noteIDChosen, new DialogInterface.OnClickListener() {
+                    .setSingleChoiceItems(R.array.note_id, noteIDChosen, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
                             noteIDChosen = i;

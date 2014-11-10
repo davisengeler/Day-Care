@@ -35,6 +35,7 @@ public class NewsFeedActivity extends ListActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_news_feed);
+        String JSONString = this.getIntent().getStringExtra("JSONString");
         GetNotes note = new GetNotes();
         note.execute();
         mProgressView = findViewById(R.id.progress_bar_news);

@@ -91,6 +91,8 @@ public class AdminActivity extends Activity
                         }
                         break;
                     case 5:
+                        intent = new Intent(getApplicationContext(), AdminAddNote.class);
+                        startActivity(intent);
                         break;
                     case 6:
                         if(actType.compareTo("1")!=0)

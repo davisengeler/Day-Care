@@ -19,31 +19,20 @@ public class StudentListActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_student_list);
 
-        String email = this.getIntent().getStringExtra("email"); //go to loginactvitiy onpostexecute, token
+        String JSONString = this.getIntent().getStringExtra("JSONString");
         mListView = (ListView) findViewById(R.id.container);
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1, students);
         mListView.setAdapter(adapter);
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                switch (i){
-                    case 0:
-                        Intent intent = new Intent(getApplicationContext(), StudentViewActivity.class);
-                        intent.putExtra("chosenStudent", students[0]);
-                        startActivity(intent);
-
-                        break;
-                    default:
-                        break;
-
-                }
-            }
-        });
-
+                Intent intent = new Intent(getApplicationContext(), StudentViewActivity.class);
+                intent.putExtra("chosenStudent", students[i]);
+                startActivity(intent);
+        }
+    });
 
     }
-
-
 
 
     @Override
