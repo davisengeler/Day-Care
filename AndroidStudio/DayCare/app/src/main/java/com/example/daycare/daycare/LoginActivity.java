@@ -31,8 +31,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -260,8 +260,8 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor>{
         private String jsonStr;
         private final String mEmail;
         private final String mPassword;
-        protected final String VALIDATE = "Verified", USER_ID = "UserID", F_NAME = "FirstName",
-                L_NAME = "LastName", ADDRESS = "Address", PHONE = "Phone", EMAIL = "Email", ACCT_ID = "AccID";
+        protected final String VALIDATE = "verified", USER_ID = "userID", F_NAME = "firstName",
+                L_NAME = "lastName", ADDRESS = "address", PHONE = "phone", EMAIL = "email", ACCT_ID = "accID";
 
         UserLoginTask(String email, String password) {
             mEmail = email;
@@ -278,6 +278,7 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor>{
             final String BASE_URL = "http://davisengeler.gwdnow.com/user.php?login";
             final String EMAIL_PARAM = "email";
             final String PASS_PARAM = "pass";
+            JSONArray acctValidate;
 
 
             try
@@ -343,10 +344,11 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor>{
             //get true from json
             try
             {
-                JSONObject acctValidate = new JSONObject(jsonStr);
+                acctValidate = new JSONArray(jsonStr);
                 Bundle b = new Bundle();
                 Log.v("JSON string ", acctValidate.toString());
-                String verified = acctValidate.getString(VALIDATE);
+
+                String verified = acctValidate.getJSONObject(0).getString(VALIDATE);
                 b.putString("verified", verified);
                 if(verified != null)
                 {
@@ -354,7 +356,7 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor>{
                     if(verified.compareTo("1")==0)
                     {
 
-                        acctType = Integer.parseInt(acctValidate.getString(ACCT_ID));
+                        acctType = Integer.parseInt(acctValidate.getJSONObject(0).getString(ACCT_ID));
 
                     }
                     else

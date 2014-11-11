@@ -3,7 +3,7 @@ package com.example.daycare.daycare;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
-import android.app.ListActivity;
+import android.app.Activity;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -12,7 +12,10 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ListView;
+import android.widget.TextView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -24,20 +27,38 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
 
 
-public class NewsFeedActivity extends ListActivity {
-
+public class NewsFeedActivity extends Activity {
+    private ListView mListView;
     private View mNewsFeedView, mProgressView;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_news_feed);
-        String JSONString = this.getIntent().getStringExtra("JSONString");
+        String[] childArray = null;
+        try{
+
+            JSONArray passedJSON = new JSONArray(this.getIntent().getStringExtra("JSONString"));
+            if(passedJSON != null)
+            {
+
+                childArray = passedJSON.getJSONObject(0).getString("children").replaceAll("\\[", "")
+                        .replaceAll("\\]", "").replaceAll("\"", "").split(",");
+
+
+            }
+        }
+        catch(Exception e)
+        {
+            Log.e("JSON String: ", e.getMessage());
+        }
+
         GetNotes note = new GetNotes();
-        note.execute();
+        note.execute(childArray);
+        mListView = (ListView) findViewById(R.id.list_container);
         mProgressView = findViewById(R.id.progress_bar_news);
         mNewsFeedView = findViewById(R.id.activity_news_form);
         showProgress(true);
@@ -45,9 +66,23 @@ public class NewsFeedActivity extends ListActivity {
         final String [] testChildren = {"Johnny", "Jackie"};
         final String[] testNotes = {"Pooped Pants", "School Field Trip","Slapped Clarissa"};
 
-       ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1, testNotes);
-       setListAdapter(adapter);
+       ArrayAdapter adapter = new ArrayAdapter(this,android.R.layout.simple_list_item_2,android.R.id.text1, testNotes)
+       {
+           @Override
+           public View getView(int position, View convertView, ViewGroup parent){
 
+               View view = super.getView(position, convertView, parent);
+               TextView text1 = (TextView) view.findViewById(android.R.id.text1);
+               TextView text2 = (TextView) view.findViewById(android.R.id.text2);
+                text1.setText(testChildren[position]);
+               text2.setText(testNotes[position]);
+//               text1.setText(persons.get(position).getName());
+//               text2.setText(persons.get(position).getAge());
+               return view;
+           }
+       };
+
+       mListView.setAdapter(adapter);
     }
 
 
@@ -70,71 +105,72 @@ public class NewsFeedActivity extends ListActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public class GetNotes extends AsyncTask<Void, Void, Void>
+    public class GetNotes extends AsyncTask<String [], Void, Void>
     {
 
-        public Void doInBackground(Void...params)
+        public Void doInBackground(String[]...params)
         {
-            ArrayList<Integer> childID = new ArrayList<Integer>();
-            childID.add(4);
-            childID.add(5);
+
             final String BASE_URL = "http://davisengeler.gwdnow.com/child.php?getnotes";
             final String CHILD_ID = "childids";
             HttpURLConnection urlConnection = null;
             BufferedReader reader = null;
             String jsonStr = "";
-            try
+
+            for(String s : params[0])
             {
-                JSONArray ja = new JSONArray(childID);
-
-                Uri builtUri = Uri.parse(BASE_URL).buildUpon()
-                        .appendQueryParameter(CHILD_ID, ja.toString()).build();
-                Log.v("TEST:   ", builtUri.toString());
-
-                URL url = new URL(builtUri.toString());
-
-                urlConnection = (HttpURLConnection) url.openConnection();
-                urlConnection.setRequestMethod("GET");
-                urlConnection.connect();
-
-                // Read the input stream into a String
-                InputStream inputStream = urlConnection.getInputStream();
-                StringBuffer buffer = new StringBuffer();
-                if (inputStream != null)
-                {
-                    reader = new BufferedReader(new InputStreamReader(inputStream));
-
-                    String line;
-                    while ((line = reader.readLine()) != null)
-                    {
-                        //makes easy to read in logs
-                        buffer.append(line + "\n");
-                    }
-                    if (buffer.length() != 0)
-                    {
-                        jsonStr = buffer.toString();
-                        Log.v("JSON String: ", jsonStr);
-                    }
-                }
-            }
-            catch (MalformedURLException e)
-            {
-                Log.e("URL Error: ", e.getMessage());
-            }
-            catch (IOException e)
-            {
-                Log.e("Connection: ", e.getMessage());
-            }
-            finally
-            {
-                urlConnection.disconnect();
                 try
                 {
-                    if (reader != null)
-                        reader.close();
-                } catch (IOException e)
+                    Uri builtUri = Uri.parse(BASE_URL).buildUpon()
+                            .appendQueryParameter(CHILD_ID,s).build();
+
+                    Log.v("TEST:   ", builtUri.toString());
+
+                    URL url = new URL(builtUri.toString());
+
+                    urlConnection = (HttpURLConnection) url.openConnection();
+                    urlConnection.setRequestMethod("GET");
+                    urlConnection.connect();
+
+                    // Read the input stream into a String
+                    InputStream inputStream = urlConnection.getInputStream();
+                    StringBuffer buffer = new StringBuffer();
+                    if (inputStream != null)
+                    {
+                        reader = new BufferedReader(new InputStreamReader(inputStream));
+
+                        String line;
+                        while ((line = reader.readLine()) != null)
+                        {
+                            //makes easy to read in logs
+                            buffer.append(line + "\n");
+                        }
+                        if (buffer.length() != 0)
+                        {
+                            jsonStr += buffer.toString();
+                            Log.v("JSON String: ", jsonStr);
+                        }
+                    }
+                }
+                catch (MalformedURLException e)
                 {
-                    Log.e("Error closing stream", e.getMessage());
+                    Log.e("URL Error: ", e.getMessage());
+                }
+                catch (IOException e)
+                {
+                    Log.e("Connection: ", e.getMessage());
+                }
+                finally
+                {
+                    urlConnection.disconnect();
+                    try
+                    {
+                        if (reader != null)
+                            reader.close();
+                    } catch (IOException e)
+                    {
+                        Log.e("Error closing stream", e.getMessage());
+                    }
                 }
             }
 
@@ -186,3 +222,4 @@ public class NewsFeedActivity extends ListActivity {
         }
     }
 }
+
