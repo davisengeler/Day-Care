@@ -267,7 +267,7 @@
   else if (isset($_GET['login']))
   {
     $type = "login";
-    $params = [$_GET["email"], md5($_GET["pass"])];
+    $params = array($_GET["email"], md5($_GET["pass"]));
     $apiResponse = getAccount($database, $type, $params);
     echo json_encode($apiResponse);
   }
