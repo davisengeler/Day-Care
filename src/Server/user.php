@@ -71,6 +71,7 @@
   }
 
   // Logs in an Account
+  // Returns a User object in an array wrapper
   function logIn($database, $email, $pass)
   {
     if ($result = mysqli_query($database, "CALL get_account('$email', '$pass');"))
@@ -117,6 +118,7 @@
       {
         $childIDs[] = $row["ChildID"];
       }
+      if (count($childIDs) == 0) $childIDs = null;
       return $childIDs;
     }
     else
