@@ -115,10 +115,13 @@
     switch ($type)
     {
       case "ssn":
-        $databaseCall = "CALL get_account_by_ssn($params[0]);";
+        $ssn = $params[0];
+        $databaseCall = "CALL get_account_by_ssn($ssn);";
         break;
       case "login":
-        $databaseCall = "CALL get_account('$params[0]', '$params[1]');";
+        $email = $params[0];
+        $pass = $params[1];
+        $databaseCall = "CALL get_account('$email', '$pass');";
     }
 
     if ($result = mysqli_query($database, $databaseCall))
@@ -275,7 +278,6 @@
     $params = [$_GET["ssn"]];
     $apiResponse = getAccount($database, $type, $params);
     echo json_encode($apiResponse);
-    echo "Hey";
   }
   // Setting Approval
   else if (isset($_GET['setapproval']))
