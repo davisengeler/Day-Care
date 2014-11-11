@@ -8,13 +8,13 @@ public class ChildrenNotes {
     private String message;
     private int noteID;
 
-    public ChildrenNotes(int childID, int noteID, String message, int subjectID, int noteType )
+    public ChildrenNotes(String childID, String noteID, String message, String subjectID, String noteType )
     {
-        this.childID = childID;
-        this.noteID = noteID;
-        this.subjectID = subjectID;
-        this.noteID = noteID;
-        this.noteType = noteType;
+        this.childID = Integer.parseInt(childID);
+        this.noteID = Integer.parseInt(noteID);
+        this.subjectID = Integer.parseInt(subjectID);
+        this.noteID = Integer.parseInt(noteID);
+        this.noteType = Integer.parseInt(noteType);
         this.message = message;
     }
 

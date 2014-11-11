@@ -27,62 +27,100 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 
 
 public class NewsFeedActivity extends Activity {
     private ListView mListView;
     private View mNewsFeedView, mProgressView;
+    private JSONArray notes;
+    private boolean progress = false;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_news_feed);
+        mListView = (ListView) findViewById(R.id.list_container);
+
         String[] childArray = null;
+        JSONArray passedJSON=null;
+        GetNotes note = new GetNotes();
         try{
 
-            JSONArray passedJSON = new JSONArray(this.getIntent().getStringExtra("JSONString"));
+            passedJSON = new JSONArray(this.getIntent().getStringExtra("JSONString"));
             if(passedJSON != null)
             {
 
-                childArray = passedJSON.getJSONObject(0).getString("children").replaceAll("\\[", "")
-                        .replaceAll("\\]", "").replaceAll("\"", "").split(",");
+                String childIDList = passedJSON.getJSONObject(0).getString("children").replaceAll("\"", "");
 
-
+                note.execute(childIDList);
             }
         }
-        catch(Exception e)
+        catch(JSONException e)
         {
             Log.e("JSON String: ", e.getMessage());
         }
 
-        GetNotes note = new GetNotes();
-        note.execute(childArray);
-        mListView = (ListView) findViewById(R.id.list_container);
+
+
+
         mProgressView = findViewById(R.id.progress_bar_news);
         mNewsFeedView = findViewById(R.id.activity_news_form);
-        showProgress(true);
+        while(!progress)
+        {
+            showProgress(true);
+        }
+
 
         final String [] testChildren = {"Johnny", "Jackie"};
         final String[] testNotes = {"Pooped Pants", "School Field Trip","Slapped Clarissa"};
 
-       ArrayAdapter adapter = new ArrayAdapter(this,android.R.layout.simple_list_item_2,android.R.id.text1, testNotes)
-       {
-           @Override
-           public View getView(int position, View convertView, ViewGroup parent){
+        final ArrayList<ChildrenNotes> cNotes = new ArrayList<ChildrenNotes>();
+        try
+        {
+            for(int i=0; i<notes.length(); ++i)
+            {
+                ChildrenNotes c = new ChildrenNotes(notes.getJSONObject(i).getString("ChildID"),
+                        notes.getJSONObject(i).getString("NoteID"),
+                        notes.getJSONObject(i).getString("Message"), notes.getJSONObject(i).getString("SubjectID"),
+                        notes.getJSONObject(i).getString("NoteType"));
+                cNotes.add(c);
 
-               View view = super.getView(position, convertView, parent);
-               TextView text1 = (TextView) view.findViewById(android.R.id.text1);
-               TextView text2 = (TextView) view.findViewById(android.R.id.text2);
-                text1.setText(testChildren[position]);
-               text2.setText(testNotes[position]);
-//               text1.setText(persons.get(position).getName());
-//               text2.setText(persons.get(position).getAge());
-               return view;
-           }
-       };
+            }
+        }
+        catch(JSONException e)
+        {
+            Log.e("LOG", e.getMessage());
+        }
+        ArrayAdapter adapter = new ArrayAdapter(this, android.R.layout.simple_list_item_2,android.R.id.text1, cNotes){
+            @Override
+            public View getView(int position, View convertView, ViewGroup parent){
+                View view = super.getView(position, convertView, parent);
+                TextView text1 = (TextView) view.findViewById(android.R.id.text1);
+                TextView text2 = (TextView) view.findViewById(android.R.id.text2);
+                text1.setText(cNotes.get(position).getSubject());
+                text2.setText(cNotes.get(position).getMessage());
+//
+                return view;
+            }
+        };
+        mListView.setAdapter(adapter);
+//       mListView.setAdapter(new ArrayAdapter<ChildrenNotes>(this, R.layout.activity_news_feed, android.R.id.text1, cNotes) {
+//           @Override
+//           public View getView(int position, View convertView, ViewGroup parent) {
+//
+//               View view = super.getView(position, convertView, parent);
+//               TextView text1 = (TextView) view.findViewById(android.R.id.text1);
+//               TextView text2 = (TextView) view.findViewById(android.R.id.text2);
+//               text1.setText(cNotes.get(position).getSubject());
+//               text2.setText(cNotes.get(position).getMessage());
+//
+//               return view;
+//           }
+//       });
 
-       mListView.setAdapter(adapter);
+
     }
 
 
@@ -105,10 +143,10 @@ public class NewsFeedActivity extends Activity {
         return super.onOptionsItemSelected(item);
     }
 
-    public class GetNotes extends AsyncTask<String [], Void, Void>
+    public class GetNotes extends AsyncTask<String, Void, Void>
     {
 
-        public Void doInBackground(String[]...params)
+        public Void doInBackground(String...params)
         {
 
             final String BASE_URL = "http://davisengeler.gwdnow.com/child.php?getnotes";
@@ -117,12 +155,12 @@ public class NewsFeedActivity extends Activity {
             BufferedReader reader = null;
             String jsonStr = "";
 
-            for(String s : params[0])
-            {
+//            for(String s : params[0])
+//            {
                 try
                 {
                     Uri builtUri = Uri.parse(BASE_URL).buildUpon()
-                            .appendQueryParameter(CHILD_ID,s).build();
+                            .appendQueryParameter(CHILD_ID, params[0]).build();
 
                     Log.v("TEST:   ", builtUri.toString());
 
@@ -148,7 +186,7 @@ public class NewsFeedActivity extends Activity {
                         if (buffer.length() != 0)
                         {
                             jsonStr += buffer.toString();
-                            Log.v("JSON String: ", jsonStr);
+//                            Log.v("JSON String: ", jsonStr);
                         }
                     }
                 }
@@ -172,12 +210,12 @@ public class NewsFeedActivity extends Activity {
                         Log.e("Error closing stream", e.getMessage());
                     }
                 }
-            }
+//            }
 
             try
             {
 
-                JSONArray notes = new JSONArray(jsonStr);
+                notes = new JSONArray(jsonStr);
 
                 //save note information here
 
@@ -186,6 +224,7 @@ public class NewsFeedActivity extends Activity {
             {
                 Log.e("JSON Error: ", e.getMessage());
             }
+            progress = true;
             return null;
         }
     }
@@ -195,7 +234,7 @@ public class NewsFeedActivity extends Activity {
         // for very easy animations. If available, use these APIs to fade-in
         // the progress spinner.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
-            int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
+            int shortAnimTime = getResources().getInteger(android.R.integer.config_longAnimTime);
 
             mNewsFeedView.setVisibility(show ? View.GONE : View.VISIBLE);
             mNewsFeedView.animate().setDuration(shortAnimTime).alpha(
