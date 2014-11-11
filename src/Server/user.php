@@ -93,7 +93,7 @@
 
       if ($accountInfo->userID != null)
       {
-        return $accountInfo;
+        return array($accountInfo);
       }
       else
       {
