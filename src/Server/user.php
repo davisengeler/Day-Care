@@ -275,6 +275,7 @@
     $params = [$_GET["ssn"]];
     $apiResponse = getAccount($database, $type, $params);
     echo json_encode($apiResponse);
+    echo "Hey";
   }
   // Setting Approval
   else if (isset($_GET['setapproval']))
