@@ -41,8 +41,34 @@
       $accountTypes[$row['AccID']] = $row['Title'];
     }
 
-
     return $accountTypes;
+  }
+
+  // Returns list of IDs of pending account approvals.
+  function getPendingAccounts($database)
+  {
+    $pendingAccounts = array();
+    $result = mysqli_query($database, "CALL get_pending_accounts();");
+
+    while($row = mysqli_fetch_array($result))
+    {
+      // Creates the pending user
+      $singleAccount = new User;
+      $singleAccount->userID = $row["UserID"];
+      $singleAccount->ssn = $row["SSN"];
+      $singleAccount->firstName = $row["FirstName"];
+      $singleAccount->lastName = $row["LastName"];
+      $singleAccount->address = $row["Address"];
+      $singleAccount->phone = $row["Phone"];
+      $singleAccount->email = $row["Email"];
+      $singleAccount->accID = $row["AccID"];
+      $singleAccount->verified = $row["Verified"];
+
+      // Adds that user to the array
+      $pendingAccounts[] = $singleAccount;
+    }
+
+    return $pendingAccounts;
   }
 
   // Adds a new Account
@@ -175,6 +201,10 @@
   if (isset($_GET['getaccounttypes']))
   {
     echo json_encode(getAccountTypes($database));
+  }
+  else if (isset($_GET['getpendingaccounts']))
+  {
+    echo json_encode(getPendingAccounts($database));
   }
   // Add New Account
   else if (isset($_GET['add']))
