@@ -275,7 +275,7 @@
   else if (isset($_GET['getaccountbyssn']))
   {
     $type = "ssn";
-    $params = [$_GET["ssn"]];
+    $params = array($_GET["ssn"]]);
     $apiResponse = getAccount($database, $type, $params);
     echo json_encode($apiResponse);
   }
