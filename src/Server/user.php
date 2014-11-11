@@ -88,10 +88,11 @@
       $accountInfo->accID = $row["AccID"];
       $accountInfo->verified = $row["Verified"];
 
+      // Frees up mysqli for another request
       mysqli_next_result($database);
 
+      // Gets the children
       $accountInfo->children = getChildren($database, $accountInfo->userID);
-
       if ($accountInfo->userID != null)
       {
         return array($accountInfo);
@@ -127,6 +128,31 @@
     }
   }
 
+  // Updates an account's information
+  function updateAccount($database, $userID, $ssn, $firstName, $lastName, $address, $phone, $email, $pass, $accID)
+  {
+    if (mysqli_query($database, "CALL edit_account('$userID', '$ssn', '$firstName', '$lastName','$address','$phone','$email','$pass','$accID');"))
+    {
+      // New Request Submitted
+      $response = array(
+        "successful" => true,
+        "statusMessage" => "The account information has been updated."
+        );
+
+      return $response;
+    }
+    else
+    {
+      // New Request Denied
+      $response = array(
+        "successful" => false,
+        "statusMessage" => "The account information was not changed. " . mysqli_error($database)
+        );
+
+      return $response;
+    }
+  }
+
   function generateResult($successful, $message)
   {
     $response = array(
@@ -153,48 +179,41 @@
   // Add New Account
   else if (isset($_GET['add']))
   {
-    echo json_encode(addAccount($database, $_GET["ssn"], $_GET["firstname"], $_GET["lastname"], $_GET["address"], $_GET["phone"], $_GET["email"], $md5($_GET["pass"]), $_GET["accid"]));
+    $apiResponse = addAccount(
+      $database,
+      $_GET["ssn"],
+      $_GET["firstname"],
+      $_GET["lastname"],
+      $_GET["address"],
+      $_GET["phone"],
+      $_GET["email"],
+      $md5($_GET["pass"]),
+      $_GET["accid"]);
+
+    echo json_encode($apiResponse);
   }
   // Edit Account
   else if (isset($_GET['edit']))
   {
-    // Gets the account information from the request.
-    $userID = $_GET["userid"];
-    $ssn = $_GET["ssn"];
-    $firstName = $_GET["firstname"];
-    $lastName = $_GET["lastname"];
-    $address = $_GET["address"];
-    $phone = $_GET["phone"];
-    $email = $_GET["email"];
-    $pass = $_GET["pass"];
-    $accID = $_GET["accid"];
+    $apiResponse = updateAccount(
+      $database,
+      $_GET["userid"],
+      $_GET["ssn"],
+      $_GET["firstname"],
+      $_GET["lastname"],
+      $_GET["address"],
+      $_GET["phone"],
+      $_GET["email"],
+      $_GET["pass"],
+      $_GET["userid"]);
 
-    if (mysqli_query($database, "CALL edit_account('$userID', '$ssn', '$firstName', '$lastName','$address','$phone','$email','$pass','$accID');"))
-    {
-      // New Request Submitted
-      $response = array(
-        "successful" => true,
-        "statusMessage" => "The account information has been updated."
-        );
-
-      echo json_encode($response);
-    }
-    else
-    {
-      // New Request Denied
-      $response = array(
-        "successful" => false,
-        "statusMessage" => "The account information was not changed. " . mysqli_error($database)
-        );
-
-      echo json_encode($response);
-    }
+    echo json_encode($apiResponse);
   }
   // Log In
   else if (isset($_GET['login']))
   {
-    // Gets the account information from the request.
-    echo json_encode(login($database, $_GET["email"], md5($_GET["pass"])));
+    $apiResponse = login($database, $_GET["email"], md5($_GET["pass"]));
+    echo json_encode($apiResponse);
   }
   // Setting Approval
   else if (isset($_GET['setapproval']))
