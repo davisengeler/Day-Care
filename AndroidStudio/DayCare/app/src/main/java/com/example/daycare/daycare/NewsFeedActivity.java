@@ -12,10 +12,9 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.TextView;
+import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -32,16 +31,22 @@ import java.util.ArrayList;
 
 public class NewsFeedActivity extends Activity {
     private ListView mListView;
-    private View mNewsFeedView, mProgressView;
+    private ProgressBar mProgressView;
     private JSONArray notes;
     private boolean progress = false;
 
+    private ArrayList<ChildrenNotes> cNotes = new ArrayList<ChildrenNotes>();
+
+    public interface OnTaskFinished {
+        void setList();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_news_feed);
-        mListView = (ListView) findViewById(R.id.list_container);
+        mListView = (ListView) findViewById(android.R.id.list);
+        mProgressView = (ProgressBar) findViewById(R.id.progress_bar_news);
 
         String[] childArray = null;
         JSONArray passedJSON=null;
@@ -63,49 +68,36 @@ public class NewsFeedActivity extends Activity {
         }
 
 
+//        mListView = findViewById(R.id.activity_news_form);
+//        while(!progress)
+//        {
+//            showProgress(true);
+//        }
 
 
-        mProgressView = findViewById(R.id.progress_bar_news);
-        mNewsFeedView = findViewById(R.id.activity_news_form);
-        while(!progress)
-        {
-            showProgress(true);
-        }
+//        final String [] testChildren = {"Johnny", "Jackie"};
+//        final String[] testNotes = {"Pooped Pants", "School Field Trip","Slapped Clarissa"};
 
 
-        final String [] testChildren = {"Johnny", "Jackie"};
-        final String[] testNotes = {"Pooped Pants", "School Field Trip","Slapped Clarissa"};
 
-        final ArrayList<ChildrenNotes> cNotes = new ArrayList<ChildrenNotes>();
-        try
-        {
-            for(int i=0; i<notes.length(); ++i)
-            {
-                ChildrenNotes c = new ChildrenNotes(notes.getJSONObject(i).getString("ChildID"),
-                        notes.getJSONObject(i).getString("NoteID"),
-                        notes.getJSONObject(i).getString("Message"), notes.getJSONObject(i).getString("SubjectID"),
-                        notes.getJSONObject(i).getString("NoteType"));
-                cNotes.add(c);
 
-            }
-        }
-        catch(JSONException e)
-        {
-            Log.e("LOG", e.getMessage());
-        }
-        ArrayAdapter adapter = new ArrayAdapter(this, android.R.layout.simple_list_item_2,android.R.id.text1, cNotes){
+
+
+/*        ArrayAdapter<ArrayList<ChildrenNotes>> adapter = new ArrayAdapter<ArrayList<ChildrenNotes>>(this, R.layout.two_line_list, cNotes){
             @Override
             public View getView(int position, View convertView, ViewGroup parent){
                 View view = super.getView(position, convertView, parent);
-                TextView text1 = (TextView) view.findViewById(android.R.id.text1);
-                TextView text2 = (TextView) view.findViewById(android.R.id.text2);
-                text1.setText(cNotes.get(position).getSubject());
+                TextView text1 = (TextView) view.findViewById(R.id.text1);
+                TextView text2 = (TextView) view.findViewById(R.id.text2);
+//                text1.setText(cNotes.get(position).getSubject());
                 text2.setText(cNotes.get(position).getMessage());
+                text1.setText("Hello, world!");
+                view.invalidate();
 //
                 return view;
             }
-        };
-        mListView.setAdapter(adapter);
+        };*/
+
 //       mListView.setAdapter(new ArrayAdapter<ChildrenNotes>(this, R.layout.activity_news_feed, android.R.id.text1, cNotes) {
 //           @Override
 //           public View getView(int position, View convertView, ViewGroup parent) {
@@ -123,6 +115,11 @@ public class NewsFeedActivity extends Activity {
 
     }
 
+    public void setList() {
+        ChildrenNotesAdapter adapter = new ChildrenNotesAdapter(this, cNotes);
+
+        mListView.setAdapter(adapter);
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -143,12 +140,12 @@ public class NewsFeedActivity extends Activity {
         return super.onOptionsItemSelected(item);
     }
 
-    public class GetNotes extends AsyncTask<String, Void, Void>
+    public class GetNotes extends AsyncTask<String, Void, Boolean>
     {
 
-        public Void doInBackground(String...params)
+        protected Boolean doInBackground(String...params)
         {
-
+            showProgress(true);
             final String BASE_URL = "http://davisengeler.gwdnow.com/child.php?getnotes";
             final String CHILD_ID = "childids";
             HttpURLConnection urlConnection = null;
@@ -219,13 +216,48 @@ public class NewsFeedActivity extends Activity {
 
                 //save note information here
 
+
             }
             catch(JSONException e)
             {
                 Log.e("JSON Error: ", e.getMessage());
             }
-            progress = true;
-            return null;
+
+            try
+            {
+                for(int i=0; i<notes.length(); ++i)
+                {
+                    ChildrenNotes c = new ChildrenNotes(notes.getJSONObject(i).getString("ChildID"),
+                            notes.getJSONObject(i).getString("NoteID"),
+                            notes.getJSONObject(i).getString("Message"), notes.getJSONObject(i).getString("SubjectID"),
+                            notes.getJSONObject(i).getString("NoteType"));
+                    cNotes.add(c);
+
+                }
+                cNotes.add(new ChildrenNotes("7", "101", "Michael is a pain in my ass.", "2", "1"));
+
+                return true;
+            }
+            catch(JSONException e)
+            {
+                Log.e("LOG", e.getMessage());
+            }
+
+
+            return false;
+        }
+
+
+        protected void onPostExecute(Boolean success) {
+            if (success) {
+                Toast.makeText(getApplicationContext(), "Success", Toast.LENGTH_LONG).show();
+                showProgress(false);
+                setList();
+            } else {
+                showProgress(false);
+                Toast.makeText(getApplicationContext(), "Error", Toast.LENGTH_SHORT).show();
+                this.cancel(true);
+            }
         }
     }
     @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
@@ -236,12 +268,12 @@ public class NewsFeedActivity extends Activity {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
             int shortAnimTime = getResources().getInteger(android.R.integer.config_longAnimTime);
 
-            mNewsFeedView.setVisibility(show ? View.GONE : View.VISIBLE);
-            mNewsFeedView.animate().setDuration(shortAnimTime).alpha(
+            mListView.setVisibility(show ? View.GONE : View.VISIBLE);
+            mListView.animate().setDuration(shortAnimTime).alpha(
                     show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
                 @Override
                 public void onAnimationEnd(Animator animation) {
-                    mNewsFeedView.setVisibility(show ? View.GONE : View.VISIBLE);
+                    mListView.setVisibility(show ? View.GONE : View.VISIBLE);
                 }
             });
 
@@ -257,7 +289,7 @@ public class NewsFeedActivity extends Activity {
             // The ViewPropertyAnimator APIs are not available, so simply show
             // and hide the relevant UI components.
             mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
-            mNewsFeedView.setVisibility(show ? View.GONE : View.VISIBLE);
+            mListView.setVisibility(show ? View.GONE : View.VISIBLE);
         }
     }
 }
