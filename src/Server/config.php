@@ -2,9 +2,9 @@
 
   // Database Configuration
 
-  define("DB_NAME", "davisengeler_daycare");
-  define("DB_HOST", "localhost");
-  define("DB_USER", "daycare");
-  define("DB_PASS", "dysd*&6sf8ll'");
+  define("Database_NAME", "davisengeler_daycare");
+  define("Database_HOST", "localhost");
+  define("Database_USER", "daycare");
+  define("Database_PASS", "engelerhetzel");
 
 ?>
