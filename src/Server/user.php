@@ -233,7 +233,6 @@
   // Add New Account
   else if (isset($_GET['add']))
   {
-    echo "Hey";
     $apiResponse = addAccount(
       $database,
       $_GET["ssn"],
