@@ -96,11 +96,35 @@
     }
   }
 
-  // Logs in an Account
-  // Returns a User object in an array wrapper
-  function logIn($database, $email, $pass)
+  // Sets Account verification status
+  function setApproval($database, $userID, $decision)
   {
-    if ($result = mysqli_query($database, "CALL get_account('$email', '$pass');"))
+    if ($result = mysqli_query($database, "CALL " . $decision . "_account('$userID');"))
+    {
+      return generateResult(true, "The request to " . $decision . " the account was successful.");
+    }
+    else
+    {
+      return generateResult(false, "There was an issue with the " . $decision . " request. " . mysqli_error($database));
+    }
+  }
+
+  // Returns a User object in an array wrapper
+  function getAccount($database, $type, $params)
+  {
+    switch ($type)
+    {
+      case "ssn":
+        $ssn = $params[0];
+        $databaseCall = "CALL get_account_by_ssn($ssn);";
+        break;
+      case "login":
+        $email = $params[0];
+        $pass = $params[1];
+        $databaseCall = "CALL get_account('$email', '$pass');";
+    }
+
+    if ($result = mysqli_query($database, $databaseCall))
     {
       $row = mysqli_fetch_array($result);
       $accountInfo = new User;
@@ -217,7 +241,7 @@
       $_GET["address"],
       $_GET["phone"],
       $_GET["email"],
-      $md5($_GET["pass"]),
+      md5($_GET["pass"]),
       $_GET["accid"]);
 
     echo json_encode($apiResponse);
@@ -242,30 +266,25 @@
   // Log In
   else if (isset($_GET['login']))
   {
-    $apiResponse = login($database, $_GET["email"], md5($_GET["pass"]));
+    $type = "login";
+    $params = array($_GET["email"], md5($_GET["pass"]));
+    $apiResponse = getAccount($database, $type, $params);
+    echo json_encode($apiResponse);
+  }
+  // Get Account by SSN
+  else if (isset($_GET['getaccountbyssn']))
+  {
+    $type = "ssn";
+    $params = array($_GET["ssn"]);
+    $apiResponse = getAccount($database, $type, $params);
     echo json_encode($apiResponse);
   }
   // Setting Approval
   else if (isset($_GET['setapproval']))
   {
     // Accepts "approve" or "deny"
-
-    $userID = $_GET['userid'];
-    $decision = $_GET['decision'];
-
-    if ($result = mysqli_query($database, "CALL " . $decision . "_account('$userID');"))
-    {
-      echo json_encode(generateResult(true, "The request to " . $decision . " the account was successful."));
-    }
-    else
-    {
-      echo json_encode(generateResult(false, "There was an issue with the " . $decision . " request. " . mysqli_error($database)));
-    }
-  }
-
-  function getAccountInfo($email, $password)
-  {
-
+    $apiResponse = setApproval($database, $_GET['userid'], $_GET['decision']);
+    echo json_encode($apiResponse);
   }
 
 ?>
