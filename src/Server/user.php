@@ -233,6 +233,7 @@
   // Add New Account
   else if (isset($_GET['add']))
   {
+    echo "Hey";
     $apiResponse = addAccount(
       $database,
       $_GET["ssn"],
@@ -241,7 +242,7 @@
       $_GET["address"],
       $_GET["phone"],
       $_GET["email"],
-      $md5($_GET["pass"]),
+      md5($_GET["pass"]),
       $_GET["accid"]);
 
     echo json_encode($apiResponse);
@@ -286,7 +287,5 @@
     $apiResponse = setApproval($database, $_GET['userid'], $_GET['decision']);
     echo json_encode($apiResponse);
   }
-
-
 
 ?>
