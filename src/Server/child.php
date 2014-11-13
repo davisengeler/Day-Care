@@ -4,34 +4,36 @@
   // Connect to database
   $database = mysqli_connect(Database_HOST, Database_USER, Database_PASS, Database_NAME) or die("Could not connect to database");
 
-  // What is the request for?
-  // Add New Child
-  if (isset($_GET['add']))
+  // Adds a child
+  function addChild($database, $ssn, $firstName, $lastName, $dob, $parentID, $classID)
   {
-    // Gets the child information from the request.
-    $ssn = $_GET["ssn"];
-    $firstName = $_GET["firstname"];
-    $lastName = $_GET["lastname"];
-    $dob = $_GET["dob"];
-    $parentID = $_GET["parentid"];
-    $classID = $_GET["classid"];
-
     if (mysqli_query($database, "CALL add_new_child($ssn, '$firstName', '$lastName', $dob, $parentID, $classID);"))
     {
       // New Request Submitted
-      echo json_encode($generateResult(true, "The child has been added to the parent account."));
+      return $generateResult(true, "The child has been added to the parent account.");
     }
     else
     {
       // New Request Denied
-      echo json_encode(generateResult(false, "Something was wrong with this request to add a child. " . mysqli_error($database)));
+      return generateResult(false, "Something was wrong with this request to add a child. " . mysqli_error($database));
     }
   }
-  // Gather the info about a child
-  else if (isset($_GET['getinfo']))
+
+  // Gets info on a child
+  function getChild($database, $type, $parameter)
   {
-    $childID = $_GET['childid'];
-    if ($result = mysqli_query($database, "CALL get_child_info($childID);"))
+    switch ($type)
+    {
+      case "childID":
+        $childID = $parameter;
+        $databaseCall = "CALL get_child_info($childID);";
+        break;
+      case "ssn":
+        $ssn = $parameter;
+        $databaseCall = "CALL get_child_info_by_ssn($ssn);";
+        break;
+    }
+    if ($result = mysqli_query($database, $databaseCall))
     {
       $row = mysqli_fetch_array($result);
       $childInfo["SSN"] = $row["SSN"];
@@ -43,24 +45,54 @@
 
       if ($childInfo["SSN"] != null)
       {
-        echo json_encode($childInfo);
+        return $childInfo;
       }
       else
       {
-        echo json_encode(generateResult(false, "There was an issue with the request for child information. Make sure you have the correct ChildID."));
+        return generateResult(false, "There was an issue with the request for child information. Make sure you have the correct ChildID.");
       }
     }
     else
     {
-      echo json_encode(generateResult(false, "There was a database error for the request to get the child information. " . mysqli_error($database)));
+      return generateResult(false, "There was a database error for the request to get the child information. " . mysqli_error($database));
     }
+  }
+
+
+
+
+
+  // =============================================
+
+
+
+
+  // What is the request for?
+  // Add New Child
+  if (isset($_GET['add']))
+  {
+    $apiResponse = addChild(
+      $database,
+      $_GET["ssn"],
+      $_GET["firstname"],
+      $_GET["lastname"],
+      $_GET["dob"],
+      $_GET["parentid"],
+      $_GET["classid"]);
+    echo json_encode($apiResponse);
+  }
+  // Gather the info about a child
+  else if (isset($_GET['getinfo']))
+  {
+    $childID = $_GET['childid'];
+
   }
   else if (isset($_GET['setclass']))
   {
     $childID = $_GET['childid'];
-    $classID = $_GET['classid'];
+    $teacherID = $_GET['teacherid'];
 
-    if ($result = mysqli_query($database, "CALL change_child_class($childID, $classID);"))
+    if ($result = mysqli_query($database, "CALL change_child_class($childID, $teacherID);"))
     {
       echo json_encode(generateResult(true, "The child's classroom was changed successfully."));
     }

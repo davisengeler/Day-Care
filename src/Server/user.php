@@ -109,7 +109,26 @@
     }
   }
 
-  // Returns a User object in an array wrapper
+  // Returns all teachers in an array of User objects
+  function getTeacherList($database)
+  {
+    if ($result = mysqli_query($database, "CALL get_teacher_list()"))
+    {
+      $teacherList = array();
+      while ($row = mysqli_fetch_array($result))
+      {
+        mysqli_next_result($database);
+        $teacherList[] = getAccount($database, "ssn", array($row["SSN"]));
+      }
+      return $teacherList;
+    }
+    else
+    {
+      return generateResult(false, "Database error: " . mysqli_error($database));
+    }
+  }
+
+  // Returns a User object
   function getAccount($database, $type, $params)
   {
     switch ($type)
@@ -122,30 +141,33 @@
         $email = $params[0];
         $pass = $params[1];
         $databaseCall = "CALL get_account('$email', '$pass');";
+        break;
     }
 
     if ($result = mysqli_query($database, $databaseCall))
     {
       $row = mysqli_fetch_array($result);
-      $accountInfo = new User;
-      $accountInfo->userID = $row["UserID"];
-      $accountInfo->ssn = $row["SSN"];
-      $accountInfo->firstName = $row["FirstName"];
-      $accountInfo->lastName = $row["LastName"];
-      $accountInfo->address = $row["Address"];
-      $accountInfo->phone = $row["Phone"];
-      $accountInfo->email = $row["Email"];
-      $accountInfo->accID = $row["AccID"];
-      $accountInfo->verified = $row["Verified"];
+      $account = new User;
+      $account->userID = $row["UserID"];
+      $account->ssn = $row["SSN"];
+      $account->firstName = $row["FirstName"];
+      $account->lastName = $row["LastName"];
+      $account->address = $row["Address"];
+      $account->phone = $row["Phone"];
+      $account->email = $row["Email"];
+      $account->accID = $row["AccID"];
+      $account->verified = $row["Verified"];
 
       // Frees up mysqli for another request
       mysqli_next_result($database);
 
       // Gets the children
-      $accountInfo->children = getChildren($database, $accountInfo->userID);
-      if ($accountInfo->userID != null)
+      $account->children = getChildren($database, $account);
+
+      // Checks to see if the user is valid
+      if ($account->userID != null)
       {
-        return array($accountInfo);
+        return $account;
       }
       else
       {
@@ -159,11 +181,23 @@
   }
 
   // Gets list of ChildIDs for a given ParentID
-  function getChildren($database, $parentID)
+  function getChildren($database, $account)
   {
     $childIDs = array();
 
-    if ($query = mysqli_query($database, "CALL get_children($parentID);"))
+    switch ($account->accID)
+    {
+      case 2:
+        // User is a teacher
+        $databaseCall = "CALL get_teacher_students";
+        break;
+      default:
+        // User is a parent
+        $databaseCall = "CALL get_children";
+        break;
+    }
+
+    if ($query = mysqli_query($database, $databaseCall . "($account->userID);"))
     {
       while ($row = mysqli_fetch_array($query))
       {
@@ -268,7 +302,8 @@
   {
     $type = "login";
     $params = array($_GET["email"], md5($_GET["pass"]));
-    $apiResponse = getAccount($database, $type, $params);
+    // needs to be an array for android...
+    $apiResponse = array(getAccount($database, $type, $params));
     echo json_encode($apiResponse);
   }
   // Get Account by SSN
@@ -276,7 +311,8 @@
   {
     $type = "ssn";
     $params = array($_GET["ssn"]);
-    $apiResponse = getAccount($database, $type, $params);
+    // needs to be an array for android...
+    $apiResponse = array(getAccount($database, $type, $params));
     echo json_encode($apiResponse);
   }
   // Setting Approval
@@ -284,6 +320,12 @@
   {
     // Accepts "approve" or "deny"
     $apiResponse = setApproval($database, $_GET['userid'], $_GET['decision']);
+    echo json_encode($apiResponse);
+  }
+  // Get List of Teachers
+  else if (isset($_GET['teacherlist']))
+  {
+    $apiResponse = getTeacherList($database);
     echo json_encode($apiResponse);
   }
 
