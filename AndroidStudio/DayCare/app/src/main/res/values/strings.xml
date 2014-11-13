@@ -29,7 +29,7 @@
         <item name="medicalInfo">Medical Information</item>
         <item name="childrenInOut">Sign Children In and Out</item>
     </string-array>
-    <!--String[] noteID = {"Meal", "Nap", "Accident", "Needs", "Misc"};-->
+    <!-- String[] noteID = {"Meal", "Nap", "Accident", "Needs", "Misc"}; -->
     <string-array name="note_id">
         <item name="meal">Meal</item>
         <item name="nap">Nap</item>
@@ -68,5 +68,6 @@
     <string name="title_activity_admin_add_note">Add Note</string>
     <string name="hello_world">Hello world!</string>
     <string name="enter_message">Enter Message Here</string>
+    <string name="title_activity_approve_accounts">ApproveAccounts</string>
 
 </resources>
