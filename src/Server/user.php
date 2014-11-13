@@ -10,24 +10,6 @@
   {
     public $userID, $firstName, $lastName, $ssn, $address, $phone, $email, $accID, $verified;
     public $children = array();
-
-    // function __construct()
-    // {
-    //   // Allows to create an empty instance
-    // }
-    //
-    // function __construct($userID, $firstName, $lastName, $ssn, $address, $phone, $email, $accID, $verified)
-    // {
-    //   $this->userID = $userID;
-    //   $this->firstName = $firstName;
-    //   $this->lastName = $lastName;
-    //   $this->ssn = $ssn;
-    //   $this->address = $address;
-    //   $this->phone = $phone;
-    //   $this->email = $email;
-    //   $this->accID = $accID;
-    //   $this->verified = $verified;
-    // }
   }
 
   // Returns list of the account type IDs and their meanings
@@ -260,7 +242,7 @@
   {
     echo json_encode(getAccountTypes($database));
   }
-  else if (isset($_GET['getpendingaccounts']))
+    else if (isset($_GET['getpendingaccounts']))
   {
     echo json_encode(getPendingAccounts($database));
   }
