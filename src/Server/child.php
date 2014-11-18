@@ -1,8 +1,9 @@
 <?php
+
   include("config.php");
 
   // Connect to database
-  $database = mysqli_connect(Database_HOST, Database_USER, Database_PASS, Database_NAME) or die("Could not connect to database");
+  $database = connectDB();
 
   class Child
   {
@@ -25,14 +26,11 @@
   }
 
   // Adds a note for an array of children
-  function addNote($database, $message, $noteType, $subjectID, $children)
+  function addNote($database, $message, $noteType, $subjectID, $childrenArray)
   {
     // Sets up a status message string
     $statuses = "";
     $allSuccessful = true;
-
-    // Decodes array of children
-    $childrenArray = json_decode($children, true);
 
     // Prepares the note
     if($result = mysqli_query($database, "CALL prepare_note('$message', $subjectID, $noteType);"))
@@ -101,71 +99,9 @@
     return $childArray;
   }
 
-
-
-
-
-  // =============================================
-
-
-
-
-  // What is the request for?
-  // Add New Child
-  if (isset($_GET['add']))
+  // Gets all notes for an array of children
+  function getNotes($database, $childIDs)
   {
-    $apiResponse = addChild(
-      $database,
-      $_GET["ssn"],
-      $_GET["firstname"],
-      $_GET["lastname"],
-      $_GET["dob"],
-      $_GET["parentid"],
-      $_GET["classid"]);
-    echo json_encode($apiResponse);
-  }
-  // Gather the info about a child
-  else if (isset($_GET['getinfo']))
-  {
-    if ($_GET['ssn'])
-    {
-      $type = "ssn";
-    }
-    elseif ($_GET['childids'])
-    {
-      $type = "childids";
-    }
-
-    $apiResponse = getChild($database, $type, $_GET[$type]);
-    echo json_encode($apiResponse);
-  }
-  else if (isset($_GET['addnote']))
-  {
-    $apiResponse = addNote($database, $_GET['message'], $_GET['notetype'], $_GET['subjectid'], $_GET['children']);
-    echo json_encode($apiResponse);
-  }
-  else if (isset($_GET['setclass']))
-  {
-    $childID = $_GET['childid'];
-    $teacherID = $_GET['teacherid'];
-
-    if ($result = mysqli_query($database, "CALL change_child_class($childID, $teacherID);"))
-    {
-      echo json_encode(generateResult(true, "The child's classroom was changed successfully."));
-    }
-    else
-    {
-      echo json_encode(generateResult(false, "There was an error changing that child's classroom: " . mysqli_error($database)));
-    }
-  }
-  // Get Child Notes
-  // TODO: Something weird with the loop when it gets multiple child IDs.
-  else if (isset($_GET['getnotes']))
-  {
-    $childIDs = json_decode($_GET['childids']);
-    $noteList = array();
-
-    //TODO: Echoing the errors as the loops goes could give an overall invalid JSON string, therefore not being decodable.
     foreach ($childIDs as $currentChild)
     {
       if ($result = mysqli_query($database, "CALL get_notes($currentChild);"))
@@ -188,7 +124,77 @@
       }
       mysqli_next_result($database);
     }
-    echo json_encode($noteList);
+    return $noteList;
+  }
+
+  function setClass($database, $childID, $teacherID)
+  {
+    if ($result = mysqli_query($database, "CALL change_child_class($childID, $teacherID);"))
+    {
+      return generateResult(true, "The child's classroom was changed successfully.");
+    }
+    else
+    {
+      return generateResult(false, "There was an error changing that child's classroom: " . mysqli_error($database));
+    }
+  }
+
+
+  // ================================================================================
+
+
+  // Allows the outside API work with the server
+
+  // Add New Child
+  if (isset($_GET['add']))
+  {
+    $apiResponse = addChild(
+      $database,
+      $_GET["ssn"],
+      $_GET["firstname"],
+      $_GET["lastname"],
+      $_GET["dob"],
+      $_GET["parentid"],
+      $_GET["classid"]);
+    echo json_encode($apiResponse);
+  }
+
+  // Gather the info about a child
+  else if (isset($_GET['getinfo']))
+  {
+    if ($_GET['ssn'])
+    {
+      $type = "ssn";
+    }
+    elseif ($_GET['childids'])
+    {
+      $type = "childids";
+    }
+
+    $apiResponse = getChild($database, $type, $_GET[$type]);
+    echo json_encode($apiResponse);
+  }
+
+  // Add a note for an array of ChildIDs
+  else if (isset($_GET['addnote']))
+  {
+    $apiResponse = addNote($database, $_GET['message'], $_GET['notetype'], $_GET['subjectid'], json_decode($_GET['children'], true));
+    echo json_encode($apiResponse);
+  }
+
+  // Change a child's class
+  else if (isset($_GET['setclass']))
+  {
+    $apiResponse = setClass($database, $_GET['childid'], $_GET['teacherid']);
+    echo json_encode($apiResponse);
+  }
+
+  // Get Child Notes
+  else if (isset($_GET['getnotes']))
+  {
+    $childIDs = json_decode($_GET['childids']);
+    $apiResponse = getNotes($database, $childIDs);
+    echo json_encode($apiResponse);
   }
 
   function generateResult($successful, $message)
