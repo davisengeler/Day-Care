@@ -1,8 +1,6 @@
 <?php
 
   include("config.php");
-
-  // Connect to database
   $database = connectDB();
 
   class Child

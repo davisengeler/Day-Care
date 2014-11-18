@@ -1,9 +1,7 @@
 <?php
 
   include("config.php");
-
-  // Connect to database
-  $database = mysqli_connect(Database_HOST, Database_USER, Database_PASS, Database_NAME) or die("Could not connect to database");
+  $database = connectDB();
 
   // Class for creating User objects
   class User
