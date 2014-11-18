@@ -137,6 +137,40 @@
     }
   }
 
+  function signIn($database, $childIDs, $date, $time)
+  {
+    // Prepares the attendance entry
+    foreach ($childIDs as $childID)
+    {
+      $attendID = 0;
+      if($result = mysqli_query($database, "CALL prepare_attendance($date, $time);"))
+      {
+        $attendance = mysqli_fetch_array($result);
+        $attendID = $attendance["LAST_INSERT_ID()"];
+      }
+      else
+      {
+        return generateResult(false, "There was an error creating an attendance entry for ChildID " . $childID . ". " . mysqli_error($database));
+      }
+
+      mysqli_next_result($database);
+
+      // Links the child to the new attendance entry
+      if($result = mysqli_query($database, "CALL link_attendance($attendID, $childID);"))
+      {
+        //return generateResult(true, "The child was successfully signed in.");
+      }
+      else
+      {
+        return generateResult(false, "Failure to link the child to the attendance entry for ChildID " . $childID . ". " . mysqli_error($database));
+      }
+
+      mysqli_next_result($database);
+    }
+
+    return generateResult(true, "The array of children have been signed in.");
+  }
+
 
   // ================================================================================
 
@@ -192,6 +226,14 @@
   {
     $childIDs = json_decode($_GET['childids']);
     $apiResponse = getNotes($database, $childIDs);
+    echo json_encode($apiResponse);
+  }
+
+  // Signs in an array of ChildIDs
+  else if (isset($_GET['signin']))
+  {
+    $childIDs = json_decode($_GET['childids']);
+    $apiResponse = signIn($database, $childIDs, $_GET['date'], $_GET['time']);
     echo json_encode($apiResponse);
   }
 
