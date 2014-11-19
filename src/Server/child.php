@@ -3,8 +3,6 @@
   include("config.php");
   $database = connectDB();
 
-  getAttendID($database, 5);
-
   class Child
   {
     public $childID, $ssn, $firstName, $lastName, $dob, $parentID, $classID, $attendID;
