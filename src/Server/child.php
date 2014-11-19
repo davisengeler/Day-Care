@@ -137,13 +137,13 @@
     }
   }
 
-  function signIn($database, $childIDs, $date, $time)
+  function signIn($database, $childIDs, $time)
   {
     // Prepares the attendance entry
     foreach ($childIDs as $childID)
     {
       $attendID = 0;
-      if($result = mysqli_query($database, "CALL prepare_attendance($date, $time);"))
+      if($result = mysqli_query($database, "CALL prepare_attendance($time);"))
       {
         $attendance = mysqli_fetch_array($result);
         $attendID = $attendance["LAST_INSERT_ID()"];
@@ -158,7 +158,7 @@
       // Links the child to the new attendance entry
       if($result = mysqli_query($database, "CALL link_attendance($attendID, $childID);"))
       {
-        //return generateResult(true, "The child was successfully signed in.");
+        // do nothing until the loop is finished
       }
       else
       {
@@ -171,6 +171,21 @@
     return generateResult(true, "The array of children have been signed in.");
   }
 
+  function signOut($database, $attendIDs, $time)
+  {
+    foreach ($attendIDs as $attendID)
+    {
+      if($result = mysqli_query($database, "CALL sign_out($attendID, $time);"))
+      {
+        // do nothing until the end of the loop
+      }
+      else
+      {
+        return generateResult(false, "Failure to sign out the ChildID " . $childID . ". " . mysqli_error($database));
+      }
+    }
+    return generateResult(true, "The array of children are signed out.");
+  }
 
   // ================================================================================
 
@@ -233,7 +248,15 @@
   else if (isset($_GET['signin']))
   {
     $childIDs = json_decode($_GET['childids']);
-    $apiResponse = signIn($database, $childIDs, $_GET['date'], $_GET['time']);
+    $apiResponse = signIn($database, $childIDs, $_GET['time']);
+    echo json_encode($apiResponse);
+  }
+
+  // Signs out an array of ChildIDs
+  else if (isset($_GET['signout']))
+  {
+    $attendIDs = json_decode($_GET['attendids']);
+    $apiResponse = signOut($database, $attendIDs, $_GET['time']);
     echo json_encode($apiResponse);
   }
 
