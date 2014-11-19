@@ -3,6 +3,8 @@
   include("config.php");
   $database = connectDB();
 
+  getAttendID($database, 5);
+
   class Child
   {
     public $childID, $ssn, $firstName, $lastName, $dob, $parentID, $classID;
@@ -82,6 +84,7 @@
         $child->dob = $row["DOB"];
         $child->parentID = $row["ParentID"];
         $child->classID = $row["ClassID"];
+        $child->attendID = getAttendID($child->childID);
 
         if ($child->ssn != null)
         {
@@ -125,6 +128,7 @@
     return $noteList;
   }
 
+  // Sets a child's current classroom assignment
   function setClass($database, $childID, $teacherID)
   {
     if ($result = mysqli_query($database, "CALL change_child_class($childID, $teacherID);"))
@@ -137,6 +141,7 @@
     }
   }
 
+  // Signs in an array of ChildIDs
   function signIn($database, $childIDs, $time)
   {
     // Prepares the attendance entry
@@ -171,6 +176,7 @@
     return generateResult(true, "The array of children have been signed in.");
   }
 
+  // Signs out an array of ChildIDs
   function signOut($database, $attendIDs, $time)
   {
     foreach ($attendIDs as $attendID)
@@ -185,6 +191,20 @@
       }
     }
     return generateResult(true, "The array of children are signed out.");
+  }
+
+  // Checks if a ChildID is signed in or not
+  function getAttendID($database, $childID)
+  {
+    if ($result = mysqli_query($database, "CALL get_child_attend_id($childID);"))
+    {
+      $row = mysqli_fetch_array($result);
+      return $row['DepTime'];
+    }
+    else
+    {
+      return null;
+    }
   }
 
   // ================================================================================
