@@ -7,7 +7,7 @@
 
   class Child
   {
-    public $childID, $ssn, $firstName, $lastName, $dob, $parentID, $classID;
+    public $childID, $ssn, $firstName, $lastName, $dob, $parentID, $classID, $attendID;
   }
 
   // Adds a child
