@@ -70,7 +70,6 @@
 
     foreach ($infoArray as $currentInfo)
     {
-      mysqli_next_result($database);
       if ($result = mysqli_query($database, $databaseCall . "(" . $currentInfo . ");"))
       {
         $child = new Child;
@@ -82,7 +81,7 @@
         $child->dob = $row["DOB"];
         $child->parentID = $row["ParentID"];
         $child->classID = $row["ClassID"];
-        $child->attendID = getAttendID($child->childID);
+        $child->attendID = getAttendID($database, $child->childID);
 
         if ($child->ssn != null)
         {
@@ -93,6 +92,8 @@
       {
 
       }
+
+      mysqli_next_result($database);
     }
 
     return $childArray;
@@ -194,14 +195,26 @@
   // Checks if a ChildID is signed in or not
   function getAttendID($database, $childID)
   {
+    mysqli_next_result($database);
     if ($result = mysqli_query($database, "CALL get_child_attend_id($childID);"))
     {
-      $row = mysqli_fetch_array($result);
-      return $row['DepTime'];
+      if (mysqli_num_rows($result) == 0)
+      {
+        return null;
+      }
+      else
+      {
+        $row = mysqli_fetch_array($result);
+        if ($row["DepTime"] == null)
+        {
+          return $row['ArrivalTime'];
+        }
+      }
     }
     else
     {
-      return null;
+      //return null;
+      return "FUCK" . mysqli_error($database) . "YEAH";
     }
   }
 
