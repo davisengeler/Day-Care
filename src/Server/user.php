@@ -173,7 +173,7 @@
       }
       else
       {
-        return generateResult(false, "The username and password combo was incorrect.");
+        return generateResult(false, "No accounts match that information.");
       }
     }
     else
@@ -205,7 +205,7 @@
       {
         $childIDs[] = $row["ChildID"];
       }
-      if (count($childIDs) == 0) $childIDs = null;
+      if (count($childIDs) == 0) $childIDs = array();
       return $childIDs;
     }
     else
