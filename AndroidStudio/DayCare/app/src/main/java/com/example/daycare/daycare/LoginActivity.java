@@ -260,8 +260,7 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor>{
         private String jsonStr;
         private final String mEmail;
         private final String mPassword;
-        protected final String VALIDATE = "verified", USER_ID = "userID", F_NAME = "firstName",
-                L_NAME = "lastName", ADDRESS = "address", PHONE = "phone", EMAIL = "email", ACCT_ID = "accID";
+        protected final String VALIDATE = "verified", ACCT_ID = "accID";
 
         UserLoginTask(String email, String password) {
             mEmail = email;

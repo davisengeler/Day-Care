@@ -19,6 +19,7 @@ import android.widget.ListView;
 
 import com.example.daycare.daycare.dummy.AddAccountActivity;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -82,7 +83,8 @@ public class AdminActivity extends Activity
                     case 4:
                         if(actType.compareTo("1")!=0)
                         {
-
+                            intent = new Intent(getApplicationContext(), ApproveAccounts.class);
+                            startActivity(intent);
                         }
                         else
                         {
@@ -118,8 +120,8 @@ public class AdminActivity extends Activity
     public void processJSON(String JSONString)
     {
         try {
-            JSONObject j = new JSONObject(JSONString);
-            actType = j.getString("AccID");
+            JSONArray j = new JSONArray(JSONString);
+            actType = j.getJSONObject(0).getString("accID");
 
         }
         catch(JSONException e)
