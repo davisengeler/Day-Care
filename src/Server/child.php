@@ -207,7 +207,7 @@
         $row = mysqli_fetch_array($result);
         if ($row["DepTime"] == null)
         {
-          return $row['ArrivalTime'];
+          return $row['AttendID'];
         }
       }
     }
@@ -217,6 +217,7 @@
       return "FUCK" . mysqli_error($database) . "YEAH";
     }
   }
+
 
   // ================================================================================
 
