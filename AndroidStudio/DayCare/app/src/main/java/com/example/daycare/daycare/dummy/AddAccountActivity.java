@@ -1,5 +1,6 @@
 package com.example.daycare.daycare.dummy;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -18,12 +19,14 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.daycare.daycare.AddChildActivity;
 import com.example.daycare.daycare.AdminActivity;
 import com.example.daycare.daycare.R;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -39,11 +42,13 @@ public class AddAccountActivity extends Activity {
 
     Button submitButton;
     private int typeID;
-
+    private JSONArray userInfo;
     @Override
+    @TargetApi(17)
     protected void onCreate(Bundle savedInstanceState)
     {
         String [] test = this.getIntent().getStringArrayExtra("AcctTypeList");
+        String type = this.getIntent().getStringExtra("Edit");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_account);
         Spinner s1 = (Spinner) findViewById(R.id.spinner1);
@@ -76,6 +81,45 @@ public class AddAccountActivity extends Activity {
         final EditText pNum = (EditText) findViewById(R.id.phone);
         final EditText s_Ssn = (EditText) findViewById(R.id.ssn);
         final EditText sPass = (EditText) findViewById(R.id.pass);
+
+        if(type != null)
+        {
+            final GetUserInfo g = new GetUserInfo();
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            final EditText pSSN = new EditText(this);
+            pSSN.setHint("Enter SSN Here");
+            pSSN.setInputType(2);
+            builder.setTitle("Account Search")
+                    .setMessage("Please Enter SSN")
+                    .setView(pSSN)
+                    .setPositiveButton("Search", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            g.execute(pSSN.getText().toString());
+                        }
+                    });
+            builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                @Override
+                public void onDismiss(DialogInterface dialogInterface) {
+                    try
+                    {
+                        //null pointer exception
+                        Toast.makeText(getApplicationContext(), userInfo.getJSONObject(0).getString("firstName"), Toast.LENGTH_LONG).show();
+                        fName.setText(userInfo.getJSONObject(0).getString("firstName"), TextView.BufferType.EDITABLE);
+                        lName.setText(userInfo.getJSONObject(0).getString("lastName"), TextView.BufferType.EDITABLE);
+
+                    }
+                    catch(JSONException e)
+                    {
+                        Log.e("JSON", e.getMessage());
+                    }
+                }
+            });
+            builder.create();
+            builder.show();
+            getWindow().getDecorView().findViewById(R.id.container_id).invalidate();
+        }
+
 
         submitButton = (Button) findViewById(R.id.submitButton);
         submitButton.setOnClickListener(new View.OnClickListener() {
@@ -288,4 +332,67 @@ public class AddAccountActivity extends Activity {
             return builder.create();
         }
     }
+    public class GetUserInfo extends AsyncTask<String, Void, Boolean>
+    {
+        private final String LOG_TAG = SendUserInfo.class.getSimpleName();
+        private String acctID, idNum;
+        protected Boolean doInBackground(String...params) {
+
+            HttpURLConnection urlConnection = null;
+            BufferedReader reader = null;
+            String jsonStr = "";
+            String suc = "";
+            final String USER_BASE_URL = "http://davisengeler.gwdnow.com/user.php?getaccountbyssn";
+            final String SSN_PARAM = "ssn";
+
+            try {
+
+
+                Uri builtUri = Uri.parse(USER_BASE_URL).buildUpon()
+                        .appendQueryParameter(SSN_PARAM, params[0])
+                        .build();
+                URL url = new URL(builtUri.toString());
+
+                urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection.setRequestMethod("GET");
+                urlConnection.connect();
+
+                InputStream inputStream = urlConnection.getInputStream();
+                StringBuffer buffer = new StringBuffer();
+
+                if (inputStream != null) {
+                    reader = new BufferedReader(new InputStreamReader(inputStream));
+
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        //makes easy to read in logs
+                        buffer.append(line + "\n");
+                    }
+                    if (buffer.length() != 0) {
+                        jsonStr = buffer.toString();
+                        Log.v("JSON String: ", jsonStr);
+                    }
+                }
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
+            try{
+                userInfo = new JSONArray(jsonStr);
+                return true;
+            }
+            catch(JSONException e)
+            {
+                Log.e("JSON", e.getMessage());
+            }
+
+
+            return false;
+        }
+
+        protected void onPostExecute(Boolean success)
+        {
+
+        }
+    }
+
 }

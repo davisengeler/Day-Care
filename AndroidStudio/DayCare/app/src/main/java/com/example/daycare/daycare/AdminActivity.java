@@ -73,6 +73,10 @@ public class AdminActivity extends Activity
                         startActivity(intent);
                         break;
                     case 1:
+                        intent = new Intent(getApplicationContext(), AddAccountActivity.class);
+                        intent.putExtra("AcctTypeList", typesList);
+                        intent.putExtra("Edit", "Edit");
+                        startActivity(intent);
                         break;
                     case 2:
                         intent = new Intent(getApplicationContext(), AddChildActivity.class);

@@ -277,6 +277,9 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor>{
             final String BASE_URL = "http://davisengeler.gwdnow.com/user.php?login";
             final String EMAIL_PARAM = "email";
             final String PASS_PARAM = "pass";
+            final String DEVICE_ID ="deviceID";
+            String android_id = Secure.getString(getApplicationContext().getContentResolver(),
+                    Secure.ANDROID_ID);
             JSONArray acctValidate;
 
 
@@ -284,7 +287,8 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor>{
             {
                 Uri builtUri = Uri.parse(BASE_URL).buildUpon()
                         .appendQueryParameter(EMAIL_PARAM, mEmail)
-                        .appendQueryParameter(PASS_PARAM, mPassword).build();
+                        .appendQueryParameter(PASS_PARAM, mPassword)
+                        .appendQueryParameter(DEVICE_ID, android_id).build();
 
                 Log.v(LOG_TAG, "Built URI " + builtUri.toString());
                 URL url = new URL(builtUri.toString());

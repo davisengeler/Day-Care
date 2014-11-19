@@ -118,6 +118,9 @@ public class NewsFeedActivity extends Activity {
             showProgress(true);
             final String BASE_URL = "http://davisengeler.gwdnow.com/child.php?getnotes";
             final String CHILD_ID = "childids";
+//            final String DEVICE_ID = "deviceID";
+//            String android_id = Settings.Secure.getString(getApplicationContext().getContentResolver(),
+//                    Settings.Secure.ANDROID_ID);
             HttpURLConnection urlConnection = null;
             BufferedReader reader = null;
             String jsonStr = "";
@@ -126,7 +129,8 @@ public class NewsFeedActivity extends Activity {
                 try
                 {
                     Uri builtUri = Uri.parse(BASE_URL).buildUpon()
-                            .appendQueryParameter(CHILD_ID, params[0]).build();
+                            .appendQueryParameter(CHILD_ID, params[0])
+                            .build();
 
                     Log.v("TEST:   ", builtUri.toString());
 
@@ -337,7 +341,6 @@ public class NewsFeedActivity extends Activity {
     public void callSignAsync(String IDs, String sMethod)
     {
         SignInOut signInOut = new SignInOut();
-        Log.v("Sign", "Sign " + sMethod);
         signInOut.execute(IDs, sMethod);
     }
 
@@ -400,7 +403,7 @@ public class NewsFeedActivity extends Activity {
 
                 for(int i=0; i<childNames.length; ++i)
                 {
-                    childNames[i] = cInfo.getJSONObject(i).getString("firstName") +
+                    childNames[i] = cInfo.getJSONObject(i).getString("firstName") + " " +
                             cInfo.getJSONObject(i).getString("lastName");
                 }
                 checkedChildren = new boolean[childNames.length];
