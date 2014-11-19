@@ -8,6 +8,17 @@
     public $childID, $ssn, $firstName, $lastName, $dob, $parentID, $classID, $attendID;
   }
 
+  // The standard formatting for a general API call's result
+  function generateResult($successful, $message)
+  {
+    $response = array(
+      "successful" => $successful,
+      "statusMessage" => $message
+    );
+
+    return $response;
+  }
+
   // Adds a child
   function addChild($database, $ssn, $firstName, $lastName, $dob, $parentID, $classID)
   {
@@ -290,15 +301,5 @@
     $attendIDs = json_decode($_GET['attendids']);
     $apiResponse = signOut($database, $attendIDs, time());
     echo json_encode($apiResponse);
-  }
-
-  function generateResult($successful, $message)
-  {
-    $response = array(
-      "successful" => $successful,
-      "statusMessage" => $message
-      );
-
-    return $response;
   }
 ?>

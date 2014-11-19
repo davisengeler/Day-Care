@@ -6,8 +6,22 @@
   // Class for creating User objects
   class User
   {
-    public $userID, $firstName, $lastName, $ssn, $address, $phone, $email, $accID, $verified;
+    public $userID, $firstName, $lastName, $ssn, $address, $phone, $email, $accID, $verified, $apiKey, $apiPass;
     public $children = array();
+  }
+
+  // Generates an API key and pass for an account
+  function generateAPIKeyPass($database, $ssn)
+  {
+    $ssnArray = array($ssn);
+    $account = getAccount($database, "ssn", $ssnArray);
+
+    mysqli_next_result($database);
+
+    $apiKey = md5($account->ssn + time());
+    $apiPass = md5($account->firstName + time());
+
+    return array($apiKey, $apiPass);
   }
 
   // Returns list of the account type IDs and their meanings
@@ -43,6 +57,8 @@
       $singleAccount->email = $row["Email"];
       $singleAccount->accID = $row["AccID"];
       $singleAccount->verified = $row["Verified"];
+      $singleAccount->apiKey = $row["APIKey"];
+      $singleAccount->apiPass = $row["APIPass"];
 
       // Adds that user to the array
       $pendingAccounts[] = $singleAccount;
@@ -54,7 +70,12 @@
   // Adds a new Account
   function addAccount($database, $ssn, $firstName, $lastName, $address, $phone, $email, $pass, $accID)
   {
-    if (mysqli_query($database, "CALL add_new_account('$ssn', '$firstName', '$lastName','$address','$phone','$email','$pass','$accID');"))
+    // Generates API validation info
+    $apiValidation = generateAPIKeyPass($database, $ssn);
+    $apiKey = $apiValidation[0];
+    $apiPass = $apiValidation[1];
+
+    if (mysqli_query($database, "CALL add_new_account('$ssn', '$firstName', '$lastName','$address','$phone','$email','$pass','$accID', '$apiKey', '$apiPass');"))
     {
       // New Request Submitted
       $response = array(
@@ -116,6 +137,10 @@
       case "ssn":
         $ssn = $params[0];
         $databaseCall = "CALL get_account_by_ssn($ssn);";
+        break;
+      case "userID":
+        $accID = $params[0];
+        $databaseCall = "CALL get_account_by_userid($accID)";
         break;
       case "login":
         $email = $params[0];
