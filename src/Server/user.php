@@ -11,15 +11,10 @@
   }
 
   // Generates an API key and pass for an account
-  function generateAPIKeyPass($database, $ssn)
+  function generateAPIKeyPass($database, $ssn, $firstName)
   {
-    $ssnArray = array($ssn);
-    $account = getAccount($database, "ssn", $ssnArray);
-
-    mysqli_next_result($database);
-
-    $apiKey = md5($account->ssn + time());
-    $apiPass = md5($account->firstName + time());
+    $apiKey = md5($ssn + time());
+    $apiPass = md5($firstName + time());
 
     return array($apiKey, $apiPass);
   }
@@ -71,7 +66,7 @@
   function addAccount($database, $ssn, $firstName, $lastName, $address, $phone, $email, $pass, $accID)
   {
     // Generates API validation info
-    $apiValidation = generateAPIKeyPass($database, $ssn);
+    $apiValidation = generateAPIKeyPass($database, $ssn, $firstName);
     $apiKey = $apiValidation[0];
     $apiPass = $apiValidation[1];
 
