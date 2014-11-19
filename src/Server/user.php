@@ -157,6 +157,8 @@
       $account->email = $row["Email"];
       $account->accID = $row["AccID"];
       $account->verified = $row["Verified"];
+      $account->apiKey = $row["APIKey"];
+      $account->apiPass = $row["APIPass"];
 
       // Frees up mysqli for another request
       mysqli_next_result($database);
