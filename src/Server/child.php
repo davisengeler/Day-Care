@@ -279,7 +279,7 @@
   else if (isset($_GET['signin']))
   {
     $childIDs = json_decode($_GET['childids']);
-    $apiResponse = signIn($database, $childIDs, $_GET['time']);
+    $apiResponse = signIn($database, $childIDs, time());
     echo json_encode($apiResponse);
   }
 
@@ -287,7 +287,7 @@
   else if (isset($_GET['signout']))
   {
     $attendIDs = json_decode($_GET['attendids']);
-    $apiResponse = signOut($database, $attendIDs, $_GET['time']);
+    $apiResponse = signOut($database, $attendIDs, time());
     echo json_encode($apiResponse);
   }
 
