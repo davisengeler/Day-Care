@@ -10,6 +10,7 @@
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="action_example">Example action</string>
     <string name="action_settings">Settings</string>
+    <string name="sign_in_out">Sign In or Out</string>
 
     <string-array name="navigation_drawer">
         <item name="roster">Class Roster</item>
@@ -69,5 +70,6 @@
     <string name="hello_world">Hello world!</string>
     <string name="enter_message">Enter Message Here</string>
     <string name="title_activity_approve_accounts">ApproveAccounts</string>
+    <string name="title_activity_sign_in_out">SignInOut</string>
 
 </resources>

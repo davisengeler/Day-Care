@@ -105,6 +105,10 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.daycare.daycare.AdminActivity" />
         </activity>
+        <activity
+            android:name="com.example.daycare.daycare.dummy.SignInOut"
+            android:label="@string/title_activity_sign_in_out" >
+        </activity>
     </application>
 
 </manifest>
