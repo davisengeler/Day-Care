@@ -1,106 +1,107 @@
 <?php
+
   include("config.php");
+  $database = connectDB();
 
-  // Connect to database
-  $database = mysqli_connect(Database_HOST, Database_USER, Database_PASS, Database_NAME) or die("Could not connect to database");
-
-  // What is the request for?
-  // Add New Child
-  if (isset($_GET['add']))
+  class Child
   {
-    // Gets the child information from the request.
-    $ssn = $_GET["ssn"];
-    $firstName = $_GET["firstname"];
-    $lastName = $_GET["lastname"];
-    $dob = $_GET["dob"];
-    $parentID = $_GET["parentid"];
-    $classID = $_GET["classid"];
+    public $childID, $ssn, $firstName, $lastName, $dob, $parentID, $classID, $attendID;
+  }
 
+  // Adds a child
+  function addChild($database, $ssn, $firstName, $lastName, $dob, $parentID, $classID)
+  {
     if (mysqli_query($database, "CALL add_new_child($ssn, '$firstName', '$lastName', $dob, $parentID, $classID);"))
     {
       // New Request Submitted
-      echo json_encode($generateResult(true, "The child has been added to the parent account."));
+      return generateResult(true, "The child has been added to the parent account.");
     }
     else
     {
       // New Request Denied
-      echo json_encode(generateResult(false, "Something was wrong with this request to add a child. " . mysqli_error($database)));
+      return generateResult(false, "Something was wrong with this request to add a child. " . mysqli_error($database));
     }
   }
-  // Gather the info about a child
-  else if (isset($_GET['getinfo']))
-  {
-    $childID = $_GET['childid'];
-    if ($result = mysqli_query($database, "CALL get_child_info($childID);"))
-    {
-      $row = mysqli_fetch_array($result);
-      $childInfo["SSN"] = $row["SSN"];
-      $childInfo["FirstName"] = $row["FirstName"];
-      $childInfo["LastName"] = $row["LastName"];
-      $childInfo["DOB"] = $row["DOB"];
-      $childInfo["ParentID"] = $row["ParentID"];
-      $childInfo["ClassID"] = $row["ClassID"];
 
-      if ($childInfo["SSN"] != null)
+  // Adds a note for an array of children
+  function addNote($database, $message, $noteType, $subjectID, $childrenArray)
+  {
+    // Sets up a status message string
+    $statuses = "";
+    $allSuccessful = true;
+
+    // Prepares the note
+    if($result = mysqli_query($database, "CALL prepare_note('$message', $subjectID, $noteType);"))
+    {
+      $note = mysqli_fetch_array($result);
+      $noteID = $note["LAST_INSERT_ID()"];
+      foreach ($childrenArray as $currentChild)
       {
-        echo json_encode($childInfo);
+        mysqli_next_result($database);
+        if($result = mysqli_query($database, "CALL link_note($noteID, $currentChild);"))
+        {
+          $statuses = $statuses . "Note added to ChildID " . $currentChild . " successfully. ";
+        }
+        else
+        {
+          $statuses = $statuses . "Note failed to be added to ChildID " . $currentChild . ". ";
+          $allSuccessful = false;
+        }
+      }
+    }
+    return generateResult($allSuccessful, $statuses);
+  }
+
+  // Gets info on a child
+  function getChild($database, $type, $parameter)
+  {
+    switch ($type)
+    {
+      case "childids":
+        $databaseCall = "CALL get_child_info";
+        break;
+      case "ssn":
+        $databaseCall = "CALL get_child_info_by_ssn";
+        break;
+    }
+
+    $infoArray = json_decode($parameter, true);
+    $childArray = array();
+
+    foreach ($infoArray as $currentInfo)
+    {
+      if ($result = mysqli_query($database, $databaseCall . "(" . $currentInfo . ");"))
+      {
+        $child = new Child;
+        $row = mysqli_fetch_array($result);
+        $child->childID = $row["ChildID"];
+        $child->ssn = $row["SSN"];
+        $child->firstName = $row["FirstName"];
+        $child->lastName = $row["LastName"];
+        $child->dob = $row["DOB"];
+        $child->parentID = $row["ParentID"];
+        $child->classID = $row["ClassID"];
+        $child->attendID = getAttendID($database, $child->childID);
+
+        if ($child->ssn != null)
+        {
+          $childArray[] = $child;
+        }
       }
       else
       {
-        echo json_encode(generateResult(false, "There was an issue with the request for child information. Make sure you have the correct ChildID."));
+
       }
+
+      mysqli_next_result($database);
     }
-    else
-    {
-      echo json_encode(generateResult(false, "There was a database error for the request to get the child information. " . mysqli_error($database)));
-    }
+
+    return $childArray;
   }
-  else if (isset($_GET['setclass']))
+
+  // Gets all notes for an array of children
+  function getNotes($database, $childIDs)
   {
-    $childID = $_GET['childid'];
-    $classID = $_GET['classid'];
-
-    if ($result = mysqli_query($database, "CALL change_child_class($childID, $classID);"))
-    {
-      echo json_encode(generateResult(true, "The child's classroom was changed successfully."));
-    }
-    else
-    {
-      echo json_encode(generateResult(false, "There was an error changing that child's classroom: " . mysqli_error($database)));
-    }
-  }
-  // Get Child Notes
-  // TODO: Something weird with the loop when it gets multiple child IDs.
-  else if (isset($_GET['getnotes']))
-  {
-    $childIDs = json_decode($_GET['childids']);
-    $noteList = array();
-
-    // if ($result = mysqli_query($database, "CALL get_notes($childIDs);"))
-    // {
-    //   // Gathers all the notes for the child
-    //   while($row = mysqli_fetch_array($result))
-    //   {
-    //     $note = array();
-    //     $note["ChildID"] = $childIDs;
-    //     $note["NoteID"] = $row["NoteID"];
-    //     $note["Message"] = $row["Message"];
-    //     $note["SubjectID"] = $row["SubjectID"];
-    //     $note["NoteType"] = $row["NoteType"];
-    //
-    //     if ($note["NoteID"] != null)
-    //     {
-    //       $noteList[] = $note;
-    //     }
-    //   }
-    //   echo json_encode($noteList);
-    // }
-    // else
-    // {
-    //   echo "PROBLEM";
-    // }
-
-    //TODO: Echoing the errors as the loops goes could give an overall invalid JSON string, therefore not being decodable.
     foreach ($childIDs as $currentChild)
     {
       if ($result = mysqli_query($database, "CALL get_notes($currentChild);"))
@@ -123,7 +124,172 @@
       }
       mysqli_next_result($database);
     }
-    echo json_encode($noteList);
+    return $noteList;
+  }
+
+  // Sets a child's current classroom assignment
+  function setClass($database, $childID, $teacherID)
+  {
+    if ($result = mysqli_query($database, "CALL change_child_class($childID, $teacherID);"))
+    {
+      return generateResult(true, "The child's classroom was changed successfully.");
+    }
+    else
+    {
+      return generateResult(false, "There was an error changing that child's classroom: " . mysqli_error($database));
+    }
+  }
+
+  // Signs in an array of ChildIDs
+  function signIn($database, $childIDs, $time)
+  {
+    // Prepares the attendance entry
+    foreach ($childIDs as $childID)
+    {
+      $attendID = 0;
+      if($result = mysqli_query($database, "CALL prepare_attendance($time);"))
+      {
+        $attendance = mysqli_fetch_array($result);
+        $attendID = $attendance["LAST_INSERT_ID()"];
+      }
+      else
+      {
+        return generateResult(false, "There was an error creating an attendance entry for ChildID " . $childID . ". " . mysqli_error($database));
+      }
+
+      mysqli_next_result($database);
+
+      // Links the child to the new attendance entry
+      if($result = mysqli_query($database, "CALL link_attendance($attendID, $childID);"))
+      {
+        // do nothing until the loop is finished
+      }
+      else
+      {
+        return generateResult(false, "Failure to link the child to the attendance entry for ChildID " . $childID . ". " . mysqli_error($database));
+      }
+
+      mysqli_next_result($database);
+    }
+
+    return generateResult(true, "The array of children have been signed in.");
+  }
+
+  // Signs out an array of ChildIDs
+  function signOut($database, $attendIDs, $time)
+  {
+    foreach ($attendIDs as $attendID)
+    {
+      if($result = mysqli_query($database, "CALL sign_out($attendID, $time);"))
+      {
+        // do nothing until the end of the loop
+      }
+      else
+      {
+        return generateResult(false, "Failure to sign out the ChildID " . $childID . ". " . mysqli_error($database));
+      }
+    }
+    return generateResult(true, "The array of children are signed out.");
+  }
+
+  // Checks if a ChildID is signed in or not
+  function getAttendID($database, $childID)
+  {
+    mysqli_next_result($database);
+    if ($result = mysqli_query($database, "CALL get_child_attend_id($childID);"))
+    {
+      if (mysqli_num_rows($result) == 0)
+      {
+        return null;
+      }
+      else
+      {
+        $row = mysqli_fetch_array($result);
+        if ($row["DepTime"] == null)
+        {
+          return $row['AttendID'];
+        }
+      }
+    }
+    else
+    {
+      //return null;
+      return "FUCK" . mysqli_error($database) . "YEAH";
+    }
+  }
+
+
+  // ================================================================================
+
+
+  // Allows the outside API work with the server
+
+  // Add New Child
+  if (isset($_GET['add']))
+  {
+    $apiResponse = addChild(
+      $database,
+      $_GET["ssn"],
+      $_GET["firstname"],
+      $_GET["lastname"],
+      $_GET["dob"],
+      $_GET["parentid"],
+      $_GET["classid"]);
+    echo json_encode($apiResponse);
+  }
+
+  // Gather the info about a child
+  else if (isset($_GET['getinfo']))
+  {
+    if ($_GET['ssn'])
+    {
+      $type = "ssn";
+    }
+    elseif ($_GET['childids'])
+    {
+      $type = "childids";
+    }
+
+    $apiResponse = getChild($database, $type, $_GET[$type]);
+    echo json_encode($apiResponse);
+  }
+
+  // Add a note for an array of ChildIDs
+  else if (isset($_GET['addnote']))
+  {
+    $apiResponse = addNote($database, $_GET['message'], $_GET['notetype'], $_GET['subjectid'], json_decode($_GET['children'], true));
+    echo json_encode($apiResponse);
+  }
+
+  // Change a child's class
+  else if (isset($_GET['setclass']))
+  {
+    $apiResponse = setClass($database, $_GET['childid'], $_GET['teacherid']);
+    echo json_encode($apiResponse);
+  }
+
+  // Get Child Notes
+  else if (isset($_GET['getnotes']))
+  {
+    $childIDs = json_decode($_GET['childids']);
+    $apiResponse = getNotes($database, $childIDs);
+    echo json_encode($apiResponse);
+  }
+
+  // Signs in an array of ChildIDs
+  else if (isset($_GET['signin']))
+  {
+    $childIDs = json_decode($_GET['childids']);
+    $apiResponse = signIn($database, $childIDs, time());
+    echo json_encode($apiResponse);
+  }
+
+  // Signs out an array of ChildIDs
+  else if (isset($_GET['signout']))
+  {
+    $attendIDs = json_decode($_GET['attendids']);
+    $apiResponse = signOut($database, $attendIDs, time());
+    echo json_encode($apiResponse);
   }
 
   function generateResult($successful, $message)

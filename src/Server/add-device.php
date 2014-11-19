@@ -1,9 +1,7 @@
 <?php
 
   include("config.php");
-
-  // Connect to database
-  $database = mysqli_connect(Database_HOST, Database_USER, Database_PASS, Database_NAME);
+  $database = connectDB();
 
   // TODO: change _GET to _POST
   if(isset($_GET["deviceID"]))
