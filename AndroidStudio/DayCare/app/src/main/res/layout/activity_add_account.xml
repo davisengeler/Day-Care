@@ -9,7 +9,13 @@
     android:paddingBottom="16dp"
     android:orientation="vertical"
     tools:context="com.example.daycare.daycare.dummy.AddAccountActivity">
-
+    <ProgressBar
+        android:id="@+id/progressBar1"
+        style="?android:attr/progressBarStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_gravity="center"/>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -168,4 +174,5 @@
 
         </RelativeLayout>
     </LinearLayout>
+
 </LinearLayout>

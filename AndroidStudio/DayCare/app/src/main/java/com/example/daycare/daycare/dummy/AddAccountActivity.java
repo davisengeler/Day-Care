@@ -18,6 +18,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -41,8 +42,13 @@ import java.net.URL;
 public class AddAccountActivity extends Activity {
 
     Button submitButton;
+    private int choice;
     private int typeID;
     private JSONArray userInfo;
+    private ProgressBar loader;
+    private String userID = "", accID = "";
+    EditText fName, lName, sAddress, sCity, sState, sZip, emailAddress, pNum, s_Ssn, sPass;
+    Spinner dropdown;
     @Override
     @TargetApi(17)
     protected void onCreate(Bundle savedInstanceState)
@@ -51,12 +57,22 @@ public class AddAccountActivity extends Activity {
         String type = this.getIntent().getStringExtra("Edit");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_account);
+        loader = (ProgressBar) findViewById(R.id.progressBar1);
         Spinner s1 = (Spinner) findViewById(R.id.spinner1);
 
-        Spinner dropdown = (Spinner)findViewById(R.id.spinner1);
+        dropdown = (Spinner)findViewById(R.id.spinner1);
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, test);
         dropdown.setAdapter(adapter);
-
+        fName = (EditText) findViewById(R.id.first_name);
+        lName = (EditText) findViewById(R.id.last_name);
+        sAddress = (EditText) findViewById(R.id.street_address);
+        sCity = (EditText) findViewById(R.id.city);
+        sState = (EditText) findViewById(R.id.state);
+        sZip = (EditText) findViewById(R.id.zip);
+        emailAddress = (EditText) findViewById(R.id.email);
+        pNum = (EditText) findViewById(R.id.phone);
+        s_Ssn = (EditText) findViewById(R.id.ssn);
+        sPass = (EditText) findViewById(R.id.pass);
         s1.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
 
@@ -71,16 +87,7 @@ public class AddAccountActivity extends Activity {
 
             }
         });
-        final EditText fName = (EditText) findViewById(R.id.first_name);
-        final EditText lName = (EditText) findViewById(R.id.last_name);
-        final EditText sAddress = (EditText) findViewById(R.id.street_address);
-        final EditText sCity = (EditText) findViewById(R.id.city);
-        final EditText sState = (EditText) findViewById(R.id.state);
-        final EditText sZip = (EditText) findViewById(R.id.zip);
-        final EditText emailAddress = (EditText) findViewById(R.id.email);
-        final EditText pNum = (EditText) findViewById(R.id.phone);
-        final EditText s_Ssn = (EditText) findViewById(R.id.ssn);
-        final EditText sPass = (EditText) findViewById(R.id.pass);
+
 
         if(type != null)
         {
@@ -96,29 +103,14 @@ public class AddAccountActivity extends Activity {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
                             g.execute(pSSN.getText().toString());
+
                         }
                     });
-            builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
-                @Override
-                public void onDismiss(DialogInterface dialogInterface) {
-                    try
-                    {
-                        //null pointer exception
-                        Toast.makeText(getApplicationContext(), userInfo.getJSONObject(0).getString("firstName"), Toast.LENGTH_LONG).show();
-                        fName.setText(userInfo.getJSONObject(0).getString("firstName"), TextView.BufferType.EDITABLE);
-                        lName.setText(userInfo.getJSONObject(0).getString("lastName"), TextView.BufferType.EDITABLE);
-
-                    }
-                    catch(JSONException e)
-                    {
-                        Log.e("JSON", e.getMessage());
-                    }
-                }
-            });
             builder.create();
             builder.show();
-            getWindow().getDecorView().findViewById(R.id.container_id).invalidate();
         }
+
+        //send editaccount
 
 
         submitButton = (Button) findViewById(R.id.submitButton);
@@ -334,14 +326,11 @@ public class AddAccountActivity extends Activity {
     }
     public class GetUserInfo extends AsyncTask<String, Void, Boolean>
     {
-        private final String LOG_TAG = SendUserInfo.class.getSimpleName();
-        private String acctID, idNum;
         protected Boolean doInBackground(String...params) {
 
             HttpURLConnection urlConnection = null;
             BufferedReader reader = null;
             String jsonStr = "";
-            String suc = "";
             final String USER_BASE_URL = "http://davisengeler.gwdnow.com/user.php?getaccountbyssn";
             final String SSN_PARAM = "ssn";
 
@@ -378,6 +367,7 @@ public class AddAccountActivity extends Activity {
             }
             try{
                 userInfo = new JSONArray(jsonStr);
+
                 return true;
             }
             catch(JSONException e)
@@ -391,8 +381,59 @@ public class AddAccountActivity extends Activity {
 
         protected void onPostExecute(Boolean success)
         {
+            if(success)
+            {
+                Toast.makeText(getApplicationContext(), "Found User", Toast.LENGTH_LONG).show();
+                try
+                {
+                    JSONObject j1 = new JSONObject(userInfo.getJSONObject(0).toString());
+                    setValues(j1);
+
+
+                }
+                catch(JSONException e)
+                {
+                    Log.e("JSON ", e.getMessage());
+                }
+
+            }
+            else
+            {
+                Toast.makeText(getApplicationContext(), "Couldn't Find User", Toast.LENGTH_LONG).show();
+                loader.setVisibility(View.GONE);
+            }
 
         }
     }
+    public void setValues(JSONObject j1)
+    {
+        try
+        {
+            userID = j1.getString("userID");
+            accID = j1.getString("accID");
+            Log.v("WTF : ", j1.toString() + " " + userID + " " + accID);
+            fName.setText(j1.getString("firstName"), TextView.BufferType.EDITABLE);
+            lName.setText(j1.getString("lastName"), TextView.BufferType.EDITABLE);
+            String addyString = j1.getString("address");
+            String[] splitAddy = addyString.split(",");
+            sAddress.setText(splitAddy[0], TextView.BufferType.EDITABLE);
+            sCity.setText(splitAddy[1], TextView.BufferType.EDITABLE);
+            sState.setText(splitAddy[2], TextView.BufferType.EDITABLE);
+            sZip.setText(splitAddy[3], TextView.BufferType.EDITABLE);
+            s_Ssn.setText(j1.getString("ssn"), TextView.BufferType.EDITABLE);
+            pNum.setText(j1.getString("phone"), TextView.BufferType.EDITABLE);
+            emailAddress.setText(j1.getString("email"), TextView.BufferType.EDITABLE);
+            choice = Integer.parseInt(accID);
+            dropdown.setSelection(choice-1);
+            loader.setVisibility(View.GONE);
+        }
+        catch(JSONException e)
+        {
+            Log.e("JSON ", e.getMessage());
+        }
+
+
+    }
+
 
 }
