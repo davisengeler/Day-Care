@@ -334,6 +334,15 @@
     $apiResponse = array(getAccount($database, $type, $params));
     echo json_encode($apiResponse);
   }
+  // Get Account by UserID
+  else if (isset($_GET['getaccountbyuserid']))
+  {
+    $type = "userID";
+    $params = array($_GET["userid"]);
+    // needs to be an array for android...
+    $apiResponse = array(getAccount($database, $type, $params));
+    echo json_encode($apiResponse);
+  }
   // Setting Approval
   else if (isset($_GET['setapproval']))
   {
