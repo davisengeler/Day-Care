@@ -2,7 +2,7 @@
 
   include("config.php");
   $database = connectDB();
-
+  
   // Class for creating User objects
   class User
   {
@@ -135,8 +135,8 @@
         $databaseCall = "CALL get_account_by_ssn($ssn);";
         break;
       case "userID":
-        $accID = $params[0];
-        $databaseCall = "CALL get_account_by_userid($accID)";
+        $userID = $params[0];
+        $databaseCall = "CALL get_account_by_userid($userID)";
         break;
       case "login":
         $email = $params[0];
@@ -296,7 +296,7 @@
     }
     else
     {
-      $user = getAccount($database, "ssn", $_GET['ssn']);
+      $user = getAccount($database, "userID", array($_GET['userid']));
       $pass = $user->pass; // will already be encrypted
     }
 
