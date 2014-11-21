@@ -6,7 +6,7 @@
   // Class for creating User objects
   class User
   {
-    public $userID, $firstName, $lastName, $ssn, $address, $phone, $email, $accID, $verified, $apiKey, $apiPass;
+    public $userID, $firstName, $lastName, $ssn, $address, $phone, $email, $accID, $verified, $apiKey, $apiPass, $pass;
     public $children = array();
   }
 
@@ -54,6 +54,7 @@
       $singleAccount->verified = $row["Verified"];
       $singleAccount->apiKey = $row["APIKey"];
       $singleAccount->apiPass = $row["APIPass"];
+      $singleAccount->pass = $rpw["Pass"];
 
       // Adds that user to the array
       $pendingAccounts[] = $singleAccount;
@@ -159,6 +160,7 @@
       $account->verified = $row["Verified"];
       $account->apiKey = $row["APIKey"];
       $account->apiPass = $row["APIPass"];
+      $account->pass = $row["Pass"];
 
       // Frees up mysqli for another request
       mysqli_next_result($database);
@@ -288,7 +290,7 @@
     // If the password has been changed, encrypt and save it. Otherwise, use the currently encrypted password for the account.
     // Password initialized here for proper scope.
     $pass = "";
-    if ($_GET['pass'] == "")
+    if ($_GET['pass'] != "")
     {
       $pass = md5($_GET['pass']);
     }
