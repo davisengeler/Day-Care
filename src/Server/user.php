@@ -286,8 +286,9 @@
   else if (isset($_GET['edit']))
   {
     // If the password has been changed, encrypt and save it. Otherwise, use the currently encrypted password for the account.
-    $pass = ""; // for scope
-    if (!isset($_GET['pass'] == "")
+    // Password initialized here for proper scope.
+    $pass = "";
+    if ($_GET['pass'] == "")
     {
       $pass = md5($_GET['pass']);
     }
@@ -296,7 +297,7 @@
       $user = getAccount($database, "ssn", $_GET['ssn']);
       $pass = $user->pass; // will already be encrypted
     }
-    
+
     $apiResponse = updateAccount(
       $database,
       $_GET["userid"],
