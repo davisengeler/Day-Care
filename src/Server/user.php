@@ -290,7 +290,7 @@
     // If the password has been changed, encrypt and save it. Otherwise, use the currently encrypted password for the account.
     // Password initialized here for proper scope.
     $pass = "";
-    if ($_GET['pass'] != "")
+    if (!isset($_GET['pass']))
     {
       $pass = md5($_GET['pass']);
     }
