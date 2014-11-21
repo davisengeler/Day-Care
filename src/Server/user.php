@@ -2,7 +2,7 @@
 
   include("config.php");
   $database = connectDB();
-  
+
   // Class for creating User objects
   class User
   {
@@ -299,6 +299,8 @@
       $user = getAccount($database, "userID", array($_GET['userid']));
       $pass = $user->pass; // will already be encrypted
     }
+
+    mysqli_next_result($database);
 
     $apiResponse = updateAccount(
       $database,
