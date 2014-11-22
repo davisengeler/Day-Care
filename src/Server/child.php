@@ -22,7 +22,7 @@
   // Adds a child
   function addChild($database, $ssn, $firstName, $lastName, $dob, $parentID, $classID)
   {
-    if (mysqli_query($database, "CALL add_new_child($ssn, '$firstName', '$lastName', $dob, $parentID, $classID);"))
+    if (mysqli_query($database, "CALL add_new_child($ssn, '$firstName', '$lastName', $dob', $parentID, $classID);"))
     {
       // New Request Submitted
       return generateResult(true, "The child has been added to the parent account.");
@@ -31,6 +31,19 @@
     {
       // New Request Denied
       return generateResult(false, "Something was wrong with this request to add a child. " . mysqli_error($database));
+    }
+  }
+
+  // Edits a child
+  function editChild($database, $childID, $ssn, $firstName, $lastName, $dob, $parentID, $classID)
+  {
+    if (mysqli_query($database, "CALL edit_child($childID, $ssn, '$firstName', '$lastName', '$dob', $parentID, $classID);"))
+    {
+      return generateResult(true, "The child information has been updated.");
+    }
+    else
+    {
+      return generateResult(false, "There was an error updating the child information. " . mysqli_error($database));
     }
   }
 
@@ -224,8 +237,7 @@
     }
     else
     {
-      //return null;
-      return "FUCK" . mysqli_error($database) . "YEAH";
+      return null;
     }
   }
 
@@ -246,6 +258,20 @@
       $_GET["dob"],
       $_GET["parentid"],
       $_GET["classid"]);
+    echo json_encode($apiResponse);
+  }
+
+  if (isset($_GET['edit']))
+  {
+    $apiResponse = editChild(
+    $database,
+    $_GET["childid"],
+    $_GET["ssn"],
+    $_GET["firstname"],
+    $_GET["lastname"],
+    $_GET["dob"],
+    $_GET["parentid"],
+    $_GET["classid"]);
     echo json_encode($apiResponse);
   }
 
