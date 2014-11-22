@@ -18,6 +18,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 import com.example.daycare.daycare.dummy.AddAccountActivity;
+import com.example.daycare.daycare.dummy.SignInOut;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -66,7 +67,7 @@ public class AdminActivity extends Activity
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 Intent intent;
-                switch(i) { //add acct, edit acct, add child, edit child, acct approve, notes, meds, sign inout
+                switch(i) { //add acct, edit acct, add child, edit child, acct approve, notes, sign inout
                     case 0:
                         intent = new Intent(getApplicationContext(), AddAccountActivity.class);
                         intent.putExtra("AcctTypeList", typesList);
@@ -83,6 +84,9 @@ public class AdminActivity extends Activity
                         startActivity(intent);
                         break;
                     case 3:
+                        intent = new Intent(getApplicationContext(), AddChildActivity.class);
+                        intent.putExtra("Edit", "Edit");
+                        startActivity(intent);
                         break;
                     case 4:
                         if(actType.compareTo("1")!=0)
@@ -101,17 +105,8 @@ public class AdminActivity extends Activity
                         startActivity(intent);
                         break;
                     case 6:
-                        if(actType.compareTo("1")!=0)
-                        {
-
-                        }
-                        else
-                        {
-                            RestrictDialog dialog = new RestrictDialog();
-                            dialog.show(getFragmentManager(), "restrict");
-                        }
-                        break;
-                    case 7:
+                        intent = new Intent(getApplicationContext(), SignInOut.class);
+                        startActivity(intent);
                         break;
                     default:
                         break;

@@ -32,11 +32,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 
 public class AddAccountActivity extends Activity {
@@ -46,7 +44,7 @@ public class AddAccountActivity extends Activity {
     private int typeID;
     private JSONArray userInfo;
     private ProgressBar loader;
-    private String userID = "", accID = "";
+    private String userID = "", accID = "", type;
     EditText fName, lName, sAddress, sCity, sState, sZip, emailAddress, pNum, s_Ssn, sPass;
     Spinner dropdown;
     @Override
@@ -54,7 +52,7 @@ public class AddAccountActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState)
     {
         String [] test = this.getIntent().getStringArrayExtra("AcctTypeList");
-        String type = this.getIntent().getStringExtra("Edit");
+        type = this.getIntent().getStringExtra("Edit");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_account);
         loader = (ProgressBar) findViewById(R.id.progressBar1);
@@ -129,7 +127,19 @@ public class AddAccountActivity extends Activity {
                 sTypeID = Integer.toString(typeID);
                 ssn = s_Ssn.getText().toString();
                 SendUserInfo sendInfo = new SendUserInfo();
-                sendInfo.execute(ssn, firstName, lastName, fullAddress, email, phone, pass, sTypeID);
+                if(type.compareTo("Edit")==0)
+                {
+                    sendInfo.execute(ssn, firstName, lastName, fullAddress, email, phone, pass, sTypeID);
+                }
+                else
+                {
+                    if(pass != null || ssn != null)
+                    {
+                        sendInfo.execute(ssn, firstName, lastName, fullAddress, email, phone, pass, sTypeID);
+                    }
+                }
+
+
 
 
             }
@@ -161,13 +171,16 @@ public class AddAccountActivity extends Activity {
     {
         private final String LOG_TAG = SendUserInfo.class.getSimpleName();
         private String acctID, idNum;
+        private String USER_BASE_URL;
+        private JSONObject jObj;
+
         protected String doInBackground(String...params) {
             acctID = params[7];
             HttpURLConnection urlConnection = null;
             BufferedReader reader = null;
             String jsonStr;
             String suc = "";
-            final String USER_BASE_URL = "http://davisengeler.gwdnow.com/user.php?add";
+            Uri builtUri = null;
             final String SSN_PARAM = "ssn";
             final String F_NAME_PARAM = "firstname";
             final String L_NAME_PARAM = "lastname";
@@ -176,25 +189,72 @@ public class AddAccountActivity extends Activity {
             final String PHONE_PARAM = "phone";
             final String PASS_PARAM = "pass";
             final String TYPE_ID_PARAM = "accid";
-            try {
+            if(type.compareTo("Edit")!=0)
+            {
+                USER_BASE_URL = "http://davisengeler.gwdnow.com/user.php?add";
+
+                try {
 
 
-                Uri builtUri = Uri.parse(USER_BASE_URL).buildUpon()
-                        .appendQueryParameter(SSN_PARAM, params[0])
-                        .appendQueryParameter(F_NAME_PARAM, params[1])
-                        .appendQueryParameter(L_NAME_PARAM, params[2])
-                        .appendQueryParameter(ADDRESS_PARAM, params[3])
-                        .appendQueryParameter(EMAIL_PARAM, params[4])
-                        .appendQueryParameter(PHONE_PARAM, params[5])
-                        .appendQueryParameter(PASS_PARAM, params[6])
-                        .appendQueryParameter(TYPE_ID_PARAM, params[7])
-                        .build();
+                    builtUri = Uri.parse(USER_BASE_URL).buildUpon()
+                            .appendQueryParameter(SSN_PARAM, params[0])
+                            .appendQueryParameter(F_NAME_PARAM, params[1])
+                            .appendQueryParameter(L_NAME_PARAM, params[2])
+                            .appendQueryParameter(ADDRESS_PARAM, params[3])
+                            .appendQueryParameter(EMAIL_PARAM, params[4])
+                            .appendQueryParameter(PHONE_PARAM, params[5])
+                            .appendQueryParameter(PASS_PARAM, params[6])
+                            .appendQueryParameter(TYPE_ID_PARAM, params[7])
+                            .build();
+                } catch (Exception e) {
+                    System.out.println(e.getMessage());
+                }
+
+            }
+            else {
+                USER_BASE_URL = "http://davisengeler.gwdnow.com/user.php?edit";
+                try {
+                    if(params[6].compareTo("")!=0) {
+
+                        builtUri = Uri.parse(USER_BASE_URL).buildUpon()
+                                .appendQueryParameter(SSN_PARAM, params[0])
+                                .appendQueryParameter(F_NAME_PARAM, params[1])
+                                .appendQueryParameter(L_NAME_PARAM, params[2])
+                                .appendQueryParameter(ADDRESS_PARAM, params[3])
+                                .appendQueryParameter(EMAIL_PARAM, params[4])
+                                .appendQueryParameter(PHONE_PARAM, params[5])
+                                .appendQueryParameter(PASS_PARAM, params[6])
+                                .appendQueryParameter(TYPE_ID_PARAM, params[7])
+                                .appendQueryParameter("userid", userID)
+                                .build();
+                    }
+                    else
+                    {
+                        builtUri = Uri.parse(USER_BASE_URL).buildUpon()
+                                .appendQueryParameter(SSN_PARAM, params[0])
+                                .appendQueryParameter(F_NAME_PARAM, params[1])
+                                .appendQueryParameter(L_NAME_PARAM, params[2])
+                                .appendQueryParameter(ADDRESS_PARAM, params[3])
+                                .appendQueryParameter(EMAIL_PARAM, params[4])
+                                .appendQueryParameter(PHONE_PARAM, params[5])
+                                //no password update
+                                .appendQueryParameter(TYPE_ID_PARAM, params[7])
+                                .appendQueryParameter("userid", userID)
+                                .build();
+                    }
+                } catch (Exception e) {
+                    System.out.println(e.getMessage());
+                }
+
+            }
+            try
+            {
+
                 URL url = new URL(builtUri.toString());
-
                 urlConnection = (HttpURLConnection) url.openConnection();
                 urlConnection.setRequestMethod("GET");
                 urlConnection.connect();
-
+                Log.v("URL ", builtUri.toString());
                 InputStream inputStream = urlConnection.getInputStream();
                 StringBuffer buffer = new StringBuffer();
 
@@ -209,66 +269,12 @@ public class AddAccountActivity extends Activity {
                     if (buffer.length() != 0) {
                         jsonStr = buffer.toString();
                         Log.v("JSON String: ", jsonStr);
-                        JSONObject jObj = new JSONObject(jsonStr);
+                        jObj = new JSONObject(jsonStr);
                         suc = jObj.getString("successful");
                     }
                 }
             } catch (Exception e) {
                 System.out.println(e.getMessage());
-            }
-            final String BASE_URL_LOGIN = "http://davisengeler.gwdnow.com/user.php?login";
-
-
-            try {
-                Uri builtUri = Uri.parse(BASE_URL_LOGIN).buildUpon()
-                        .appendQueryParameter(EMAIL_PARAM, params[4])
-                        .appendQueryParameter(PASS_PARAM,params[6]).build();
-
-                Log.v(LOG_TAG, "Built URI " + builtUri.toString());
-                URL getID = new URL(builtUri.toString());
-
-                urlConnection = (HttpURLConnection) getID.openConnection();
-                urlConnection.setRequestMethod("GET");
-                urlConnection.connect();
-
-                // Read the input stream into a String
-                InputStream inputStream = urlConnection.getInputStream();
-                StringBuffer buffer = new StringBuffer();
-                if (inputStream != null) {
-                    reader = new BufferedReader(new InputStreamReader(inputStream));
-
-                    String line;
-                    while ((line = reader.readLine()) != null) {
-                        //makes easy to read in logs
-                        buffer.append(line + "\n");
-                    }
-                    if (buffer.length() != 0) {
-                        jsonStr = buffer.toString();
-                        Log.v(LOG_TAG, "JSON String: " + jsonStr);
-                        JSONObject userID = new JSONObject(jsonStr);
-                        idNum = userID.getString("UserID");
-                    }
-                }
-
-
-            } catch (MalformedURLException e) {
-                Log.e(LOG_TAG, "Error with URL: " + e.getMessage());
-
-            } catch (IOException e) {
-                // If the code didn't successfully get the data,
-                Log.e(LOG_TAG, "Error: " + e.getMessage());
-
-            } catch (JSONException e)
-            {
-                Log.e("JSON ERROR", e.getMessage());
-            }
-            finally {
-                urlConnection.disconnect();
-                try {
-                    reader.close();
-                } catch (final IOException e) {
-                    Log.e(LOG_TAG, "Error closing stream", e);
-                }
             }
 
             return suc;
@@ -278,8 +284,16 @@ public class AddAccountActivity extends Activity {
         {
             if(message.compareTo("true")==0)
             {
-                Toast.makeText(getApplicationContext(), "Added Parent", Toast.LENGTH_LONG).show();
-                if(acctID.compareTo("3")==0)
+                try
+                {
+                    Toast.makeText(getApplicationContext(), jObj.getString("statusMessage"), Toast.LENGTH_LONG).show();
+                }
+                catch(JSONException e)
+                {
+                    Log.e("JSON", e.getMessage());
+                }
+
+                if(acctID.compareTo("3")==0 && type.compareTo("Edit")!=0)
                 {
                     Bundle b = new Bundle();
                     b.putString("idNum", idNum);
@@ -287,7 +301,7 @@ public class AddAccountActivity extends Activity {
                     dialog.setArguments(b);
                     dialog.show(getFragmentManager(), "child");
                 }
-                else
+                else if (acctID.compareTo("3") != 0 && type.compareTo("Edit") !=0)
                 {
                     Intent intent = new Intent(getApplicationContext(), AdminActivity.class);
                     startActivity(intent);
@@ -295,7 +309,14 @@ public class AddAccountActivity extends Activity {
             }
             else
             {
-                Toast.makeText(getApplicationContext(), "Try Again", Toast.LENGTH_LONG).show();
+                try
+                {
+                    Toast.makeText(getApplicationContext(), jObj.getString("statusMessage"), Toast.LENGTH_LONG).show();
+                }
+                catch(JSONException e)
+                {
+                    Log.e("JSON", e.getMessage());
+                }
             }
         }
     }

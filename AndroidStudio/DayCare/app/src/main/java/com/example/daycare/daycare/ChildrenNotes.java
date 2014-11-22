@@ -24,7 +24,7 @@ public class ChildrenNotes {
 
     public String getSubject(){
         String [] messageSubject = {"Meal", "Nap", "Accident", "Needs", "Misc"};
-        return messageSubject[subjectID];
+        return messageSubject[subjectID-1];
     }
 
     public int getNoteType() {

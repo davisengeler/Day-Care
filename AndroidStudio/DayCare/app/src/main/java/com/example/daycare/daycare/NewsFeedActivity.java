@@ -268,7 +268,7 @@ public class NewsFeedActivity extends Activity {
 
 
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-            builder.setTitle(R.string.add_note_title)
+            builder.setTitle("Sign In Or Out")
                     .setMultiChoiceItems(childNames, checkedChildren, new DialogInterface.OnMultiChoiceClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i, boolean b) {
@@ -449,7 +449,7 @@ public class NewsFeedActivity extends Activity {
             }
             else
             {
-                Toast.makeText(getApplicationContext(), "FUCK YOU", Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), "Couldn't Retrieve Info", Toast.LENGTH_LONG).show();
             }
 
         }

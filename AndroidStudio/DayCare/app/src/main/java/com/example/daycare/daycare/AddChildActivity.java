@@ -15,6 +15,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import org.json.JSONException;
@@ -31,30 +32,31 @@ import java.net.URL;
 
 public class AddChildActivity extends Activity
 {
-    Button submitButton;
-    String parentID;
-    String inputInfo;
-
+    private Button submitButton;
+    private String parentID;
+    private String inputInfo;
+    private String edit ="";
+    private EditText cSsn, cFirstName, cLastName, cDob;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_child);
-
+        edit = this.getIntent().getStringExtra("Edit");
         parentID = this.getIntent().getStringExtra("UserID");
         if(parentID == null)
         {
-            final GetParentID pID = new GetParentID();
+            final GetChildInfoBySSN childInfoBySSN = new GetChildInfoBySSN();
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            final EditText pSSN = new EditText(this);
-            pSSN.setHint("Enter SSN Here");
-            pSSN.setInputType(2);
-            builder.setTitle("Parent Search")
-                    .setMessage("Please Enter Parent SSN")
-                    .setView(pSSN)
+            final EditText cSSN = new EditText(this);
+            cSSN.setHint("Enter child's SSN Here");
+            cSSN.setInputType(2);
+            builder.setTitle("Child Search")
+                    .setMessage("Please Enter SSN")
+                    .setView(cSSN)
                     .setPositiveButton("Search", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
-                            pID.execute(pSSN.getText().toString());
+                            childInfoBySSN.execute(cSSN.getText().toString());
                         }
                     });
             builder.create();
@@ -62,10 +64,10 @@ public class AddChildActivity extends Activity
 
 
         }
-        final EditText cSsn = (EditText) findViewById(R.id.cSsn);
-        final EditText cFirstName = (EditText) findViewById(R.id.cfirst_name);
-        final EditText cLastName = (EditText) findViewById(R.id.clast_name);
-        final EditText cDob = (EditText) findViewById(R.id.date_of_birth);
+        cSsn = (EditText) findViewById(R.id.cSsn);
+        cFirstName = (EditText) findViewById(R.id.cfirst_name);
+        cLastName = (EditText) findViewById(R.id.clast_name);
+        cDob = (EditText) findViewById(R.id.date_of_birth);
         submitButton = (Button) findViewById(R.id.cSubmitButton);
         submitButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -110,7 +112,7 @@ public class AddChildActivity extends Activity
         public String doInBackground(String...params)
         {
             String idNum = "";
-            final String BASE_URL_LOGIN = "http://davisengeler.gwdnow.com/user.php?login";
+            final String BASE_URL_LOGIN = "http://davisengeler.gwdnow.com/user.php?getaccountbyssn";
             final String SSN_PARAM = "ssn";
             HttpURLConnection urlConnection = null;
             BufferedReader reader = null;
@@ -182,7 +184,7 @@ public class AddChildActivity extends Activity
                 Toast.makeText(getApplicationContext(), "No Match Found", Toast.LENGTH_LONG).show();
                 ParentDialogFragment p1 = new ParentDialogFragment();
                 p1.alertDialog().show();
-                doInBackground(inputInfo); //problem might be here
+
             }
         }
     }
@@ -318,5 +320,98 @@ public class AddChildActivity extends Activity
             return builder.create();
 
         }
+    }
+
+    public class GetChildInfoBySSN extends AsyncTask<String, Void, String>
+    {
+
+        public String doInBackground(String...params)
+        {
+
+            final String BASE_URL_LOGIN = "http://davisengeler.gwdnow.com/child.php?getinfo";
+            final String SSN_PARAM = "ssn";
+            HttpURLConnection urlConnection = null;
+            BufferedReader reader = null;
+            String jsonStr ="";
+
+            try {
+                Uri builtUri = Uri.parse(BASE_URL_LOGIN).buildUpon()
+                        .appendQueryParameter(SSN_PARAM, params[0]).build();
+
+                Log.v("Built URI " , builtUri.toString());
+                URL getID = new URL(builtUri.toString());
+
+                urlConnection = (HttpURLConnection) getID.openConnection();
+                urlConnection.setRequestMethod("GET");
+                urlConnection.connect();
+
+                // Read the input stream into a String
+                InputStream inputStream = urlConnection.getInputStream();
+                StringBuffer buffer = new StringBuffer();
+                if (inputStream != null) {
+                    reader = new BufferedReader(new InputStreamReader(inputStream));
+
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        //makes easy to read in logs
+                        buffer.append(line + "\n");
+                    }
+                    if (buffer.length() != 0) {
+                        jsonStr = buffer.toString();
+                        Log.v("JSON String: " , jsonStr);
+                    }
+                }
+
+
+            } catch (MalformedURLException e) {
+                Log.e("Error with URL: ", e.getMessage());
+
+            } catch (IOException e) {
+                // If the code didn't successfully get the data,
+                Log.e("Error: ", e.getMessage());
+
+            }
+            finally {
+                urlConnection.disconnect();
+                try {
+                    reader.close();
+                } catch (final IOException e) {
+                    Log.e("Error closing stream", e.getMessage());
+                }
+            }
+
+            return jsonStr;
+        }
+        protected void onPostExecute(String message)
+        {
+            Log.v("Message: ", message);
+            if(message != null)
+            {
+                Toast.makeText(getApplicationContext(), "Found Child", Toast.LENGTH_LONG).show();
+                setValues(message);
+            }
+            else
+            {
+                Toast.makeText(getApplicationContext(), "No Match Found", Toast.LENGTH_LONG).show();
+
+            }
+        }
+    }
+
+    public void setValues(String jsonStr)
+    {
+        try
+        {
+            JSONObject jsonObject = new JSONObject(jsonStr);
+            cFirstName.setText(jsonObject.getString("firstName"), TextView.BufferType.EDITABLE);
+            cLastName.setText(jsonObject.getString("lastName"), TextView.BufferType.EDITABLE);
+            cDob.setText(jsonObject.getString("dob"), TextView.BufferType.EDITABLE);
+        }
+        catch(JSONException e)
+        {
+            Log.e("JSON SET", e.getMessage());
+        }
+
+
     }
 }

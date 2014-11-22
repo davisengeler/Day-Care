@@ -21,13 +21,12 @@
     <string name="title_admin_list">AdminFragment</string>
 
     <string-array name="admin_list">
-        <item name="addAccounts">Add Account</item>
-        <item name="editAccounts">Edit Accounts</item>
+        <item name="addAccounts">Account Information</item>
+        <item name="editAccounts">Edit Account</item>
         <item name="addChildren">Add Child</item>
         <item name="editChildren">Edit Child Information</item>
         <item name="approveAccount">Approve Accounts</item>
         <item name="notes">Notes</item>
-        <item name="medicalInfo">Medical Information</item>
         <item name="childrenInOut">Sign Children In and Out</item>
     </string-array>
     <!-- String[] noteID = {"Meal", "Nap", "Accident", "Needs", "Misc"}; -->
