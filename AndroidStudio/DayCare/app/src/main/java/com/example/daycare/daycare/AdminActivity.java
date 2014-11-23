@@ -92,6 +92,7 @@ public class AdminActivity extends Activity
                         if(actType.compareTo("1")!=0)
                         {
                             intent = new Intent(getApplicationContext(), ApproveAccounts.class);
+                            intent.putExtra("AcctTypeList", typesList);
                             startActivity(intent);
                         }
                         else

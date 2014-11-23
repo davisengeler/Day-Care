@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.DialogInterface;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -14,6 +15,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -30,8 +32,9 @@ import java.net.URL;
 
 public class ApproveAccounts extends Activity {
     private ListView mListView;
-    private String []approveList, toDisplay;
-    private JSONArray account_Type;
+    private static int listChoice;
+    private String []approveList, toDisplay, acctTypeList;
+    private static JSONArray account_Type;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,11 +42,20 @@ public class ApproveAccounts extends Activity {
         mListView = (ListView) findViewById(R.id.container);
         AcctApprovals a = new AcctApprovals();
         a.execute();
+        try
+        {
+            acctTypeList = this.getIntent().getStringArrayExtra("AcctTypeList");
+        }
+        catch (Exception e)
+        {
+            Log.e("Getting acct types", e.getMessage());
+        }
 
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
 
+                listChoice = i;
                 ApproveDialog dialog = new ApproveDialog();
                 dialog.show(getFragmentManager(), "approve");
 
@@ -173,8 +185,11 @@ public class ApproveAccounts extends Activity {
                         JSONObject j = new JSONObject(approveList[i]);
                         toDisplay[i] = j.getString("firstName");
                         toDisplay[i] +=  " " + j.getString("lastName");
-                        toDisplay[i] += " - " +  "Account Type: Admin";
-                        Log.v("toDisplay " , toDisplay[i]);
+                        toDisplay[i] += " - " +  "Account: ";
+                        int idNum = Integer.parseInt(j.getString("accID"));
+                        toDisplay[i] += acctTypeList[idNum-1];
+
+                        Log.v("toDisplay " ,acctTypeList[idNum-1] + idNum);
                     }
                 }
                 catch (Exception e)
@@ -189,20 +204,140 @@ public class ApproveAccounts extends Activity {
     public static class ApproveDialog extends DialogFragment
     {
         private String[] temp = {"Approve", "Deny"};
+        private String userID, decision;
         public Dialog onCreateDialog(Bundle savedInstanceState)
         {
+            try
+            {
+                userID = account_Type.getJSONObject(listChoice).getString("userID");
+
+            }
+            catch (JSONException e)
+            {
+                Log.e("JSON APPROVE", e.getMessage());
+            }
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
             builder.setTitle("Approve Account")
                     .setItems(temp, new DialogInterface.OnClickListener()
                             {
                                 public void onClick(DialogInterface dialog, int which)
                                 {
-                                    // The 'which' argument contains the index position
-                                    // of the selected item
-                                }
+
+                                    if(which == 0)
+                                    {
+                                        decision = "1";
+
+                                    }
+                                    else
+                                    {
+                                        decision = "0";
+                                    }
+                                    ((ApproveAccounts)getActivity()).accountAsync(userID, decision);
+                            }
                             }
                     );
             return builder.create();
         }
+        public void onDismiss(DialogInterface dialog)
+        {
+            ((ApproveAccounts)getActivity()).recallList();
+        }
+    }
+
+    public void recallList()
+    {
+        AcctApprovals app = new AcctApprovals();
+        app.execute();
+    }
+    public void accountAsync(String userID, String decision)
+    {
+        SendAccountApproval s1 = new SendAccountApproval();
+        s1.execute(userID, decision);
+    }
+
+    public class SendAccountApproval extends AsyncTask<String, Void, Boolean> {
+        JSONObject statement;
+
+        protected Boolean doInBackground(String... params) {
+            boolean success = false;
+            String BASE_URL, USER_ID, DECISION;
+            BASE_URL = "http://davisengeler.gwdnow.com/user.php?setapproval";
+            USER_ID = "userid";
+            DECISION = "decision";
+            HttpURLConnection urlConnection = null;
+            BufferedReader reader = null;
+            String jsonStr = "";
+
+
+            try {
+                Uri builtUri = Uri.parse(BASE_URL).buildUpon()
+                        .appendQueryParameter(USER_ID, params[0])
+                        .appendQueryParameter(DECISION, params[1]).build();
+
+                Log.v("TEST:   ", builtUri.toString());
+
+                URL url = new URL(builtUri.toString());
+
+                urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection.setRequestMethod("GET");
+                urlConnection.connect();
+
+                // Read the input stream into a String
+                InputStream inputStream = urlConnection.getInputStream();
+                StringBuffer buffer = new StringBuffer();
+                if (inputStream != null) {
+                    reader = new BufferedReader(new InputStreamReader(inputStream));
+
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        //makes easy to read in logs
+                        buffer.append(line + "\n");
+                    }
+                    if (buffer.length() != 0) {
+                        jsonStr += buffer.toString();
+                    }
+                }
+            } catch (MalformedURLException e) {
+                Log.e("URL Error: ", e.getMessage());
+            } catch (IOException e) {
+                Log.e("Connection: ", e.getMessage());
+            } finally {
+                urlConnection.disconnect();
+                try {
+                    if (reader != null)
+                        reader.close();
+                } catch (IOException e) {
+                    Log.e("Error closing stream", e.getMessage());
+                }
+            }
+
+            try {
+                statement = new JSONObject(jsonStr);
+                success = statement.getBoolean("successful");
+
+            } catch (JSONException e) {
+                Log.e("JSON Error: ", e.getMessage());
+            }
+
+            return success;
+        }
+
+        protected void onPostExecute(Boolean success) {
+            if (success) {
+                try {
+                    Toast.makeText(getApplicationContext(), statement.getString("statusMessage"), Toast.LENGTH_LONG).show();
+                } catch (JSONException e) {
+                    Log.v("JSON", e.getMessage());
+                }
+
+            } else {
+                try {
+                    Toast.makeText(getApplicationContext(), statement.getString("statusMessage"), Toast.LENGTH_LONG).show();
+                } catch (JSONException e) {
+                    Log.v("JSON", e.getMessage());
+                }
+            }
+        }
+
     }
 }
