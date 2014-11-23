@@ -225,12 +225,12 @@ public class ApproveAccounts extends Activity {
 
                                     if(which == 0)
                                     {
-                                        decision = "1";
+                                        decision = "approve";
 
                                     }
                                     else
                                     {
-                                        decision = "0";
+                                        decision = "deny";
                                     }
                                     ((ApproveAccounts)getActivity()).accountAsync(userID, decision);
                             }
@@ -241,6 +241,7 @@ public class ApproveAccounts extends Activity {
         public void onDismiss(DialogInterface dialog)
         {
             ((ApproveAccounts)getActivity()).recallList();
+            ApproveDialog.this.getDialog().cancel();
         }
     }
 
