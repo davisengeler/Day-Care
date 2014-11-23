@@ -20,9 +20,16 @@
   }
 
   // Adds a child
-  function addChild($database, $ssn, $firstName, $lastName, $dob, $parentID, $classID)
+  function addChild($database, $ssn, $firstName, $lastName, $dob, $parentID, $teacherID)
   {
-    if (mysqli_query($database, "CALL add_new_child($ssn, '$firstName', '$lastName', $dob', $parentID, $classID);"))
+    // Gets the ClassID for the given teacher
+    $classID = getTeacherClass($database, $teacherID);
+
+    mysqli_next_result($database);
+
+    echo "CALL add_new_child($ssn, '$firstName', '$lastName', '$dob', $parentID, $classID);";
+
+    if (mysqli_query($database, "CALL add_new_child($ssn, '$firstName', '$lastName', '$dob', $parentID, $classID);"))
     {
       // New Request Submitted
       return generateResult(true, "The child has been added to the parent account.");
@@ -31,6 +38,27 @@
     {
       // New Request Denied
       return generateResult(false, "Something was wrong with this request to add a child. " . mysqli_error($database));
+    }
+  }
+
+  // Returns the ClassID for a given teacher
+  function getTeacherClass($database, $teacherID)
+  {
+    if ($result = mysqli_query($database, "CALL get_teacher_class($teacherID)"))
+    {
+      if (mysqli_num_rows($result) > 0)
+      {
+        $row = mysqli_fetch_array($result);
+        return $row["ClassID"];
+      }
+      else
+      {
+        return null;
+      }
+    }
+    else
+    {
+      return null;
     }
   }
 
@@ -262,7 +290,7 @@
       $_GET["lastname"],
       $_GET["dob"],
       $_GET["parentid"],
-      $_GET["classid"]);
+      $_GET["teacherid"]);
     echo json_encode($apiResponse);
   }
 
