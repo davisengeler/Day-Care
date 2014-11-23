@@ -26,8 +26,6 @@
     $classID = getTeacherClass($database, $teacherID);
     mysqli_next_result($database);
 
-    echo "CALL add_new_child($ssn, '$firstName', '$lastName', '$dob', $parentID, $classID);";
-
     if (mysqli_query($database, "CALL add_new_child($ssn, '$firstName', '$lastName', '$dob', $parentID, $classID);"))
     {
       // New Request Submitted
