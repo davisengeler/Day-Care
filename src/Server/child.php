@@ -5,7 +5,7 @@
 
   class Child
   {
-    public $childID, $ssn, $firstName, $lastName, $dob, $parentID, $classID, $attendID;
+    public $childID, $ssn, $firstName, $lastName, $dob, $parentID, $classID, $teacherID, $attendID;
   }
 
   // The standard formatting for a general API call's result
@@ -24,7 +24,6 @@
   {
     // Gets the ClassID for the given teacher
     $classID = getTeacherClass($database, $teacherID);
-
     mysqli_next_result($database);
 
     echo "CALL add_new_child($ssn, '$firstName', '$lastName', '$dob', $parentID, $classID);";
@@ -62,9 +61,34 @@
     }
   }
 
-  // Edits a child
-  function editChild($database, $childID, $ssn, $firstName, $lastName, $dob, $parentID, $classID)
+  // Returns the ClassID for a given teacher
+  function getClassTeacher($database, $classID)
   {
+    if ($result = mysqli_query($database, "CALL get_class_teacher($classID)"))
+    {
+      if (mysqli_num_rows($result) > 0)
+      {
+        $row = mysqli_fetch_array($result);
+        return $row['AssignedTeacher'];
+      }
+      else
+      {
+        return null;
+      }
+    }
+    else
+    {
+      return null;
+    }
+  }
+
+  // Edits a child
+  function editChild($database, $childID, $ssn, $firstName, $lastName, $dob, $parentID, $teacherID)
+  {
+    // Gets the ClassID for the given teacher
+    $classID = getTeacherClass($database, $teacherID);
+    mysqli_next_result($database);
+
     if (mysqli_query($database, "CALL edit_child($childID, $ssn, '$firstName', '$lastName', '$dob', $parentID, $classID);"))
     {
       return generateResult(true, "The child information has been updated.");
@@ -139,6 +163,8 @@
         $child->parentID = $row["ParentID"];
         $child->classID = $row["ClassID"];
         $child->attendID = getAttendID($database, $child->childID);
+        mysqli_next_result($database);
+        $child->teacherID = getClassTeacher($database, $child->classID);
 
         if ($child->ssn != null)
         {
@@ -304,7 +330,7 @@
     $_GET["lastname"],
     $_GET["dob"],
     $_GET["parentid"],
-    $_GET["classid"]);
+    $_GET["teacherid"]);
     echo json_encode($apiResponse);
   }
 
