@@ -8,4 +8,7 @@
     <item android:id="@+id/action_sign_in"
         android:title="@string/sign_in_out"
         android:orderInCategory="1"/>
+    <item android:id="@+id/add_note_option"
+        android:title="@string/add_note_title"
+        android:orderInCategory="2"/>
 </menu>

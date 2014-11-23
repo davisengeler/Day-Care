@@ -4,13 +4,14 @@ package com.example.daycare.daycare;
  * Created by Michael on 11/11/2014.
  */
 public class ChildrenNotes {
-    private int childID, subjectID, noteType;
+    private int subjectID, noteType;
     private String message;
     private int noteID;
+    private String childName, childID;
 
     public ChildrenNotes(String childID, String noteID, String message, String subjectID, String noteType )
     {
-        this.childID = Integer.parseInt(childID);
+        this.childID = childID;
         this.noteID = Integer.parseInt(noteID);
         this.subjectID = Integer.parseInt(subjectID);
         this.noteID = Integer.parseInt(noteID);
@@ -18,7 +19,7 @@ public class ChildrenNotes {
         this.message = message;
     }
 
-    public int getChildID() {
+    public String getChildID() {
         return childID;
     }
 
@@ -34,4 +35,12 @@ public class ChildrenNotes {
     public String getMessage() {
         return message;
     }
+
+    public String getChildName() { return childName;}
+
+    public void setChildName(String firstName, String lastName)
+    {
+        childName = firstName + " " + lastName;
+    }
+
 }
