@@ -68,10 +68,15 @@
         }
         else
         {
-          $statuses = $statuses . "Note failed to be added to ChildID " . $currentChild . ". ";
+          $statuses = $statuses . "Note failed to be added to ChildID " . $currentChild . "(" . mysqli_error($database) . "). ";
           $allSuccessful = false;
         }
       }
+    }
+    else
+    {
+      $allSuccessful = false;
+      $statuses = "Note failed to be added. " . mysqli_error($database);
     }
     return generateResult($allSuccessful, $statuses);
   }
