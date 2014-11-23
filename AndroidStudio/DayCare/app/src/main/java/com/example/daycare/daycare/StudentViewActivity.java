@@ -35,11 +35,10 @@ import java.net.URL;
 
 public class StudentViewActivity extends Activity {
     protected String [] actions = {"Contact Parent", "Add Note","View Notes", "Move Student"};
-    static final String [] teachers = {"Jane Smith", "John Doe", "Davis Engeler", "John Sloan", "Michael Hetzel"};
     private ListView mListView;
     private static String []  teacherNames;
     private TextView tView, dView, teachView, pView;
-    private JSONArray pInfo;
+    private static JSONArray pInfo;
     private static JSONArray tList;
     private static JSONObject childInfo;
     private String JSONString;
@@ -87,16 +86,17 @@ public class StudentViewActivity extends Activity {
                 switch (i)
                 {
                     case 0:
-                        //for testing purposes
-                        DialogFragment dgE = new ErrorMessageDialog();
-                        dgE.show(getFragmentManager(), "error");
+                        DialogFragment dgE = new PhoneCallDialog();
+                        dgE.show(getFragmentManager(), "call");
                         break;
                     case 1:
                         DialogFragment dg2 = new NoteDialogFragment();
-                        dg2.show(getFragmentManager(), "notes");
+                        dg2.show(getFragmentManager(), "notes"); //get this to work
                         break;
                     case 2:
-
+                        Intent intent = new Intent(getApplicationContext(), NewsFeedActivity.class);
+                        intent.putExtra("teacherView", childInfo.toString());
+                        startActivity(intent);
                         break;
                     case 3:
                         DialogFragment dg1 = new TeacherDialogFragment();
@@ -194,7 +194,6 @@ public class StudentViewActivity extends Activity {
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
             final EditText message = new EditText(getActivity());
             message.setHint(R.string.enter_message);
-            message.setInputType(41); //check to see if this works
             builder.setTitle(R.string.add_note_title)
                     .setSingleChoiceItems(R.array.note_id, noteIDChosen, new DialogInterface.OnClickListener() {
                         @Override
@@ -222,20 +221,33 @@ public class StudentViewActivity extends Activity {
         }
     }
 
-    public static class ErrorMessageDialog extends DialogFragment
+    public static class PhoneCallDialog extends DialogFragment
     {
         public Dialog onCreateDialog(Bundle savedInstanceState)
         {
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-            builder.setTitle("Must select a note type")
-                    .setMessage("Please select the type of note")
-                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
+            try
+            {
+                final String phoneNum = pInfo.getJSONObject(0).getString("phone");
+                builder.setTitle("Contact Phone Number")
+                        .setMessage("You are calling: \n" + pInfo.getJSONObject(0).getString("firstName") +
+                                " " + pInfo.getJSONObject(0).getString("lastName") + " at " + phoneNum)
+                        .setPositiveButton("Call", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
 
-                        }
-                    })
-                    .setIcon(android.R.drawable.ic_dialog_alert);
+                                String number = "tel:" + phoneNum.trim();
+                                Intent callIntent = new Intent(Intent.ACTION_CALL, Uri.parse(number));
+                                startActivity(callIntent);
+                                getActivity().finish();
+                            }
+                        });
+            }
+            catch(Exception e)
+            {
+                Log.e("PHONE CALL", e.getMessage());
+            }
+
             return builder.create();
         }
 

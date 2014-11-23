@@ -43,6 +43,7 @@ public class NewsFeedActivity extends Activity {
     private boolean progress = false;
     private static String[] childNames;
     private String childIDList;
+    private String teacherView = "";
     private static String IDs="", sMethod="";
 
     private ArrayList<ChildrenNotes> cNotes = new ArrayList<ChildrenNotes>();
@@ -54,21 +55,22 @@ public class NewsFeedActivity extends Activity {
         mListView = (ListView) findViewById(android.R.id.list);
         mProgressView = (ProgressBar) findViewById(R.id.progress_bar_news);
 
-
+        teacherView = this.getIntent().getStringExtra("teacherView");
         JSONArray passedJSON=null;
         GetNotes note = new GetNotes();
 
         try{
-
-            passedJSON = new JSONArray(this.getIntent().getStringExtra("JSONString"));
-            if(passedJSON != null)
+            if(teacherView == null)
             {
-
+                passedJSON = new JSONArray(this.getIntent().getStringExtra("JSONString"));
                 childIDList = passedJSON.getJSONObject(0).getString("children").replaceAll("\"", "");
-
-                note.execute(childIDList);
-
             }
+            else
+            {
+                JSONObject passedChild = new JSONObject(teacherView);
+                childIDList = "[" + passedChild.getString("childID") + "]";
+            }
+            note.execute(childIDList);
         }
         catch(JSONException e)
         {
@@ -202,7 +204,21 @@ public class NewsFeedActivity extends Activity {
                             notes.getJSONObject(i).getString("NoteID"),
                             notes.getJSONObject(i).getString("Message"), notes.getJSONObject(i).getString("SubjectID"),
                             notes.getJSONObject(i).getString("NoteType"));
-                    cNotes.add(c);
+                    if(teacherView != null)
+                    {
+                        if(c.getNoteType() == 0)
+                        {
+                            cNotes.add(c);
+                        }
+                    }
+                    else
+                    {
+                        if(c.getNoteType() == 1)
+                        {
+                            cNotes.add(c);
+                        }
+                    }
+
 
                 }
 

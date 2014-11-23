@@ -13,11 +13,15 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -33,17 +37,24 @@ import java.net.URL;
 public class AddChildActivity extends Activity
 {
     private Button submitButton;
-    private String parentID;
-    private String inputInfo;
+    private JSONArray tList;
+    private int chosenTeach;
+    private String [] teacherNames;
+    private String parentID, childID = "";
+    private String inputInfo, teachString;
     private String edit ="";
-    private EditText cSsn, cFirstName, cLastName, cDob;
+    private EditText cSsn, cFirstName, cLastName, cDob, classID;
+    Spinner dropdown;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_child);
+        GetTeacherList list = new GetTeacherList();
+        list.execute();
+        dropdown = (Spinner) findViewById(R.id.spinner);
         edit = this.getIntent().getStringExtra("Edit");
         parentID = this.getIntent().getStringExtra("UserID");
-        if(parentID == null)
+        if(edit != null)
         {
             final GetChildInfoBySSN childInfoBySSN = new GetChildInfoBySSN();
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -64,11 +75,23 @@ public class AddChildActivity extends Activity
 
 
         }
+
         cSsn = (EditText) findViewById(R.id.cSsn);
         cFirstName = (EditText) findViewById(R.id.cfirst_name);
         cLastName = (EditText) findViewById(R.id.clast_name);
         cDob = (EditText) findViewById(R.id.date_of_birth);
         submitButton = (Button) findViewById(R.id.cSubmitButton);
+        dropdown.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                chosenTeach = i;
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
         submitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -78,7 +101,16 @@ public class AddChildActivity extends Activity
                 lName = cLastName.getText().toString();
                 dob = cDob.getText().toString();
                 AddChild add = new AddChild();
-                add.execute(ssn, fName, lName, dob, parentID);
+                try
+                {
+                    teachString = tList.getJSONObject(chosenTeach).getString("classID");
+                }
+                catch(Exception e)
+                {
+                    Log.e("JSON SUBMIT", e.getMessage());
+                }
+
+                add.execute(ssn, fName, lName, dob, parentID, teachString);
 
             }
         });
@@ -190,27 +222,48 @@ public class AddChildActivity extends Activity
     }
     public class AddChild extends AsyncTask<String, Void, String>
     {
+        String BASE_URL, SSN_PARAM, FIRST_NAME, LAST_NAME, DOB, PARENT_ID, CLASS_ID, CHILD_ID;
+        Uri builtUri;
 
-        public String doInBackground(String...params)
+        protected String doInBackground(String...params)
         {
-            String suc = "";
-            final String BASE_URL = "http://davisengeler.gwdnow.com/child.php?add";
-            final String SSN_PARAM = "ssn";
-            final String FIRST_NAME = "firstname";
-            final String LAST_NAME = "lastname";
-            final String DOB = "dob";
-            final String USER_ID = "UserID";
-            HttpURLConnection urlConnection = null;
-            BufferedReader reader = null;
-            String jsonStr;
-            try
+            SSN_PARAM = "ssn";
+            FIRST_NAME = "firstname";
+            LAST_NAME = "lastname";
+            DOB = "dob";
+            PARENT_ID = "UserID";
+            CLASS_ID = "classID";
+            CHILD_ID = "childID";
+            if(edit == null)
             {
-                Uri builtUri = Uri.parse(BASE_URL).buildUpon()
+                BASE_URL = "http://davisengeler.gwdnow.com/child.php?add";
+                builtUri = Uri.parse(BASE_URL).buildUpon()
                         .appendQueryParameter(SSN_PARAM, params[0])
                         .appendQueryParameter(FIRST_NAME, params[1])
                         .appendQueryParameter(LAST_NAME, params[2])
                         .appendQueryParameter(DOB, params[3])
-                        .appendQueryParameter(USER_ID, params[4]).build();
+                        .appendQueryParameter(PARENT_ID, params[4])
+                        .appendQueryParameter(CLASS_ID, params[5]).build();
+            }
+            else
+            {
+                BASE_URL = "http://davisengeler.gwdnow.com/child.php?edit";
+                builtUri = Uri.parse(BASE_URL).buildUpon()
+                        .appendQueryParameter(SSN_PARAM, params[0])
+                        .appendQueryParameter(FIRST_NAME, params[1])
+                        .appendQueryParameter(LAST_NAME, params[2])
+                        .appendQueryParameter(DOB, params[3])
+                        .appendQueryParameter(PARENT_ID, params[4])
+                        .appendQueryParameter(CLASS_ID, params[5])
+                        .appendQueryParameter(CHILD_ID, childID.toString()).build();
+            }
+
+            HttpURLConnection urlConnection = null;
+            BufferedReader reader = null;
+            String jsonStr = "";
+            try
+            {
+
                 URL url = new URL(builtUri.toString());
                 Log.v("Add Child: ", builtUri.toString());
                 urlConnection = (HttpURLConnection) url.openConnection();
@@ -230,8 +283,7 @@ public class AddChildActivity extends Activity
                     if (buffer.length() != 0) {
                         jsonStr = buffer.toString();
                         Log.v("JSON String: ", jsonStr);
-                        JSONObject jObj = new JSONObject(jsonStr);
-                        suc = jObj.getString("successful");
+
 
                     }
                 }
@@ -249,25 +301,42 @@ public class AddChildActivity extends Activity
                 }
             }
 
-            return suc;
+            return jsonStr;
         }
 
         protected void onPostExecute(String message)
         {
-            if(message.compareTo("true")==0)
+            try
             {
-                Toast.makeText(getApplicationContext(), "Added Child", Toast.LENGTH_LONG).show();
-                AnotherChildDialog d = new AnotherChildDialog();
-                Bundle b = new Bundle();
-                b.putString("pID", parentID);
-                d.setArguments(b);
-                d.show(getFragmentManager(), "child");
+                JSONObject jMessage = new JSONObject(message);
+                if(jMessage.getString("successful").compareTo("true")==0)
+                {
+                    if(edit == null)
+                    {
+                        Toast.makeText(getApplicationContext(), jMessage.getString("statusMessage"), Toast.LENGTH_LONG).show();
+                        AnotherChildDialog d = new AnotherChildDialog();
+                        Bundle b = new Bundle();
+                        b.putString("pID", parentID);
+                        d.setArguments(b);
+                        d.show(getFragmentManager(), "child");
+                    }
+                    else
+                    {
+                        Toast.makeText(getApplicationContext(), jMessage.getString("statusMessage"), Toast.LENGTH_LONG).show();
+                        finish();
+                    }
+                }
+                else
+                {
+                    Toast.makeText(getApplicationContext(), jMessage.getString("statusMessage"), Toast.LENGTH_LONG).show();
+                }
+            }
+            catch(JSONException e)
+            {
+                Log.e("JSON MESSAGE", e.getMessage());
+            }
 
-            }
-            else
-            {
-                Toast.makeText(getApplicationContext(), "Try Again", Toast.LENGTH_LONG).show();
-            }
+
         }
     }
 
@@ -406,6 +475,18 @@ public class AddChildActivity extends Activity
             cFirstName.setText(jsonObject.getString("firstName"), TextView.BufferType.EDITABLE);
             cLastName.setText(jsonObject.getString("lastName"), TextView.BufferType.EDITABLE);
             cDob.setText(jsonObject.getString("dob"), TextView.BufferType.EDITABLE);
+            cSsn.setText(jsonObject.getString("ssn"), TextView.BufferType.EDITABLE);
+            parentID = jsonObject.getString("parentID");
+            childID = jsonObject.getString("childID");
+
+            for(int i=0; i<tList.length(); ++i)
+            {
+                if(jsonObject.getString("classID").compareTo(tList.getJSONObject(i).getString("classID"))==0)
+                {
+                    chosenTeach = i;
+                }
+            }
+            dropdown.setSelection(chosenTeach);
         }
         catch(JSONException e)
         {
@@ -414,4 +495,104 @@ public class AddChildActivity extends Activity
 
 
     }
+    public class GetTeacherList extends AsyncTask<String, Void, Boolean> {
+
+        protected Boolean doInBackground(String... params) {
+
+            final String BASE_URL = "http://davisengeler.gwdnow.com/user.php?teacherlist";
+
+            HttpURLConnection urlConnection = null;
+            BufferedReader reader = null;
+            String jsonStr = "";
+
+
+            try {
+                Uri builtUri = Uri.parse(BASE_URL).buildUpon().build();
+
+                Log.v("TEST:   ", builtUri.toString());
+
+                URL url = new URL(builtUri.toString());
+
+                urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection.setRequestMethod("GET");
+                urlConnection.connect();
+
+                // Read the input stream into a String
+                InputStream inputStream = urlConnection.getInputStream();
+                StringBuffer buffer = new StringBuffer();
+                if (inputStream != null) {
+                    reader = new BufferedReader(new InputStreamReader(inputStream));
+
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        //makes easy to read in logs
+                        buffer.append(line + "\n");
+                    }
+                    if (buffer.length() != 0) {
+                        jsonStr += buffer.toString();
+                    }
+                }
+            } catch (MalformedURLException e) {
+                Log.e("URL Error: ", e.getMessage());
+            } catch (IOException e) {
+                Log.e("Connection: ", e.getMessage());
+            } finally {
+                urlConnection.disconnect();
+                try {
+                    if (reader != null)
+                        reader.close();
+                } catch (IOException e) {
+                    Log.e("Error closing stream", e.getMessage());
+                }
+            }
+
+            try {
+
+                tList = new JSONArray(jsonStr);
+                Log.v("ARRAY ", tList.toString());
+
+                return true;
+
+
+            } catch (JSONException e) {
+                Log.e("JSON Error: ", e.getMessage());
+            }
+
+            return false;
+        }
+
+        protected void onPostExecute(Boolean success){
+            if(success)
+            {
+                try
+                {
+                    teacherNames = new String[tList.length()];
+                    for(int i=0; i<tList.length(); ++i)
+                    {
+                        teacherNames[i] = tList.getJSONObject(i).getString("firstName") + " " +
+                                tList.getJSONObject(i).getString("lastName");
+                    }
+                    teacherListNames();
+                }
+                catch(JSONException e)
+                {
+                    Log.e("JSON TEACH", e.getMessage());
+                }
+
+
+            }
+            else
+            {
+                //Toast.makeText(getApplicationContext(), "Couldn't Retrieve Info", Toast.LENGTH_LONG).show();
+            }
+
+        }
+
+    }
+    public void teacherListNames ()
+    {
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, teacherNames);
+        dropdown.setAdapter(adapter);
+    }
+
 }
