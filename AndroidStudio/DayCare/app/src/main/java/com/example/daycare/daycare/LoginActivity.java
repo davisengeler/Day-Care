@@ -58,7 +58,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class LoginActivity extends Activity implements LoaderCallbacks<Cursor>{
 
 
-    private AccountAuthorize mAuthTask = null;
+//    private AccountAuthorize mAuthTask = null;
     private UserLoginTask mUserTask = null;
     // UI references.
     private AutoCompleteTextView mEmailView;
@@ -102,8 +102,9 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor>{
                 return false;
             }
         });
-        mAuthTask = new AccountAuthorize();
-        mAuthTask.execute( );
+//        mAuthTask = new AccountAuthorize();
+//        mAuthTask.execute(Secure.getString(getApplicationContext().getContentResolver(),
+//                Secure.ANDROID_ID) );
         Button mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
         mEmailSignInButton.setOnClickListener(new OnClickListener() {
             @Override
@@ -272,7 +273,8 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor>{
      * using the 'from' address in the message. (For GCM)
      */
     private void sendRegistrationIdToBackend() {
-        //TODO: Replace this with your own logic
+        AccountAuthorize tickleAuthTask = new AccountAuthorize();
+        tickleAuthTask.execute(regid);
     }
 
     /**
@@ -575,7 +577,7 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor>{
 
         @Override
         protected void onPostExecute(final Boolean success) {
-            mAuthTask = null;
+//            mAuthTask = null;
             showProgress(false);
 
             if (success) { //work on switch
@@ -617,13 +619,12 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor>{
 
         @Override
         protected void onCancelled() {
-            mAuthTask = null;
+//            mAuthTask = null;
             showProgress(false);
         }
     }
-    public class AccountAuthorize extends AsyncTask<Void, Void, Boolean>{
-
-        protected Boolean doInBackground(Void...params) {
+    public class AccountAuthorize extends AsyncTask<String, Void, Boolean>{
+        protected Boolean doInBackground(String... params) {
             HttpURLConnection urlConnection = null;
             BufferedReader reader = null;
             String jsonStr = null;
@@ -631,8 +632,7 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor>{
 
             final String DE = "http://davisengeler.gwdnow.com/add-device.php?deviceID=";
 
-            String android_id = Secure.getString(getApplicationContext().getContentResolver(),
-                    Secure.ANDROID_ID);
+            String android_id = params[0];
 
             Log.d("Android", "Android ID : " + android_id);
 
