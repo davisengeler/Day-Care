@@ -105,9 +105,6 @@
     $allSuccessful = true;
     $message = mysqli_real_escape_string($database, $message);
 
-    echo $message;
-    echo "<br />CALL prepare_note('$message', $subjectID, $noteType);";
-
     // Prepares the note
     if($result = mysqli_query($database, "CALL prepare_note('$message', $subjectID, $noteType);"))
     {
