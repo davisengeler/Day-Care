@@ -103,7 +103,10 @@
     // Sets up a status message string
     $statuses = "";
     $allSuccessful = true;
-    $message = serialize($message);
+    $message = mysqli_real_escape_string($database, $message);
+
+    echo $message;
+    echo "<br />CALL prepare_note('$message', $subjectID, $noteType);";
 
     // Prepares the note
     if($result = mysqli_query($database, "CALL prepare_note('$message', $subjectID, $noteType);"))
@@ -194,7 +197,7 @@
           $note = array();
           $note["ChildID"] = $currentChild;
           $note["NoteID"] = $row["NoteID"];
-          $note["Message"] = unserialize($row["Message"]);
+          $note["Message"] = $row["Message"];
           $note["SubjectID"] = $row["SubjectID"];
           $note["NoteType"] = $row["NoteType"];
 
