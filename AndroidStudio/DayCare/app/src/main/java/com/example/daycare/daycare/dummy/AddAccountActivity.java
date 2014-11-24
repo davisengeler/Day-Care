@@ -44,6 +44,7 @@ public class AddAccountActivity extends Activity {
     private int typeID;
     private JSONArray userInfo;
     private ProgressBar loader;
+    private static String ssn, JSONString;
     private String userID = "", accID = "", type;
     EditText fName, lName, sAddress, sCity, sState, sZip, emailAddress, pNum, s_Ssn, sPass;
     Spinner dropdown;
@@ -56,8 +57,9 @@ public class AddAccountActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_account);
         loader = (ProgressBar) findViewById(R.id.progressBar1);
+        loader.setVisibility(View.GONE);
         Spinner s1 = (Spinner) findViewById(R.id.spinner1);
-
+        JSONString = this.getIntent().getStringExtra("JSONString");
         dropdown = (Spinner)findViewById(R.id.spinner1);
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, test);
         dropdown.setAdapter(adapter);
@@ -100,6 +102,7 @@ public class AddAccountActivity extends Activity {
                     .setPositiveButton("Search", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
+                            loader.setVisibility(View.VISIBLE);
                             g.execute(pSSN.getText().toString());
 
                         }
@@ -116,7 +119,7 @@ public class AddAccountActivity extends Activity {
             @Override
             public void onClick(View view) {
                 //take the info and send to php
-                String firstName, lastName, fullAddress, email, phone, ssn, pass, sTypeID;
+                String firstName, lastName, fullAddress, email, phone, pass, sTypeID;
                 firstName = fName.getText().toString();
                 lastName = lName.getText().toString();
                 fullAddress = sAddress.getText().toString() +"," + sCity.getText().toString() + ","+
@@ -127,13 +130,13 @@ public class AddAccountActivity extends Activity {
                 sTypeID = Integer.toString(typeID);
                 ssn = s_Ssn.getText().toString();
                 SendUserInfo sendInfo = new SendUserInfo();
-                if(type.compareTo("Edit")==0)
+                if(type != null)
                 {
                     sendInfo.execute(ssn, firstName, lastName, fullAddress, email, phone, pass, sTypeID);
                 }
                 else
                 {
-                    if(pass != null || ssn != null)
+                    if(pass != null && ssn != null)
                     {
                         sendInfo.execute(ssn, firstName, lastName, fullAddress, email, phone, pass, sTypeID);
                     }
@@ -150,7 +153,7 @@ public class AddAccountActivity extends Activity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.add_account, menu);
+        //getMenuInflater().inflate(R.menu.add_account, menu);
         return true;
     }
 
@@ -189,7 +192,7 @@ public class AddAccountActivity extends Activity {
             final String PHONE_PARAM = "phone";
             final String PASS_PARAM = "pass";
             final String TYPE_ID_PARAM = "accid";
-            if(type.compareTo("Edit")!=0)
+            if(type == null)
             {
                 USER_BASE_URL = "http://davisengeler.gwdnow.com/user.php?add";
 
@@ -293,7 +296,7 @@ public class AddAccountActivity extends Activity {
                     Log.e("JSON", e.getMessage());
                 }
 
-                if(acctID.compareTo("3")==0 && type.compareTo("Edit")!=0)
+                if(acctID.compareTo("3")==0 && type == null)
                 {
                     Bundle b = new Bundle();
                     b.putString("idNum", idNum);
@@ -301,10 +304,13 @@ public class AddAccountActivity extends Activity {
                     dialog.setArguments(b);
                     dialog.show(getFragmentManager(), "child");
                 }
-                else if (acctID.compareTo("3") != 0 && type.compareTo("Edit") !=0)
+                else
                 {
                     Intent intent = new Intent(getApplicationContext(), AdminActivity.class);
-                    startActivity(intent);
+                    intent.putExtra("JSONString", JSONString);
+                    //startActivity(intent);
+                    finish();
+
                 }
             }
             else
@@ -331,8 +337,9 @@ public class AddAccountActivity extends Activity {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
                            Intent cIntent = new Intent(getActivity(), AddChildActivity.class);
-                            cIntent.putExtra("UserID", idNum);
-                            Log.v("Parent ID; ", idNum);
+                            cIntent.putExtra("UserSSN", ssn);
+                            cIntent.putExtra("JSONString", JSONString);
+
                            startActivity(cIntent);
                         }
                     })
@@ -340,6 +347,7 @@ public class AddAccountActivity extends Activity {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
                             ChildDialogFragment.this.getDialog().cancel();
+                            getActivity().finish();
                         }
                     });
             return builder.create();

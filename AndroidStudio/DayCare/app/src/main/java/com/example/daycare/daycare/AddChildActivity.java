@@ -40,8 +40,8 @@ public class AddChildActivity extends Activity
     private JSONArray tList;
     private int chosenTeach;
     private String [] teacherNames;
-    private String parentID, childID = "";
-    private String inputInfo, teachString;
+    private String parentID, childID = "",teachString;
+    private static String inputInfo, JSONString;
     private String edit ="";
     private EditText cSsn, cFirstName, cLastName, cDob, classID;
     Spinner dropdown;
@@ -51,9 +51,11 @@ public class AddChildActivity extends Activity
         setContentView(R.layout.activity_add_child);
         GetTeacherList list = new GetTeacherList();
         list.execute();
+        JSONString = this.getIntent().getStringExtra("JSONString");
         dropdown = (Spinner) findViewById(R.id.spinner);
         edit = this.getIntent().getStringExtra("Edit");
-        parentID = this.getIntent().getStringExtra("UserID");
+        parentID = this.getIntent().getStringExtra("UserSSN");
+
         if(edit != null)
         {
             final GetChildInfoBySSN childInfoBySSN = new GetChildInfoBySSN();
@@ -74,6 +76,16 @@ public class AddChildActivity extends Activity
             builder.show();
 
 
+        }
+        else if(parentID == null)
+        {
+            ParentDialogFragment p1 = new ParentDialogFragment();
+            p1.show(getFragmentManager(), "pdialog");
+        }
+        else
+        {
+            GetParentID pID = new GetParentID();
+            pID.execute(parentID);
         }
 
         cSsn = (EditText) findViewById(R.id.cSsn);
@@ -103,7 +115,7 @@ public class AddChildActivity extends Activity
                 AddChild add = new AddChild();
                 try
                 {
-                    teachString = tList.getJSONObject(chosenTeach).getString("classID");
+                    teachString = tList.getJSONObject(chosenTeach).getString("userID");
                 }
                 catch(Exception e)
                 {
@@ -120,7 +132,7 @@ public class AddChildActivity extends Activity
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_add_child, menu);
+        //getMenuInflater().inflate(R.menu.menu_add_child, menu);
         return true;
     }
 
@@ -175,8 +187,9 @@ public class AddChildActivity extends Activity
                     if (buffer.length() != 0) {
                         jsonStr = buffer.toString();
                         Log.v("JSON String: " , jsonStr);
-                        JSONObject userID = new JSONObject(jsonStr);
-                        idNum = userID.getString("UserID");
+                        JSONArray another = new JSONArray(jsonStr);
+                        JSONObject userID = new JSONObject(another.getJSONObject(0).toString());
+                        idNum = userID.getString("userID");
                     }
                 }
 
@@ -215,14 +228,14 @@ public class AddChildActivity extends Activity
             {
                 Toast.makeText(getApplicationContext(), "No Match Found", Toast.LENGTH_LONG).show();
                 ParentDialogFragment p1 = new ParentDialogFragment();
-                p1.alertDialog().show();
+                p1.show(getFragmentManager(), "anotherp1");
 
             }
         }
     }
     public class AddChild extends AsyncTask<String, Void, String>
     {
-        String BASE_URL, SSN_PARAM, FIRST_NAME, LAST_NAME, DOB, PARENT_ID, CLASS_ID, CHILD_ID;
+        String BASE_URL, SSN_PARAM, FIRST_NAME, LAST_NAME, DOB, PARENT_ID, TEACH_ID, CHILD_ID;
         Uri builtUri;
 
         protected String doInBackground(String...params)
@@ -231,9 +244,9 @@ public class AddChildActivity extends Activity
             FIRST_NAME = "firstname";
             LAST_NAME = "lastname";
             DOB = "dob";
-            PARENT_ID = "UserID";
-            CLASS_ID = "classID";
-            CHILD_ID = "childID";
+            PARENT_ID = "parentid";
+            TEACH_ID = "teacherid"; //teacherID
+            CHILD_ID = "childid";
             if(edit == null)
             {
                 BASE_URL = "http://davisengeler.gwdnow.com/child.php?add";
@@ -243,7 +256,7 @@ public class AddChildActivity extends Activity
                         .appendQueryParameter(LAST_NAME, params[2])
                         .appendQueryParameter(DOB, params[3])
                         .appendQueryParameter(PARENT_ID, params[4])
-                        .appendQueryParameter(CLASS_ID, params[5]).build();
+                        .appendQueryParameter(TEACH_ID, params[5]).build();
             }
             else
             {
@@ -254,8 +267,8 @@ public class AddChildActivity extends Activity
                         .appendQueryParameter(LAST_NAME, params[2])
                         .appendQueryParameter(DOB, params[3])
                         .appendQueryParameter(PARENT_ID, params[4])
-                        .appendQueryParameter(CLASS_ID, params[5])
-                        .appendQueryParameter(CHILD_ID, childID.toString()).build();
+                        .appendQueryParameter(TEACH_ID, params[5])
+                        .appendQueryParameter(CHILD_ID, childID).build();
             }
 
             HttpURLConnection urlConnection = null;
@@ -323,6 +336,8 @@ public class AddChildActivity extends Activity
                     else
                     {
                         Toast.makeText(getApplicationContext(), jMessage.getString("statusMessage"), Toast.LENGTH_LONG).show();
+                        Intent intent = new Intent(getApplicationContext(), AdminActivity.class);
+                        intent.putExtra("JSONString", JSONString);
                         finish();
                     }
                 }
@@ -340,12 +355,12 @@ public class AddChildActivity extends Activity
         }
     }
 
-    public class ParentDialogFragment {
+    public static class ParentDialogFragment extends DialogFragment {
 
-        public Dialog alertDialog() {
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
 
-            AlertDialog.Builder builder = new AlertDialog.Builder(getApplicationContext());
-            final EditText pSSN = new EditText(getApplicationContext());
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            final EditText pSSN = new EditText(getActivity());
             pSSN.setHint("Enter SSN Here");
             pSSN.setInputType(2);
             builder.setTitle("Parent Search")
@@ -356,13 +371,18 @@ public class AddChildActivity extends Activity
                         public void onClick(DialogInterface dialogInterface, int i) {
 
                             inputInfo = pSSN.getText().toString();
+                            ((AddChildActivity)getActivity()).retrievePID();
                         }
                     });
 
             return builder.create();
         }
     }
-
+    public void retrievePID()
+    {
+        GetParentID getPID = new GetParentID();
+        getPID.execute(inputInfo);
+    }
     public static class AnotherChildDialog extends DialogFragment
     {
         public Dialog onCreateDialog(Bundle savedInstanceState)
@@ -376,6 +396,7 @@ public class AddChildActivity extends Activity
                         public void onClick(DialogInterface dialogInterface, int i) {
                             Intent intent = new Intent(getActivity(), AddChildActivity.class);
                             intent.putExtra("UserID", pID);
+                            intent.putExtra("JSONString", JSONString);
                             startActivity(intent);
                         }
                     })
@@ -383,7 +404,9 @@ public class AddChildActivity extends Activity
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
                             Intent intent = new Intent(getActivity(), AdminActivity.class);
+                            intent.putExtra("JSONString", JSONString);
                             startActivity(intent);
+
                         }
                     });
             return builder.create();
@@ -399,13 +422,14 @@ public class AddChildActivity extends Activity
 
             final String BASE_URL_LOGIN = "http://davisengeler.gwdnow.com/child.php?getinfo";
             final String SSN_PARAM = "ssn";
+            String param = "[" + params[0] + "]";
             HttpURLConnection urlConnection = null;
             BufferedReader reader = null;
             String jsonStr ="";
 
             try {
                 Uri builtUri = Uri.parse(BASE_URL_LOGIN).buildUpon()
-                        .appendQueryParameter(SSN_PARAM, params[0]).build();
+                        .appendQueryParameter(SSN_PARAM, param).build();
 
                 Log.v("Built URI " , builtUri.toString());
                 URL getID = new URL(builtUri.toString());
@@ -471,7 +495,8 @@ public class AddChildActivity extends Activity
     {
         try
         {
-            JSONObject jsonObject = new JSONObject(jsonStr);
+            JSONArray temp = new JSONArray(jsonStr);
+            JSONObject jsonObject = new JSONObject(temp.getJSONObject(0).toString());
             cFirstName.setText(jsonObject.getString("firstName"), TextView.BufferType.EDITABLE);
             cLastName.setText(jsonObject.getString("lastName"), TextView.BufferType.EDITABLE);
             cDob.setText(jsonObject.getString("dob"), TextView.BufferType.EDITABLE);
@@ -479,9 +504,10 @@ public class AddChildActivity extends Activity
             parentID = jsonObject.getString("parentID");
             childID = jsonObject.getString("childID");
 
+
             for(int i=0; i<tList.length(); ++i)
             {
-                if(jsonObject.getString("classID").compareTo(tList.getJSONObject(i).getString("classID"))==0)
+                if(jsonObject.getString("teacherID").compareTo(tList.getJSONObject(i).getString("teacherID"))==0)
                 {
                     chosenTeach = i;
                 }

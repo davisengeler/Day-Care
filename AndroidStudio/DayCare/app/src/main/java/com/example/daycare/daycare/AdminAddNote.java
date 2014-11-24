@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.res.Resources;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -40,7 +41,7 @@ public class AdminAddNote extends Activity {
     private boolean bySSN = false;
     private static String [] teacherNames;
     private static JSONArray tList;
-    private String childIDs = "";
+    private String childIDs = "", JSONString;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -48,6 +49,7 @@ public class AdminAddNote extends Activity {
         Resources res = getResources();
         GetTeacherList teachAsync = new GetTeacherList();
         teachAsync.execute();
+        JSONString = this.getIntent().getStringExtra("JSONString");
         final String [] notes = res.getStringArray(R.array.note_id);
         radioButton1 = (RadioButton) findViewById(R.id.radio_1);
         radioButton2 = (RadioButton) findViewById(R.id.radio_2);
@@ -158,7 +160,7 @@ public class AdminAddNote extends Activity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_admin_add_note, menu);
+        //getMenuInflater().inflate(R.menu.menu_admin_add_note, menu);
         return true;
     }
 
@@ -244,6 +246,9 @@ public class AdminAddNote extends Activity {
             {
                 JSONObject j = new JSONObject(stmt);
                 Toast.makeText(getApplicationContext(), j.getString("statusMessage"), Toast.LENGTH_LONG).show();
+                Intent intent = new Intent(getApplicationContext(), AdminActivity.class);
+                intent.putExtra("JSONString", JSONString);
+                finish();
 
             }
             catch(JSONException e)

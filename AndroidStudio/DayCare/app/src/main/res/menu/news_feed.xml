@@ -1,11 +1,14 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.example.daycare.daycare.NewsFeedActivity" >
-    <item android:id="@+id/action_settings"
-        android:title="@string/action_settings"
-        android:orderInCategory="100"
-        android:showAsAction="never" />
+    <!--<item android:id="@+id/action_settings"-->
+        <!--android:title="@string/action_settings"-->
+        <!--android:orderInCategory="100"-->
+        <!--android:showAsAction="never" />-->
     <item android:id="@+id/action_sign_in"
         android:title="@string/sign_in_out"
         android:orderInCategory="1"/>
+    <item android:id="@+id/add_note_option"
+        android:title="@string/add_note_title"
+        android:orderInCategory="2"/>
 </menu>

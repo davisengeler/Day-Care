@@ -21,7 +21,7 @@
     <string name="title_admin_list">AdminFragment</string>
 
     <string-array name="admin_list">
-        <item name="addAccounts">Account Information</item>
+        <item name="addAccounts">Add Account</item>
         <item name="editAccounts">Edit Account</item>
         <item name="addChildren">Add Child</item>
         <item name="editChildren">Edit Child Information</item>
@@ -39,7 +39,7 @@
     </string-array>
 
     <string name="title_activity_admin">Personnel Home</string>
-    <string name="title_activity_add_account">Add Account</string>
+    <string name="title_activity_add_account">Account Information</string>
     <string name="first_name_label">First Name</string>
     <string name="last_name_label">Last Name</string>
     <string name="phone_number_label">Phone Number</string>
@@ -58,7 +58,7 @@
     <string name="save_label">Save</string>
     <string name="cancel_label">Cancel</string>
     <string name="no_label">No</string>
-    <string name="title_activity_add_child">Add Child</string>
+    <string name="title_activity_add_child">Child\'s Information</string>
     <string name="DOB_label">Date of Birth</string>
     <string name="dob_label_view">Date of Birth: </string>
     <string name="yes_label">Yes</string>
@@ -68,7 +68,7 @@
     <string name="title_activity_admin_add_note">Add Note</string>
     <string name="hello_world">Hello world!</string>
     <string name="enter_message">Enter Message Here</string>
-    <string name="title_activity_approve_accounts">ApproveAccounts</string>
-    <string name="title_activity_sign_in_out">SignInOut</string>
+    <string name="title_activity_approve_accounts">Approve Accounts</string>
+    <string name="title_activity_sign_in_out">Sign In and Out</string>
 
 </resources>
