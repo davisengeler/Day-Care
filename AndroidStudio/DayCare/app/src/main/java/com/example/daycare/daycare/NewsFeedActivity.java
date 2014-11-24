@@ -16,6 +16,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
@@ -38,12 +39,13 @@ public class NewsFeedActivity extends Activity {
     private ListView mListView;
     private ProgressBar mProgressView;
     private JSONArray notes;
-    private static JSONArray cInfo;
-    private static boolean[] checkedChildren;
+    private static JSONArray cInfo, jArray;
+    private static boolean[] checkedChildren, checkedStudents;
     private boolean progress = false;
-    private static String[] childNames;
+    private static String[] childNames, students;
     private String childIDList;
-    private static String IDs="", sMethod="";
+    private String teacherView = "";
+    private static String IDs = "", sMethod = "", noteIDs = "";
 
     private ArrayList<ChildrenNotes> cNotes = new ArrayList<ChildrenNotes>();
 
@@ -54,24 +56,20 @@ public class NewsFeedActivity extends Activity {
         mListView = (ListView) findViewById(android.R.id.list);
         mProgressView = (ProgressBar) findViewById(R.id.progress_bar_news);
 
-
-        JSONArray passedJSON=null;
+        teacherView = this.getIntent().getStringExtra("teacherView");
+        JSONArray passedJSON = null;
         GetNotes note = new GetNotes();
 
-        try{
-
-            passedJSON = new JSONArray(this.getIntent().getStringExtra("JSONString"));
-            if(passedJSON != null)
-            {
-
+        try {
+            if (teacherView == null) {
+                passedJSON = new JSONArray(this.getIntent().getStringExtra("JSONString"));
                 childIDList = passedJSON.getJSONObject(0).getString("children").replaceAll("\"", "");
-
-                note.execute(childIDList);
-
+            } else {
+                JSONObject passedChild = new JSONObject(teacherView);
+                childIDList = "[" + passedChild.getString("childID") + "]";
             }
-        }
-        catch(JSONException e)
-        {
+            note.execute(childIDList);
+        } catch (JSONException e) {
             Log.e("JSON String: ", e.getMessage());
         }
 
@@ -87,7 +85,10 @@ public class NewsFeedActivity extends Activity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.news_feed, menu);
+        if (teacherView == null) {
+            getMenuInflater().inflate(R.menu.news_feed, menu);
+        }
+
         return true;
     }
 
@@ -97,115 +98,109 @@ public class NewsFeedActivity extends Activity {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-        if (id == R.id.action_settings)
-        {
+        if (id == R.id.action_settings) {
             return true;
-        }
-        else if(id == R.id.action_sign_in)
-        {
+        } else if (id == R.id.action_sign_in) {
 
             GetChildInfo info = new GetChildInfo();
             info.execute(childIDList);
+        } else if (id == R.id.add_note_option) {
+            AddNoteDialog noteDialog = new AddNoteDialog();
+            noteDialog.show(getFragmentManager(), "notething");
         }
         return super.onOptionsItemSelected(item);
     }
 
-    public class GetNotes extends AsyncTask<String, Void, Boolean>
-    {
+    public class GetNotes extends AsyncTask<String, Void, Boolean> {
+        String ofIDS = "";
 
-        protected Boolean doInBackground(String...params)
-        {
+        protected Boolean doInBackground(String... params) {
             showProgress(true);
             final String BASE_URL = "http://davisengeler.gwdnow.com/child.php?getnotes";
             final String CHILD_ID = "childids";
+//            final String DEVICE_ID = "deviceID";
+//            String android_id = Settings.Secure.getString(getApplicationContext().getContentResolver(),
+//                    Settings.Secure.ANDROID_ID);
             HttpURLConnection urlConnection = null;
             BufferedReader reader = null;
             String jsonStr = "";
+            ofIDS = params[0];
 
 
-                try
-                {
-                    Uri builtUri = Uri.parse(BASE_URL).buildUpon()
-                            .appendQueryParameter(CHILD_ID, params[0]).build();
+            try {
+                Uri builtUri = Uri.parse(BASE_URL).buildUpon()
+                        .appendQueryParameter(CHILD_ID, params[0])
+                        .build();
 
-                    Log.v("TEST:   ", builtUri.toString());
+                Log.v("TEST:   ", builtUri.toString());
 
-                    URL url = new URL(builtUri.toString());
+                URL url = new URL(builtUri.toString());
 
-                    urlConnection = (HttpURLConnection) url.openConnection();
-                    urlConnection.setRequestMethod("GET");
-                    urlConnection.connect();
+                urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection.setRequestMethod("GET");
+                urlConnection.connect();
 
-                    // Read the input stream into a String
-                    InputStream inputStream = urlConnection.getInputStream();
-                    StringBuffer buffer = new StringBuffer();
-                    if (inputStream != null)
-                    {
-                        reader = new BufferedReader(new InputStreamReader(inputStream));
+                // Read the input stream into a String
+                InputStream inputStream = urlConnection.getInputStream();
+                StringBuffer buffer = new StringBuffer();
+                if (inputStream != null) {
+                    reader = new BufferedReader(new InputStreamReader(inputStream));
 
-                        String line;
-                        while ((line = reader.readLine()) != null)
-                        {
-                            //makes easy to read in logs
-                            buffer.append(line + "\n");
-                        }
-                        if (buffer.length() != 0)
-                        {
-                            jsonStr += buffer.toString();
-                        }
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        //makes easy to read in logs
+                        buffer.append(line + "\n");
+                    }
+                    if (buffer.length() != 0) {
+                        jsonStr += buffer.toString();
                     }
                 }
-                catch (MalformedURLException e)
-                {
-                    Log.e("URL Error: ", e.getMessage());
+            } catch (MalformedURLException e) {
+                Log.e("URL Error: ", e.getMessage());
+            } catch (IOException e) {
+                Log.e("Connection: ", e.getMessage());
+            } finally {
+                urlConnection.disconnect();
+                try {
+                    if (reader != null)
+                        reader.close();
+                } catch (IOException e) {
+                    Log.e("Error closing stream", e.getMessage());
                 }
-                catch (IOException e)
-                {
-                    Log.e("Connection: ", e.getMessage());
-                }
-                finally
-                {
-                    urlConnection.disconnect();
-                    try
-                    {
-                        if (reader != null)
-                            reader.close();
-                    } catch (IOException e)
-                    {
-                        Log.e("Error closing stream", e.getMessage());
-                    }
-                }
+            }
 
-            try
-            {
+            try {
 
                 notes = new JSONArray(jsonStr);
 
                 //save note information here
 
 
-            }
-            catch(JSONException e)
-            {
+            } catch (JSONException e) {
                 Log.e("JSON Error: ", e.getMessage());
             }
 
-            try
-            {
-                for(int i=0; i<notes.length(); ++i)
-                {
+            try {
+                for (int i = 0; i < notes.length(); ++i) {
                     ChildrenNotes c = new ChildrenNotes(notes.getJSONObject(i).getString("ChildID"),
                             notes.getJSONObject(i).getString("NoteID"),
                             notes.getJSONObject(i).getString("Message"), notes.getJSONObject(i).getString("SubjectID"),
                             notes.getJSONObject(i).getString("NoteType"));
-                    cNotes.add(c);
+                    if (teacherView != null) {
+                        if (c.getNoteType() == 0) {
+                            cNotes.add(c);
+                        }
+                    } else {
+                        if (c.getNoteType() == 1) {
+                            cNotes.add(c);
+                        }
+                    }
+
 
                 }
 
                 return true;
-            }
-            catch(JSONException e)
-            {
+            } catch (JSONException e) {
                 Log.e("LOG", e.getMessage());
             }
 
@@ -216,6 +211,8 @@ public class NewsFeedActivity extends Activity {
 
         protected void onPostExecute(Boolean success) {
             if (success) {
+                ChildLookup getInfo = new ChildLookup();
+                getInfo.execute(ofIDS);
                 Toast.makeText(getApplicationContext(), "Success", Toast.LENGTH_LONG).show();
                 showProgress(false);
                 setList();
@@ -226,6 +223,7 @@ public class NewsFeedActivity extends Activity {
             }
         }
     }
+
     @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
     public void showProgress(final boolean show) {
         // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
@@ -258,13 +256,14 @@ public class NewsFeedActivity extends Activity {
             mListView.setVisibility(show ? View.GONE : View.VISIBLE);
         }
     }
+
     public static class SignInOutDialog extends DialogFragment {
 
         public Dialog onCreateDialog(Bundle savedInstanceState) {
 
 
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-            builder.setTitle(R.string.add_note_title)
+            builder.setTitle("Sign In Or Out")
                     .setMultiChoiceItems(childNames, checkedChildren, new DialogInterface.OnMultiChoiceClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i, boolean b) {
@@ -283,11 +282,9 @@ public class NewsFeedActivity extends Activity {
                                         temp.add(cInfo.getJSONObject(j).getString("childID"));
                                     }
                                 }
-                                for(int j=0; j<temp.size(); ++j)
-                                {
+                                for (int j = 0; j < temp.size(); ++j) {
                                     IDs += temp.get(j);
-                                    if(j<temp.size()-1)
-                                    {
+                                    if (j < temp.size() - 1) {
                                         IDs += ",";
                                     }
                                 }
@@ -309,11 +306,9 @@ public class NewsFeedActivity extends Activity {
                                         temp.add(cInfo.getJSONObject(j).getString("attendID"));
                                     }
                                 }
-                                for(int j=0; j<temp.size(); ++j)
-                                {
+                                for (int j = 0; j < temp.size(); ++j) {
                                     IDs += temp.get(j);
-                                    if(j<temp.size()-1)
-                                    {
+                                    if (j < temp.size() - 1) {
                                         IDs += ",";
                                     }
                                 }
@@ -327,17 +322,15 @@ public class NewsFeedActivity extends Activity {
                     });
             return builder.create();
         }
-        public void onDismiss(DialogInterface dialogInterface)
-        {
 
-            ((NewsFeedActivity)getActivity()).callSignAsync(IDs, sMethod);
+        public void onDismiss(DialogInterface dialogInterface) {
+
+            ((NewsFeedActivity) getActivity()).callSignAsync(IDs, sMethod);
         }
     }
 
-    public void callSignAsync(String IDs, String sMethod)
-    {
+    public void callSignAsync(String IDs, String sMethod) {
         SignInOut signInOut = new SignInOut();
-        Log.v("Sign", "Sign " + sMethod);
         signInOut.execute(IDs, sMethod);
     }
 
@@ -398,30 +391,23 @@ public class NewsFeedActivity extends Activity {
                 cInfo = new JSONArray(jsonStr);
                 childNames = new String[cInfo.length()];
 
-                for(int i=0; i<childNames.length; ++i)
-                {
-                    childNames[i] = cInfo.getJSONObject(i).getString("firstName") +
+                for (int i = 0; i < childNames.length; ++i) {
+                    childNames[i] = cInfo.getJSONObject(i).getString("firstName") + " " +
                             cInfo.getJSONObject(i).getString("lastName");
                 }
                 checkedChildren = new boolean[childNames.length];
 
-                try
-                {
-                    for(int i=0; i<checkedChildren.length; ++i)
-                    {
+                try {
+                    for (int i = 0; i < checkedChildren.length; ++i) {
                         Log.v("Attend status: ", cInfo.getJSONObject(i).getString("attendID"));
-                        if(cInfo.getJSONObject(i).getString("attendID").compareTo("null")==0)
-                        {
+                        if (cInfo.getJSONObject(i).getString("attendID").compareTo("null") == 0) {
                             checkedChildren[i] = false;
-                        }
-                        else
-                        {
+                        } else {
                             checkedChildren[i] = true;
                         }
 
                     }
-                }catch(JSONException e)
-                {
+                } catch (JSONException e) {
                     Log.e("JSON ERROR", e.getMessage());
                 }
 
@@ -436,17 +422,14 @@ public class NewsFeedActivity extends Activity {
             return false;
         }
 
-        protected void onPostExecute(Boolean success){
-            if(success)
-            {
+        protected void onPostExecute(Boolean success) {
+            if (success) {
                 DialogFragment s = new SignInOutDialog();
                 s.show(getFragmentManager(), "sign");
 
 
-            }
-            else
-            {
-                Toast.makeText(getApplicationContext(), "FUCK YOU", Toast.LENGTH_LONG).show();
+            } else {
+                Toast.makeText(getApplicationContext(), "Couldn't Retrieve Info", Toast.LENGTH_LONG).show();
             }
 
         }
@@ -455,16 +438,14 @@ public class NewsFeedActivity extends Activity {
 
     public class SignInOut extends AsyncTask<String, Void, Boolean> {
         JSONObject statement;
+
         protected Boolean doInBackground(String... params) {
             boolean success = false;
             String BASE_URL, ID;
-            if(sMethod.compareTo("signin")==0)
-            {
+            if (sMethod.compareTo("signin") == 0) {
                 BASE_URL = "http://davisengeler.gwdnow.com/child.php?signin";
                 ID = "childids";
-            }
-            else
-            {
+            } else {
                 BASE_URL = "http://davisengeler.gwdnow.com/child.php?signout";
                 ID = "attendids";
             }
@@ -525,26 +506,18 @@ public class NewsFeedActivity extends Activity {
             return success;
         }
 
-        protected void onPostExecute(Boolean success)
-        {
-            if(success)
-            {
-                try
-                {
+        protected void onPostExecute(Boolean success) {
+            if (success) {
+                try {
                     Toast.makeText(getApplicationContext(), statement.getString("statusMessage"), Toast.LENGTH_LONG).show();
-                }catch (JSONException e)
-                {
+                } catch (JSONException e) {
                     Log.v("JSON", e.getMessage());
                 }
 
-            }
-            else
-            {
-                try
-                {
+            } else {
+                try {
                     Toast.makeText(getApplicationContext(), statement.getString("statusMessage"), Toast.LENGTH_LONG).show();
-                }catch (JSONException e)
-                {
+                } catch (JSONException e) {
                     Log.v("JSON", e.getMessage());
                 }
             }
@@ -552,5 +525,281 @@ public class NewsFeedActivity extends Activity {
 
     }
 
+    public class ChildLookup extends AsyncTask<String, Void, Boolean> {
+        private String jsonStr;
+        protected final String VALIDATE = "verified", ACCT_ID = "accID";
+
+
+        @Override
+        protected Boolean doInBackground(String... params) {
+
+            HttpURLConnection urlConnection = null;
+            BufferedReader reader = null;
+            final String BASE_URL = "http://davisengeler.gwdnow.com/child.php?getinfo";
+            String CHILD_PARAM = "childids";
+
+            jsonStr = processQuery(urlConnection, reader, BASE_URL, params[0], CHILD_PARAM);
+
+
+            try {
+                jArray = new JSONArray(jsonStr);
+                students = new String[jArray.length()];
+                for (int i = 0; i < students.length; ++i) {
+                    students[i] = jArray.getJSONObject(i).getString("firstName") + " " +
+                            jArray.getJSONObject(i).getString("lastName");
+                }
+                for (int i = 0; i < cNotes.size(); ++i) {
+                    for (int j = 0; j < jArray.length(); ++j) {
+                        if (cNotes.get(i).getChildID().compareTo(jArray.getJSONObject(j).getString("childID")) == 0) {
+                            cNotes.get(i).setChildName(jArray.getJSONObject(j).getString("firstName"),
+                                    jArray.getJSONObject(j).getString("lastName"));
+                        }
+                    }
+
+                }
+
+            } catch (JSONException e) {
+                Log.e("Error", e.getMessage());
+            }
+
+
+            return true;
+        }
+
+        protected void onPostExecute(Boolean success) {
+            setList();
+        }
+
+    }
+
+    public String processQuery(HttpURLConnection urlConnection, BufferedReader reader, String BASE_URL, String idArray, String SEARCH) {
+        String jsonStr = null;
+
+        try {
+            Uri builtUri = Uri.parse(BASE_URL).buildUpon()
+                    .appendQueryParameter(SEARCH, idArray).build();
+
+            Log.v("Built URI ", builtUri.toString());
+            URL url = new URL(builtUri.toString());
+
+            urlConnection = (HttpURLConnection) url.openConnection();
+            urlConnection.setRequestMethod("GET");
+            urlConnection.connect();
+
+            // Read the input stream into a String
+            InputStream inputStream = urlConnection.getInputStream();
+            StringBuffer buffer = new StringBuffer();
+            if (inputStream != null) {
+                reader = new BufferedReader(new InputStreamReader(inputStream));
+
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    //makes easy to read in logs
+                    buffer.append(line + "\n");
+                }
+                if (buffer.length() != 0) {
+                    jsonStr = buffer.toString();
+                    Log.v("JSON String: ", jsonStr);
+                } else {
+
+                }
+            }
+        } catch (MalformedURLException e) {
+            Log.e("Error with URL: ", e.getMessage());
+
+        } catch (IOException e) {
+            // If the code didn't successfully get the data,
+            Log.e("Error: ", e.getMessage());
+
+        } finally {
+            urlConnection.disconnect();
+            try {
+                reader.close();
+            } catch (final IOException e) {
+                Log.e("Error closing stream", e.getMessage());
+            }
+
+        }
+        return jsonStr;
+    }
+
+    public static class AddNoteDialog extends DialogFragment {
+
+
+
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            checkedStudents = new boolean[students.length];
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setTitle(R.string.add_note_title)
+                    .setMultiChoiceItems(students, checkedStudents, new DialogInterface.OnMultiChoiceClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i, boolean b) {
+                            checkedStudents[i] = b;
+                        }
+                    })
+                    .setPositiveButton("Add Note", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+
+                            ArrayList<String> temp = new ArrayList<String>();
+                            noteIDs = "[";
+                            try {
+                                for (int j = 0; j < checkedStudents.length; ++j) {
+                                    if (checkedStudents[j]) {
+                                        temp.add(jArray.getJSONObject(j).getString("childID"));
+                                    }
+                                }
+                                for (int j = 0; j < temp.size(); ++j) {
+                                    noteIDs += temp.get(j);
+                                    if (j < temp.size() - 1) {
+                                        noteIDs += ",";
+                                    }
+                                }
+                                noteIDs += "]";
+                                NoteDialogFragment nextStep = new NoteDialogFragment();
+                                nextStep.show(getFragmentManager(), "notestuff");
+                            } catch (JSONException e) {
+                                Log.e("JSON", e.getMessage());
+                            }
+                        }
+                    })
+                    .setNegativeButton(R.string.cancel_label, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            AddNoteDialog.this.getDialog().cancel();
+                        }
+                    });
+            return builder.create();
+        }
+
+    }
+
+    public static class NoteDialogFragment extends DialogFragment
+    {
+
+        int noteIDChosen =4;
+        public Dialog onCreateDialog(Bundle savedInstanceState)
+        {
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            final EditText message = new EditText(getActivity());
+            message.setHint(R.string.enter_message);
+            builder.setTitle(R.string.add_note_title)
+                    .setSingleChoiceItems(R.array.note_id, noteIDChosen, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            noteIDChosen = i;
+                        }
+                    })
+                    .setView(message)
+                    .setPositiveButton(R.string.save_label, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+
+                            String mContent = message.getText().toString();
+                            Log.v("NoteMessage", noteIDChosen + " " + mContent);
+                            //submit this as a note to server with noteIDChosen
+                            String noteIDSelect = "" + (noteIDChosen+1);
+                            ((NewsFeedActivity)getActivity()).addNoteAsyncCall(mContent, noteIDSelect);
+
+                        }
+                    })
+                    .setNegativeButton(R.string.cancel_label, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            NoteDialogFragment.this.getDialog().cancel();
+                        }
+                    });
+
+            return builder.create();
+        }
+    }
+
+    public void addNoteAsyncCall(String message, String subjectID)
+    {
+        AddNote add = new AddNote();
+        String notetype = "0";
+
+        add.execute(message, subjectID, notetype, noteIDs);
+    }
+
+    public class AddNote extends AsyncTask<String, Void, String> {
+
+        protected String doInBackground(String... params) {
+
+            final String BASE_URL = "http://davisengeler.gwdnow.com/child.php?addnote";
+            final String MESSAGE_ID = "message";
+            final String NOTE_ID = "notetype";
+            final String SUBJECT_ID = "subjectid";
+            final String CHILD_IDS = "children";
+            HttpURLConnection urlConnection = null;
+            BufferedReader reader = null;
+            String jsonStr = "";
+
+
+            try {
+                Uri builtUri = Uri.parse(BASE_URL).buildUpon()
+                        .appendQueryParameter(MESSAGE_ID, params[0])
+                        .appendQueryParameter(SUBJECT_ID, params[1])
+                        .appendQueryParameter(NOTE_ID, params[2])
+                        .appendQueryParameter(CHILD_IDS, params[3]).build();
+
+                Log.v("TEST:   ", builtUri.toString());
+
+                URL url = new URL(builtUri.toString());
+
+                urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection.setRequestMethod("GET");
+                urlConnection.connect();
+
+                // Read the input stream into a String
+                InputStream inputStream = urlConnection.getInputStream();
+                StringBuffer buffer = new StringBuffer();
+                if (inputStream != null) {
+                    reader = new BufferedReader(new InputStreamReader(inputStream));
+
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        //makes easy to read in logs
+                        buffer.append(line + "\n");
+                    }
+                    if (buffer.length() != 0) {
+                        jsonStr += buffer.toString();
+                    }
+                }
+            } catch (MalformedURLException e) {
+                Log.e("URL Error: ", e.getMessage());
+            } catch (IOException e) {
+                Log.e("Connection: ", e.getMessage());
+            } finally {
+                urlConnection.disconnect();
+                try {
+                    if (reader != null)
+                        reader.close();
+                } catch (IOException e) {
+                    Log.e("Error closing stream", e.getMessage());
+                }
+            }
+
+            return jsonStr;
+        }
+
+        protected void onPostExecute(String stmt){
+
+            try
+            {
+                JSONObject j = new JSONObject(stmt);
+                Toast.makeText(getApplicationContext(), j.getString("statusMessage"), Toast.LENGTH_LONG).show();
+
+            }
+            catch(JSONException e)
+            {
+                Log.e("JSON STMT", e.getMessage());
+            }
+
+        }
+
+    }
 }
+
 

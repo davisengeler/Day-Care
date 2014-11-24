@@ -18,6 +18,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 import com.example.daycare.daycare.dummy.AddAccountActivity;
+import com.example.daycare.daycare.dummy.SignInOut;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -49,7 +50,7 @@ public class AdminActivity extends Activity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_admin);
-        String JSONString = this.getIntent().getStringExtra("JSONString");
+        final String JSONString = this.getIntent().getStringExtra("JSONString");
         if(JSONString!=null)
         {
             processJSON(JSONString);
@@ -66,24 +67,33 @@ public class AdminActivity extends Activity
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 Intent intent;
-                switch(i) { //add acct, edit acct, add child, edit child, acct approve, notes, meds, sign inout
+                switch(i) { //add acct, edit acct, add child, edit child, acct approve, notes, sign inout
                     case 0:
                         intent = new Intent(getApplicationContext(), AddAccountActivity.class);
                         intent.putExtra("AcctTypeList", typesList);
+                        intent.putExtra("JSONString", JSONString);
                         startActivity(intent);
                         break;
                     case 1:
+                        intent = new Intent(getApplicationContext(), AddAccountActivity.class);
+                        intent.putExtra("AcctTypeList", typesList);
+                        intent.putExtra("Edit", "Edit");
+                        startActivity(intent);
                         break;
                     case 2:
                         intent = new Intent(getApplicationContext(), AddChildActivity.class);
                         startActivity(intent);
                         break;
                     case 3:
+                        intent = new Intent(getApplicationContext(), AddChildActivity.class);
+                        intent.putExtra("Edit", "Edit");
+                        startActivity(intent);
                         break;
                     case 4:
                         if(actType.compareTo("1")!=0)
                         {
                             intent = new Intent(getApplicationContext(), ApproveAccounts.class);
+                            intent.putExtra("AcctTypeList", typesList);
                             startActivity(intent);
                         }
                         else
@@ -94,20 +104,12 @@ public class AdminActivity extends Activity
                         break;
                     case 5:
                         intent = new Intent(getApplicationContext(), AdminAddNote.class);
+                        intent.putExtra("JSONString", JSONString);
                         startActivity(intent);
                         break;
                     case 6:
-                        if(actType.compareTo("1")!=0)
-                        {
-
-                        }
-                        else
-                        {
-                            RestrictDialog dialog = new RestrictDialog();
-                            dialog.show(getFragmentManager(), "restrict");
-                        }
-                        break;
-                    case 7:
+                        intent = new Intent(getApplicationContext(), SignInOut.class);
+                        startActivity(intent);
                         break;
                     default:
                         break;
@@ -134,7 +136,7 @@ public class AdminActivity extends Activity
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
 
-            getMenuInflater().inflate(R.menu.admin, menu);
+            //getMenuInflater().inflate(R.menu.admin, menu);
 
 
         return super.onCreateOptionsMenu(menu);
