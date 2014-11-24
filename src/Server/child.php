@@ -26,7 +26,7 @@
     $classID = getTeacherClass($database, $teacherID);
     mysqli_next_result($database);
 
-    if (mysqli_query($database, "CALL add_new_child($ssn, '$firstName', '$lastName', '$dob', $parentID, $classID);"))
+    if (mysqli_query($database, "CALL add_new_child('$ssn', '$firstName', '$lastName', '$dob', $parentID, $classID);"))
     {
       // New Request Submitted
       return generateResult(true, "The child has been added to the parent account.");
@@ -87,7 +87,7 @@
     $classID = getTeacherClass($database, $teacherID);
     mysqli_next_result($database);
 
-    if (mysqli_query($database, "CALL edit_child($childID, $ssn, '$firstName', '$lastName', '$dob', $parentID, $classID);"))
+    if (mysqli_query($database, "CALL edit_child($childID, '$ssn', '$firstName', '$lastName', '$dob', $parentID, $classID);"))
     {
       return generateResult(true, "The child information has been updated.");
     }
