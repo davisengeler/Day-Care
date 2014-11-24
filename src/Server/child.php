@@ -5,13 +5,28 @@
 
   class Child
   {
-    public $childID, $ssn, $firstName, $lastName, $dob, $parentID, $classID, $attendID;
+    public $childID, $ssn, $firstName, $lastName, $dob, $parentID, $classID, $teacherID, $attendID;
+  }
+
+  // The standard formatting for a general API call's result
+  function generateResult($successful, $message)
+  {
+    $response = array(
+      "successful" => $successful,
+      "statusMessage" => $message
+    );
+
+    return $response;
   }
 
   // Adds a child
-  function addChild($database, $ssn, $firstName, $lastName, $dob, $parentID, $classID)
+  function addChild($database, $ssn, $firstName, $lastName, $dob, $parentID, $teacherID)
   {
-    if (mysqli_query($database, "CALL add_new_child($ssn, '$firstName', '$lastName', $dob, $parentID, $classID);"))
+    // Gets the ClassID for the given teacher
+    $classID = getTeacherClass($database, $teacherID);
+    mysqli_next_result($database);
+
+    if (mysqli_query($database, "CALL add_new_child($ssn, '$firstName', '$lastName', '$dob', $parentID, $classID);"))
     {
       // New Request Submitted
       return generateResult(true, "The child has been added to the parent account.");
@@ -20,6 +35,65 @@
     {
       // New Request Denied
       return generateResult(false, "Something was wrong with this request to add a child. " . mysqli_error($database));
+    }
+  }
+
+  // Returns the ClassID for a given teacher
+  function getTeacherClass($database, $teacherID)
+  {
+    if ($result = mysqli_query($database, "CALL get_teacher_class($teacherID)"))
+    {
+      if (mysqli_num_rows($result) > 0)
+      {
+        $row = mysqli_fetch_array($result);
+        return $row["ClassID"];
+      }
+      else
+      {
+        return null;
+      }
+    }
+    else
+    {
+      return null;
+    }
+  }
+
+  // Returns the ClassID for a given teacher
+  function getClassTeacher($database, $classID)
+  {
+    if ($result = mysqli_query($database, "CALL get_class_teacher($classID)"))
+    {
+      if (mysqli_num_rows($result) > 0)
+      {
+        $row = mysqli_fetch_array($result);
+        return $row['AssignedTeacher'];
+      }
+      else
+      {
+        return null;
+      }
+    }
+    else
+    {
+      return null;
+    }
+  }
+
+  // Edits a child
+  function editChild($database, $childID, $ssn, $firstName, $lastName, $dob, $parentID, $teacherID)
+  {
+    // Gets the ClassID for the given teacher
+    $classID = getTeacherClass($database, $teacherID);
+    mysqli_next_result($database);
+
+    if (mysqli_query($database, "CALL edit_child($childID, $ssn, '$firstName', '$lastName', '$dob', $parentID, $classID);"))
+    {
+      return generateResult(true, "The child information has been updated.");
+    }
+    else
+    {
+      return generateResult(false, "There was an error updating the child information. " . mysqli_error($database));
     }
   }
 
@@ -44,10 +118,15 @@
         }
         else
         {
-          $statuses = $statuses . "Note failed to be added to ChildID " . $currentChild . ". ";
+          $statuses = $statuses . "Note failed to be added to ChildID " . $currentChild . "(" . mysqli_error($database) . "). ";
           $allSuccessful = false;
         }
       }
+    }
+    else
+    {
+      $allSuccessful = false;
+      $statuses = "Note failed to be added. " . mysqli_error($database);
     }
     return generateResult($allSuccessful, $statuses);
   }
@@ -82,6 +161,8 @@
         $child->parentID = $row["ParentID"];
         $child->classID = $row["ClassID"];
         $child->attendID = getAttendID($database, $child->childID);
+        mysqli_next_result($database);
+        $child->teacherID = getClassTeacher($database, $child->classID);
 
         if ($child->ssn != null)
         {
@@ -213,8 +294,7 @@
     }
     else
     {
-      //return null;
-      return "FUCK" . mysqli_error($database) . "YEAH";
+      return null;
     }
   }
 
@@ -234,7 +314,21 @@
       $_GET["lastname"],
       $_GET["dob"],
       $_GET["parentid"],
-      $_GET["classid"]);
+      $_GET["teacherid"]);
+    echo json_encode($apiResponse);
+  }
+
+  if (isset($_GET['edit']))
+  {
+    $apiResponse = editChild(
+    $database,
+    $_GET["childid"],
+    $_GET["ssn"],
+    $_GET["firstname"],
+    $_GET["lastname"],
+    $_GET["dob"],
+    $_GET["parentid"],
+    $_GET["teacherid"]);
     echo json_encode($apiResponse);
   }
 
@@ -290,15 +384,5 @@
     $attendIDs = json_decode($_GET['attendids']);
     $apiResponse = signOut($database, $attendIDs, time());
     echo json_encode($apiResponse);
-  }
-
-  function generateResult($successful, $message)
-  {
-    $response = array(
-      "successful" => $successful,
-      "statusMessage" => $message
-      );
-
-    return $response;
   }
 ?>

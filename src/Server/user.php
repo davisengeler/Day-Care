@@ -6,8 +6,17 @@
   // Class for creating User objects
   class User
   {
-    public $userID, $firstName, $lastName, $ssn, $address, $phone, $email, $accID, $verified;
+    public $userID, $firstName, $lastName, $ssn, $address, $phone, $email, $accID, $verified, $apiKey, $apiPass, $pass;
     public $children = array();
+  }
+
+  // Generates an API key and pass for an account
+  function generateAPIKeyPass($database, $ssn, $firstName)
+  {
+    $apiKey = md5($ssn + time());
+    $apiPass = md5($firstName + time());
+
+    return array($apiKey, $apiPass);
   }
 
   // Returns list of the account type IDs and their meanings
@@ -43,6 +52,9 @@
       $singleAccount->email = $row["Email"];
       $singleAccount->accID = $row["AccID"];
       $singleAccount->verified = $row["Verified"];
+      $singleAccount->apiKey = $row["APIKey"];
+      $singleAccount->apiPass = $row["APIPass"];
+      $singleAccount->pass = $rpw["Pass"];
 
       // Adds that user to the array
       $pendingAccounts[] = $singleAccount;
@@ -54,7 +66,12 @@
   // Adds a new Account
   function addAccount($database, $ssn, $firstName, $lastName, $address, $phone, $email, $pass, $accID)
   {
-    if (mysqli_query($database, "CALL add_new_account('$ssn', '$firstName', '$lastName','$address','$phone','$email','$pass','$accID');"))
+    // Generates API validation info
+    $apiValidation = generateAPIKeyPass($database, $ssn, $firstName);
+    $apiKey = $apiValidation[0];
+    $apiPass = $apiValidation[1];
+
+    if (mysqli_query($database, "CALL add_new_account('$ssn', '$firstName', '$lastName','$address','$phone','$email','$pass','$accID', '$apiKey', '$apiPass');"))
     {
       // New Request Submitted
       $response = array(
@@ -117,6 +134,10 @@
         $ssn = $params[0];
         $databaseCall = "CALL get_account_by_ssn($ssn);";
         break;
+      case "userID":
+        $userID = $params[0];
+        $databaseCall = "CALL get_account_by_userid($userID)";
+        break;
       case "login":
         $email = $params[0];
         $pass = $params[1];
@@ -137,6 +158,9 @@
       $account->email = $row["Email"];
       $account->accID = $row["AccID"];
       $account->verified = $row["Verified"];
+      $account->apiKey = $row["APIKey"];
+      $account->apiPass = $row["APIPass"];
+      $account->pass = $row["Pass"];
 
       // Frees up mysqli for another request
       mysqli_next_result($database);
@@ -151,7 +175,7 @@
       }
       else
       {
-        return generateResult(false, "The username and password combo was incorrect.");
+        return generateResult(false, "No accounts match that information.");
       }
     }
     else
@@ -183,7 +207,7 @@
       {
         $childIDs[] = $row["ChildID"];
       }
-      if (count($childIDs) == 0) $childIDs = null;
+      if (count($childIDs) == 0) $childIDs = array();
       return $childIDs;
     }
     else
@@ -263,6 +287,21 @@
   // Edit Account
   else if (isset($_GET['edit']))
   {
+    // If the password has been changed, encrypt and save it. Otherwise, use the currently encrypted password for the account.
+    // Password initialized here for proper scope.
+    $pass = "";
+    if (isset($_GET['pass']))
+    {
+      $pass = md5($_GET['pass']);
+    }
+    else
+    {
+      $user = getAccount($database, "userID", array($_GET['userid']));
+      $pass = $user->pass; // will already be encrypted
+    }
+
+    mysqli_next_result($database);
+
     $apiResponse = updateAccount(
       $database,
       $_GET["userid"],
@@ -272,8 +311,8 @@
       $_GET["address"],
       $_GET["phone"],
       $_GET["email"],
-      $_GET["pass"],
-      $_GET["userid"]);
+      $pass,
+      $_GET["accid"]);
 
     echo json_encode($apiResponse);
   }
@@ -291,6 +330,15 @@
   {
     $type = "ssn";
     $params = array($_GET["ssn"]);
+    // needs to be an array for android...
+    $apiResponse = array(getAccount($database, $type, $params));
+    echo json_encode($apiResponse);
+  }
+  // Get Account by UserID
+  else if (isset($_GET['getaccountbyuserid']))
+  {
+    $type = "userID";
+    $params = array($_GET["userid"]);
     // needs to be an array for android...
     $apiResponse = array(getAccount($database, $type, $params));
     echo json_encode($apiResponse);
