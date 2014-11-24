@@ -41,7 +41,7 @@ public class AddChildActivity extends Activity
     private int chosenTeach;
     private String [] teacherNames;
     private String parentID, childID = "",teachString;
-    private static String inputInfo;
+    private static String inputInfo, JSONString;
     private String edit ="";
     private EditText cSsn, cFirstName, cLastName, cDob, classID;
     Spinner dropdown;
@@ -51,9 +51,10 @@ public class AddChildActivity extends Activity
         setContentView(R.layout.activity_add_child);
         GetTeacherList list = new GetTeacherList();
         list.execute();
+        JSONString = this.getIntent().getStringExtra("JSONString");
         dropdown = (Spinner) findViewById(R.id.spinner);
         edit = this.getIntent().getStringExtra("Edit");
-        parentID = this.getIntent().getStringExtra("UserID");
+        parentID = this.getIntent().getStringExtra("UserSSN");
 
         if(edit != null)
         {
@@ -80,6 +81,11 @@ public class AddChildActivity extends Activity
         {
             ParentDialogFragment p1 = new ParentDialogFragment();
             p1.show(getFragmentManager(), "pdialog");
+        }
+        else
+        {
+            GetParentID pID = new GetParentID();
+            pID.execute(parentID);
         }
 
         cSsn = (EditText) findViewById(R.id.cSsn);
@@ -126,7 +132,7 @@ public class AddChildActivity extends Activity
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_add_child, menu);
+        //getMenuInflater().inflate(R.menu.menu_add_child, menu);
         return true;
     }
 
@@ -330,6 +336,8 @@ public class AddChildActivity extends Activity
                     else
                     {
                         Toast.makeText(getApplicationContext(), jMessage.getString("statusMessage"), Toast.LENGTH_LONG).show();
+                        Intent intent = new Intent(getApplicationContext(), AdminActivity.class);
+                        intent.putExtra("JSONString", JSONString);
                         finish();
                     }
                 }
@@ -388,6 +396,7 @@ public class AddChildActivity extends Activity
                         public void onClick(DialogInterface dialogInterface, int i) {
                             Intent intent = new Intent(getActivity(), AddChildActivity.class);
                             intent.putExtra("UserID", pID);
+                            intent.putExtra("JSONString", JSONString);
                             startActivity(intent);
                         }
                     })
@@ -395,7 +404,9 @@ public class AddChildActivity extends Activity
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
                             Intent intent = new Intent(getActivity(), AdminActivity.class);
+                            intent.putExtra("JSONString", JSONString);
                             startActivity(intent);
+
                         }
                     });
             return builder.create();

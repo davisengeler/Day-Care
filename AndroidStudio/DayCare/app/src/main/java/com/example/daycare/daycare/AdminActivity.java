@@ -50,7 +50,7 @@ public class AdminActivity extends Activity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_admin);
-        String JSONString = this.getIntent().getStringExtra("JSONString");
+        final String JSONString = this.getIntent().getStringExtra("JSONString");
         if(JSONString!=null)
         {
             processJSON(JSONString);
@@ -71,6 +71,7 @@ public class AdminActivity extends Activity
                     case 0:
                         intent = new Intent(getApplicationContext(), AddAccountActivity.class);
                         intent.putExtra("AcctTypeList", typesList);
+                        intent.putExtra("JSONString", JSONString);
                         startActivity(intent);
                         break;
                     case 1:
@@ -103,6 +104,7 @@ public class AdminActivity extends Activity
                         break;
                     case 5:
                         intent = new Intent(getApplicationContext(), AdminAddNote.class);
+                        intent.putExtra("JSONString", JSONString);
                         startActivity(intent);
                         break;
                     case 6:
@@ -134,7 +136,7 @@ public class AdminActivity extends Activity
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
 
-            getMenuInflater().inflate(R.menu.admin, menu);
+            //getMenuInflater().inflate(R.menu.admin, menu);
 
 
         return super.onCreateOptionsMenu(menu);

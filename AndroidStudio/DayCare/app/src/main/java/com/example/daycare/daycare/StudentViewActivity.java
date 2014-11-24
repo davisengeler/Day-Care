@@ -140,7 +140,7 @@ public class StudentViewActivity extends Activity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_student_view, menu);
+        //getMenuInflater().inflate(R.menu.menu_student_view, menu);
         return true;
     }
 
@@ -209,6 +209,8 @@ public class StudentViewActivity extends Activity {
                             String mContent = message.getText().toString();
                             Log.v("NoteMessage", noteIDChosen + " " + mContent);
                             //submit this as a note to server with noteIDChosen
+                            String noteIDSelect = "" + (noteIDChosen+1);
+                            ((StudentViewActivity)getActivity()).addNoteAsyncCall(mContent, noteIDSelect);
                         }
                     })
                     .setNegativeButton(R.string.cancel_label, new DialogInterface.OnClickListener() {
@@ -219,6 +221,22 @@ public class StudentViewActivity extends Activity {
                     });
             return builder.create();
         }
+    }
+
+    public void addNoteAsyncCall(String message, String subjectID)
+    {
+        AddNote add = new AddNote();
+        String notetype = "1";
+        String setUpID = "";
+        try
+        {
+            setUpID = "[" + childInfo.getString("childID") + "]";
+        }
+        catch(JSONException e)
+        {
+            Log.e("JSON NOTE ASYNC", e.getMessage());
+        }
+        add.execute(message, subjectID, notetype, setUpID);
     }
 
     public static class PhoneCallDialog extends DialogFragment
@@ -511,4 +529,83 @@ public class StudentViewActivity extends Activity {
         }
 
     }
+
+    public class AddNote extends AsyncTask<String, Void, String> {
+
+        protected String doInBackground(String... params) {
+
+            final String BASE_URL = "http://davisengeler.gwdnow.com/child.php?addnote";
+            final String MESSAGE_ID = "message";
+            final String NOTE_ID = "notetype";
+            final String SUBJECT_ID = "subjectid";
+            final String CHILD_IDS = "children";
+            HttpURLConnection urlConnection = null;
+            BufferedReader reader = null;
+            String jsonStr = "";
+
+
+            try {
+                Uri builtUri = Uri.parse(BASE_URL).buildUpon()
+                        .appendQueryParameter(MESSAGE_ID, params[0])
+                        .appendQueryParameter(SUBJECT_ID, params[1])
+                        .appendQueryParameter(NOTE_ID, params[2])
+                        .appendQueryParameter(CHILD_IDS, params[3]).build();
+
+                Log.v("TEST:   ", builtUri.toString());
+
+                URL url = new URL(builtUri.toString());
+
+                urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection.setRequestMethod("GET");
+                urlConnection.connect();
+
+                // Read the input stream into a String
+                InputStream inputStream = urlConnection.getInputStream();
+                StringBuffer buffer = new StringBuffer();
+                if (inputStream != null) {
+                    reader = new BufferedReader(new InputStreamReader(inputStream));
+
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        //makes easy to read in logs
+                        buffer.append(line + "\n");
+                    }
+                    if (buffer.length() != 0) {
+                        jsonStr += buffer.toString();
+                    }
+                }
+            } catch (MalformedURLException e) {
+                Log.e("URL Error: ", e.getMessage());
+            } catch (IOException e) {
+                Log.e("Connection: ", e.getMessage());
+            } finally {
+                urlConnection.disconnect();
+                try {
+                    if (reader != null)
+                        reader.close();
+                } catch (IOException e) {
+                    Log.e("Error closing stream", e.getMessage());
+                }
+            }
+
+            return jsonStr;
+        }
+
+        protected void onPostExecute(String stmt){
+
+            try
+            {
+                JSONObject j = new JSONObject(stmt);
+                Toast.makeText(getApplicationContext(), j.getString("statusMessage"), Toast.LENGTH_LONG).show();
+
+            }
+            catch(JSONException e)
+            {
+                Log.e("JSON STMT", e.getMessage());
+            }
+
+        }
+
+    }
+
 }
