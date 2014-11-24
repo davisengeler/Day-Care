@@ -37,7 +37,7 @@
   {
     if ($result = mysqli_query($database, "CALL update_gcm($userID, '$gcm')"))
     {
-      return generateResult(false, "The GCM was added successfully.");
+      return generateResult(true, "The GCM was added successfully.");
     }
     else
     {
