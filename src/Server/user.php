@@ -156,6 +156,11 @@
         $pass = $params[1];
         $databaseCall = "CALL get_account('$email', '$pass');";
         break;
+      case "api":
+        $key = $params[0];
+        $pass = $params[1];
+        $databaseCall = "CALL get_account_api('$key', '$pass');";
+        break;
     }
 
     if ($result = mysqli_query($database, $databaseCall))
@@ -334,8 +339,19 @@
   // Log In
   else if (isset($_GET['login']))
   {
-    $type = "login";
-    $params = array($_GET["email"], md5($_GET["pass"]));
+    if (isset($_GET["apikey"]))
+    {
+      // Using API Key / Pass
+      $type = "api";
+      $params = array($_GET["apikey"], $_GET["apipass"]);
+    }
+    else
+    {
+      // Using email / pass
+      $type = "login";
+      $params = array($_GET["email"], md5($_GET["pass"]));
+    }
+
     // needs to be an array for android...
     $apiResponse = array(getAccount($database, $type, $params));
     echo json_encode($apiResponse);
