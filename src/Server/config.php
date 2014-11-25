@@ -29,7 +29,7 @@
     $result = curl_exec($ch);
     if(curl_errno($ch)){ echo 'Curl error: ' . curl_error($ch); }
     curl_close($ch);
-    echo $result;
+    return $result;
   }
 
   // Database Configuration

@@ -97,6 +97,20 @@
     }
   }
 
+  // Gets the parent of a childID
+  function getChildParentGCM($database, $childID)
+  {
+    if($result = mysqli_query($database, "CALL get_child_parent_gcm($childID);"))
+    {
+      $row = mysqli_fetch_array($result);
+      return $row['GCM'];
+    }
+    else
+    {
+      return mysqli_error($database);
+    }
+  }
+
   // Adds a note for an array of children
   function addNote($database, $message, $noteType, $subjectID, $childrenArray)
   {
@@ -116,6 +130,8 @@
         if($result = mysqli_query($database, "CALL link_note($noteID, $currentChild);"))
         {
           $statuses = $statuses . "Note added to ChildID " . $currentChild . " successfully. ";
+          $gcmID = getChildParent($database, $currentChild);
+          sendPushNotification(array($gcmID));
         }
         else
         {
