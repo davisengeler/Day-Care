@@ -4,7 +4,7 @@
   define("GCM_SenderID", "385041079398");
   define("GCM_APIKey", "AIzaSyCjXiSeTMvzc9uqDa9hP5sYsslSZXQpKlY");
 
-  sendPushNotification(array("123", "321"));
+  sendPushNotification(array("APA91bF2_TLLr01h8ppMkkwdpZN4mxJ--IynAGaPREeOp"));
 
   function sendPushNotification($gcmRegistrationIDs)
   {
