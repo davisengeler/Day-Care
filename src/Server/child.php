@@ -130,7 +130,7 @@
         if($result = mysqli_query($database, "CALL link_note($noteID, $currentChild);"))
         {
           $statuses = $statuses . "Note added to ChildID " . $currentChild . " successfully. ";
-          $gcmID = getChildParent($database, $currentChild);
+          $gcmID = getChildParentGCM($database, $currentChild);
           sendPushNotification(array($gcmID));
         }
         else
