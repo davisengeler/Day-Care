@@ -8,4 +8,4 @@
 
   echo "It should have been done.";
 
-<?
+?>
