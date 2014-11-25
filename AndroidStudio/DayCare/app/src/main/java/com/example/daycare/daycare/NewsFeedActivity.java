@@ -68,6 +68,7 @@ public class NewsFeedActivity extends Activity {
                 JSONObject passedChild = new JSONObject(teacherView);
                 childIDList = "[" + passedChild.getString("childID") + "]";
             }
+            showProgress(true);
             note.execute(childIDList);
         } catch (JSONException e) {
             Log.e("JSON String: ", e.getMessage());
