@@ -19,7 +19,7 @@
       'http' => array(
         'header'  => "Content-Type:application/json\r\nAuthorization:key=" . GCM_APIKey,
         'method'  => 'POST',
-        'content' => json_encode($data),
+        'content' => http_build_query($data),
       ),
     );
 
