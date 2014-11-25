@@ -91,7 +91,7 @@ public class StudentViewActivity extends Activity {
                         break;
                     case 1:
                         DialogFragment dg2 = new NoteDialogFragment();
-                        dg2.show(getFragmentManager(), "notes"); //get this to work
+                        dg2.show(getFragmentManager(), "notes");
                         break;
                     case 2:
                         Intent intent = new Intent(getApplicationContext(), NewsFeedActivity.class);

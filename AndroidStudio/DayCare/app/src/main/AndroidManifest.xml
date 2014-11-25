@@ -121,7 +121,6 @@
          <category android:name="com.example.gcm" />
          </intent-filter>
          </receiver>
-         <service android:name=".GCMIntentService" />
         <service
             android:name="com.example.daycare.daycare.GCMIntentService"
             android:exported="false" >

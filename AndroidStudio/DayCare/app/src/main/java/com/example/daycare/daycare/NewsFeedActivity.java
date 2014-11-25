@@ -115,7 +115,7 @@ public class NewsFeedActivity extends Activity {
         String ofIDS = "";
 
         protected Boolean doInBackground(String... params) {
-            showProgress(true);
+            //showProgress(true);
             final String BASE_URL = "http://davisengeler.gwdnow.com/child.php?getnotes";
             final String CHILD_ID = "childids";
 //            final String DEVICE_ID = "deviceID";
