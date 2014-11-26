@@ -52,7 +52,10 @@ public class GCMIntentService extends IntentService {
                 // If it's a regular GCM message, do some work.
             } else if (GoogleCloudMessaging.
                     MESSAGE_TYPE_MESSAGE.equals(messageType)) {
+                //TODO What to do with a tickle
                 Log.wtf("TICKLE", "Got a tickle");
+                sendNotification("New Note! Hooray! Tickle tickle!");
+                Log.wtf("TICKLE", "Handled my Bizness");
             }
         }
         // Release the wake lock provided by the WakefulBroadcastReceiver.
@@ -67,7 +70,7 @@ public class GCMIntentService extends IntentService {
                 this.getSystemService(Context.NOTIFICATION_SERVICE);
 
         PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
-                new Intent(this, NewsFeedActivity.class), 0);
+                new Intent(this, LoginActivity.class), 0);
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(this)
                         .setSmallIcon(R.drawable.ic_launcher)
