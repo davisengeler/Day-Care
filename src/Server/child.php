@@ -26,7 +26,7 @@
     $classID = getTeacherClass($database, $teacherID);
     mysqli_next_result($database);
 
-    if (mysqli_query($database, "CALL add_new_child($ssn, '$firstName', '$lastName', '$dob', $parentID, $classID);"))
+    if (mysqli_query($database, "CALL add_new_child('$ssn', '$firstName', '$lastName', '$dob', $parentID, $classID);"))
     {
       // New Request Submitted
       return generateResult(true, "The child has been added to the parent account.");
@@ -87,7 +87,7 @@
     $classID = getTeacherClass($database, $teacherID);
     mysqli_next_result($database);
 
-    if (mysqli_query($database, "CALL edit_child($childID, $ssn, '$firstName', '$lastName', '$dob', $parentID, $classID);"))
+    if (mysqli_query($database, "CALL edit_child($childID, '$ssn', '$firstName', '$lastName', '$dob', $parentID, $classID);"))
     {
       return generateResult(true, "The child information has been updated.");
     }
@@ -97,12 +97,27 @@
     }
   }
 
+  // Gets the parent of a childID
+  function getChildParentGCM($database, $childID)
+  {
+    if($result = mysqli_query($database, "CALL get_child_parent_gcm($childID);"))
+    {
+      $row = mysqli_fetch_array($result);
+      return $row['GCM'];
+    }
+    else
+    {
+      return mysqli_error($database);
+    }
+  }
+
   // Adds a note for an array of children
   function addNote($database, $message, $noteType, $subjectID, $childrenArray)
   {
     // Sets up a status message string
     $statuses = "";
     $allSuccessful = true;
+    $message = mysqli_real_escape_string($database, $message);
 
     // Prepares the note
     if($result = mysqli_query($database, "CALL prepare_note('$message', $subjectID, $noteType);"))
@@ -115,6 +130,8 @@
         if($result = mysqli_query($database, "CALL link_note($noteID, $currentChild);"))
         {
           $statuses = $statuses . "Note added to ChildID " . $currentChild . " successfully. ";
+          $gcmID = getChildParentGCM($database, $currentChild);
+          sendPushNotification(array($gcmID));
         }
         else
         {

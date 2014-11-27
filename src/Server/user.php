@@ -6,7 +6,7 @@
   // Class for creating User objects
   class User
   {
-    public $userID, $firstName, $lastName, $ssn, $address, $phone, $email, $accID, $verified, $apiKey, $apiPass, $pass;
+    public $userID, $firstName, $lastName, $ssn, $address, $phone, $email, $accID, $verified, $apiKey, $apiPass, $pass, $gcm;
     public $children = array();
   }
 
@@ -33,6 +33,18 @@
     return $accountTypes;
   }
 
+  function updateGCM($database, $userID, $gcm)
+  {
+    if ($result = mysqli_query($database, "CALL update_gcm($userID, '$gcm')"))
+    {
+      return generateResult(true, "The GCM was added successfully.");
+    }
+    else
+    {
+      return generateResult(false, "There was an issue adding the GCM. " . mysqli_error($database));
+    }
+  }
+
   // Returns list of IDs of pending account approvals.
   function getPendingAccounts($database)
   {
@@ -54,7 +66,8 @@
       $singleAccount->verified = $row["Verified"];
       $singleAccount->apiKey = $row["APIKey"];
       $singleAccount->apiPass = $row["APIPass"];
-      $singleAccount->pass = $rpw["Pass"];
+      $singleAccount->pass = $row["Pass"];
+      $singleAccount->gcm = $row["GCM"];
 
       // Adds that user to the array
       $pendingAccounts[] = $singleAccount;
@@ -143,6 +156,11 @@
         $pass = $params[1];
         $databaseCall = "CALL get_account('$email', '$pass');";
         break;
+      case "api":
+        $key = $params[0];
+        $pass = $params[1];
+        $databaseCall = "CALL get_account_api('$key', '$pass');";
+        break;
     }
 
     if ($result = mysqli_query($database, $databaseCall))
@@ -161,6 +179,7 @@
       $account->apiKey = $row["APIKey"];
       $account->apiPass = $row["APIPass"];
       $account->pass = $row["Pass"];
+      $account->gcm = $row["GCM"];
 
       // Frees up mysqli for another request
       mysqli_next_result($database);
@@ -280,7 +299,8 @@
       $_GET["phone"],
       $_GET["email"],
       md5($_GET["pass"]),
-      $_GET["accid"]);
+      $_GET["accid"]
+      );
 
     echo json_encode($apiResponse);
   }
@@ -319,8 +339,19 @@
   // Log In
   else if (isset($_GET['login']))
   {
-    $type = "login";
-    $params = array($_GET["email"], md5($_GET["pass"]));
+    if (isset($_GET["apikey"]))
+    {
+      // Using API Key / Pass
+      $type = "api";
+      $params = array($_GET["apikey"], $_GET["apipass"]);
+    }
+    else
+    {
+      // Using email / pass
+      $type = "login";
+      $params = array($_GET["email"], md5($_GET["pass"]));
+    }
+
     // needs to be an array for android...
     $apiResponse = array(getAccount($database, $type, $params));
     echo json_encode($apiResponse);
@@ -354,6 +385,12 @@
   else if (isset($_GET['teacherlist']))
   {
     $apiResponse = getTeacherList($database);
+    echo json_encode($apiResponse);
+  }
+  // Add GCM ID
+  else if (isset($_GET['updategcm']))
+  {
+    $apiResponse = updateGCM($database, $_GET['userid'], $_GET['gcm']);
     echo json_encode($apiResponse);
   }
 
