@@ -7,6 +7,7 @@ import android.app.DialogFragment;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -136,10 +137,8 @@ public class AdminActivity extends Activity
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
 
-            //getMenuInflater().inflate(R.menu.admin, menu);
-
-
-        return super.onCreateOptionsMenu(menu);
+        getMenuInflater().inflate(R.menu.admin, menu);
+        return true;
     }
 
     @Override
@@ -150,9 +149,26 @@ public class AdminActivity extends Activity
         int id = item.getItemId();
         if (id == R.id.action_settings) {
             return true;
+        } else if (id == R.id.logout_option) {
+            SharedPreferences prefs = getPreferences(getApplicationContext());
+            SharedPreferences.Editor editor = prefs.edit();
+            editor.putString(LoginActivity.PROPERTY_API_KEY, "");
+            editor.putString(LoginActivity.PROPERTY_API_PASS, "");
+            editor.commit();
+            Intent loginIntent = new Intent(getApplicationContext(), LoginActivity.class);
+            startActivity(loginIntent);
+            finish();
         }
         return super.onOptionsItemSelected(item);
     }
+
+           /**
+            * @return Application's {@code SharedPreferences}. (For GCM)
+            */
+           private SharedPreferences getPreferences(Context context) {
+               return getSharedPreferences(LoginActivity.class.getSimpleName(),
+                       Context.MODE_PRIVATE);
+           }
 
     /**
      * A placeholder fragment containing a simple view.

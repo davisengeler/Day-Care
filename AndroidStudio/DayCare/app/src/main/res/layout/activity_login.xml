@@ -52,6 +52,12 @@
                     android:maxLines="1"
                     android:singleLine="true"/>
 
+                <CheckBox
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/action_remember_me"
+                    android:id="@+id/remember_me"/>
+
                 <Button
                     android:id="@+id/email_sign_in_button"
                     style="?android:textAppearanceSmall"

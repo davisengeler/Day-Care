@@ -7,7 +7,10 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -33,7 +36,6 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-
 
 public class NewsFeedActivity extends Activity {
     private ListView mListView;
@@ -108,8 +110,26 @@ public class NewsFeedActivity extends Activity {
         } else if (id == R.id.add_note_option) {
             AddNoteDialog noteDialog = new AddNoteDialog();
             noteDialog.show(getFragmentManager(), "notething");
+        } else if (id == R.id.logout_option) {
+            SharedPreferences prefs = getPreferences(getApplicationContext());
+            SharedPreferences.Editor editor = prefs.edit();
+            editor.putString(LoginActivity.PROPERTY_API_KEY, "");
+            editor.putString(LoginActivity.PROPERTY_API_PASS, "");
+            editor.commit();
+            Intent loginIntent = new Intent(getApplicationContext(), LoginActivity.class);
+            startActivity(loginIntent);
+            finish();
+
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    /**
+     * @return Application's {@code SharedPreferences}.
+     */
+    private SharedPreferences getPreferences(Context context) {
+        return getSharedPreferences(LoginActivity.class.getSimpleName(),
+                Context.MODE_PRIVATE);
     }
 
     public class GetNotes extends AsyncTask<String, Void, Boolean> {
@@ -345,7 +365,6 @@ public class NewsFeedActivity extends Activity {
             BufferedReader reader = null;
             String jsonStr = "";
 
-
             try {
                 Uri builtUri = Uri.parse(BASE_URL).buildUpon()
                         .appendQueryParameter(CHILD_ID, params[0]).build();
@@ -428,7 +447,6 @@ public class NewsFeedActivity extends Activity {
                 DialogFragment s = new SignInOutDialog();
                 s.show(getFragmentManager(), "sign");
 
-
             } else {
                 Toast.makeText(getApplicationContext(), "Couldn't Retrieve Info", Toast.LENGTH_LONG).show();
             }
@@ -453,7 +471,6 @@ public class NewsFeedActivity extends Activity {
             HttpURLConnection urlConnection = null;
             BufferedReader reader = null;
             String jsonStr = "";
-
 
             try {
                 Uri builtUri = Uri.parse(BASE_URL).buildUpon()
