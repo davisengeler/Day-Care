@@ -68,6 +68,7 @@ public class NewsFeedActivity extends Activity {
                 JSONObject passedChild = new JSONObject(teacherView);
                 childIDList = "[" + passedChild.getString("childID") + "]";
             }
+            showProgress(true);
             note.execute(childIDList);
         } catch (JSONException e) {
             Log.e("JSON String: ", e.getMessage());
@@ -115,7 +116,7 @@ public class NewsFeedActivity extends Activity {
         String ofIDS = "";
 
         protected Boolean doInBackground(String... params) {
-            showProgress(true);
+            //showProgress(true);
             final String BASE_URL = "http://davisengeler.gwdnow.com/child.php?getnotes";
             final String CHILD_ID = "childids";
 //            final String DEVICE_ID = "deviceID";
