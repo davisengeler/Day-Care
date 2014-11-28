@@ -141,6 +141,8 @@
   // Returns a User object
   function getAccount($database, $type, $params)
   {
+    $includeAPIinfo = false; // Won't include API login information on requests that don't need it
+
     switch ($type)
     {
       case "ssn":
@@ -155,6 +157,7 @@
         $email = $params[0];
         $pass = $params[1];
         $databaseCall = "CALL get_account('$email', '$pass');";
+        $includeAPIinfo = true; // This is only used when loggin in, so it needs to be given api login info
         break;
       case "api":
         $key = $params[0];
@@ -176,10 +179,15 @@
       $account->email = $row["Email"];
       $account->accID = $row["AccID"];
       $account->verified = $row["Verified"];
-      $account->apiKey = $row["APIKey"];
-      $account->apiPass = $row["APIPass"];
       $account->pass = $row["Pass"];
       $account->gcm = $row["GCM"];
+
+      if ($includeAPIinfo)
+      {
+        // if it has been set to include the API login information
+        $account->apiKey = $row["APIKey"];
+        $account->apiPass = $row["APIPass"];
+      }
 
       // Frees up mysqli for another request
       mysqli_next_result($database);
@@ -267,6 +275,29 @@
   // ===================================================
 
 
+
+  // Log In: doesn't need valid API Key / Pass to log in
+  if (isset($_GET['login']))
+  {
+    if (isset($_GET["apikey"]))
+    {
+      // Using API Key / Pass
+      $type = "api";
+      $params = array($_GET["apikey"], $_GET["apipass"]);
+    }
+    else
+    {
+      // Using email / pass
+      $type = "login";
+      $params = array($_GET["email"], md5($_GET["pass"]));
+    }
+
+    // needs to be an array for android...
+    $apiResponse = array(getAccount($database, $type, $params));
+    echo json_encode($apiResponse);
+  }
+
+
   // Make sure the call to the API was authorized
   // The if statement looks weird, but it makes sense. There are two instances in which
   //   the account may not be authorized to make calls. If the apikey/apipass does point
@@ -345,26 +376,6 @@
       $pass,
       $_GET["accid"]);
 
-      echo json_encode($apiResponse);
-    }
-    // Log In
-    else if (isset($_GET['login']))
-    {
-      if (isset($_GET["apikey"]))
-      {
-        // Using API Key / Pass
-        $type = "api";
-        $params = array($_GET["apikey"], $_GET["apipass"]);
-      }
-      else
-      {
-        // Using email / pass
-        $type = "login";
-        $params = array($_GET["email"], md5($_GET["pass"]));
-      }
-
-      // needs to be an array for android...
-      $apiResponse = array(getAccount($database, $type, $params));
       echo json_encode($apiResponse);
     }
     // Get Account by SSN
