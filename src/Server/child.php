@@ -1,22 +1,11 @@
 <?php
 
-  include("config.php");
+  include("user.php");
   $database = connectDB();
 
   class Child
   {
     public $childID, $ssn, $firstName, $lastName, $dob, $parentID, $classID, $teacherID, $attendID;
-  }
-
-  // The standard formatting for a general API call's result
-  function generateResult($successful, $message)
-  {
-    $response = array(
-      "successful" => $successful,
-      "statusMessage" => $message
-    );
-
-    return $response;
   }
 
   // Adds a child
@@ -321,10 +310,32 @@
 
   // Allows the outside API work with the server
 
-  // Add New Child
-  if (isset($_GET['add']))
+
+  // Make sure the call to the API was authorized
+  // The if statement looks weird, but it makes sense. There are two instances in which
+  //   the account may not be authorized to make calls. If the apikey/apipass does point
+  //   to an account, it must make sure it's verified. It should also fail if the
+  //   apikey/apipass is just totally wrong.
+  $authorized = getAccount($database, "api", array($_GET['apikey'], $_GET['apipass']));
+  mysqli_next_result($database);
+  if (gettype($authorized) == "array" && $authorized['successful'] == false)
   {
-    $apiResponse = addChild(
+    // The account was not authorized because the api key/pass was wrong
+    echo json_encode(generateResult(false, "You are not authorized to proceed. The API Key and API Pass combination was not correct."));
+  }
+  else if (gettype($authorized) == "object" && $authorized->verified != 1)
+  {
+    // The account was not authorized because the it hasn't been verified by an admin.
+    echo json_encode(generateResult(false, "Can not proceed. Your account has not been verified."));
+  }
+  else
+  {
+    // Everything is okay and the user is allowed to proceed
+
+    // Add New Child
+    if (isset($_GET['add']))
+    {
+      $apiResponse = addChild(
       $database,
       $_GET["ssn"],
       $_GET["firstname"],
@@ -332,74 +343,79 @@
       $_GET["dob"],
       $_GET["parentid"],
       $_GET["teacherid"]);
-    echo json_encode($apiResponse);
-  }
-
-  if (isset($_GET['edit']))
-  {
-    $apiResponse = editChild(
-    $database,
-    $_GET["childid"],
-    $_GET["ssn"],
-    $_GET["firstname"],
-    $_GET["lastname"],
-    $_GET["dob"],
-    $_GET["parentid"],
-    $_GET["teacherid"]);
-    echo json_encode($apiResponse);
-  }
-
-  // Gather the info about a child
-  else if (isset($_GET['getinfo']))
-  {
-    if ($_GET['ssn'])
-    {
-      $type = "ssn";
-    }
-    elseif ($_GET['childids'])
-    {
-      $type = "childids";
+      echo json_encode($apiResponse);
     }
 
-    $apiResponse = getChild($database, $type, $_GET[$type]);
-    echo json_encode($apiResponse);
+    if (isset($_GET['edit']))
+    {
+      $apiResponse = editChild(
+      $database,
+      $_GET["childid"],
+      $_GET["ssn"],
+      $_GET["firstname"],
+      $_GET["lastname"],
+      $_GET["dob"],
+      $_GET["parentid"],
+      $_GET["teacherid"]);
+      echo json_encode($apiResponse);
+    }
+
+    // Gather the info about a child
+    else if (isset($_GET['getinfo']))
+    {
+      if ($_GET['ssn'])
+      {
+        $type = "ssn";
+      }
+      elseif ($_GET['childids'])
+      {
+        $type = "childids";
+      }
+
+      $apiResponse = getChild($database, $type, $_GET[$type]);
+      echo json_encode($apiResponse);
+    }
+
+    // Add a note for an array of ChildIDs
+    else if (isset($_GET['addnote']))
+    {
+      $apiResponse = addNote($database, $_GET['message'], $_GET['notetype'], $_GET['subjectid'], json_decode($_GET['children'], true));
+      echo json_encode($apiResponse);
+    }
+
+    // Change a child's class
+    else if (isset($_GET['setclass']))
+    {
+      $apiResponse = setClass($database, $_GET['childid'], $_GET['teacherid']);
+      echo json_encode($apiResponse);
+    }
+
+    // Get Child Notes
+    else if (isset($_GET['getnotes']))
+    {
+      $childIDs = json_decode($_GET['childids']);
+      $apiResponse = getNotes($database, $childIDs);
+      echo json_encode($apiResponse);
+    }
+
+    // Signs in an array of ChildIDs
+    else if (isset($_GET['signin']))
+    {
+      $childIDs = json_decode($_GET['childids']);
+      $apiResponse = signIn($database, $childIDs, time());
+      echo json_encode($apiResponse);
+    }
+
+    // Signs out an array of ChildIDs
+    else if (isset($_GET['signout']))
+    {
+      $attendIDs = json_decode($_GET['attendids']);
+      $apiResponse = signOut($database, $attendIDs, time());
+      echo json_encode($apiResponse);
+    }
+
+
+
   }
 
-  // Add a note for an array of ChildIDs
-  else if (isset($_GET['addnote']))
-  {
-    $apiResponse = addNote($database, $_GET['message'], $_GET['notetype'], $_GET['subjectid'], json_decode($_GET['children'], true));
-    echo json_encode($apiResponse);
-  }
-
-  // Change a child's class
-  else if (isset($_GET['setclass']))
-  {
-    $apiResponse = setClass($database, $_GET['childid'], $_GET['teacherid']);
-    echo json_encode($apiResponse);
-  }
-
-  // Get Child Notes
-  else if (isset($_GET['getnotes']))
-  {
-    $childIDs = json_decode($_GET['childids']);
-    $apiResponse = getNotes($database, $childIDs);
-    echo json_encode($apiResponse);
-  }
-
-  // Signs in an array of ChildIDs
-  else if (isset($_GET['signin']))
-  {
-    $childIDs = json_decode($_GET['childids']);
-    $apiResponse = signIn($database, $childIDs, time());
-    echo json_encode($apiResponse);
-  }
-
-  // Signs out an array of ChildIDs
-  else if (isset($_GET['signout']))
-  {
-    $attendIDs = json_decode($_GET['attendids']);
-    $apiResponse = signOut($database, $attendIDs, time());
-    echo json_encode($apiResponse);
-  }
 ?>
