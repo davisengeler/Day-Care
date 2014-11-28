@@ -27,11 +27,11 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.inputmethod.EditorInfo;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -56,33 +56,54 @@ import java.util.List;
 
 public class LoginActivity extends Activity implements LoaderCallbacks<Cursor>{
 
-    private UserLoginTask mUserTask = null;
+    public static final String PROPERTY_REG_ID = "registration_id";
+    public static final String PROPERTY_API_KEY = "api_key";
+    public static final String PROPERTY_API_PASS = "api_password";
+    private static final String PROPERTY_APP_VERSION = "appVersion";
+    private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
+    private static final String SENDER_ID = "385041079398";
+    private static final String TAG = "GCM_setup";
 
-    // UI references.
+    private UserLoginTask mUserTask = null;
     private AutoCompleteTextView mEmailView;
     private EditText mPasswordView;
+    private CheckBox mRememberView;
     private View mProgressView;
     private View mLoginFormView;
 
-    // For GCM
-    public static final String PROPERTY_REG_ID = "registration_id";
-    private static final String PROPERTY_APP_VERSION = "appVersion";
-    private final static int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
-    private static final String SENDER_ID = "385041079398";
-    private static final String TAG = "RegisterGCM::";
     private GoogleCloudMessaging gcm;
     private SharedPreferences prefs;
     private Context context;
+    private boolean rememberLogin = true;
     private String userid;
     private String regid;
+    private boolean apilogin;
+    private String apikey;
+    private String apipass;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        context = getApplicationContext();
+
+        // Check device for Play Services APK. (For GCM)
+        Log.i(TAG, "Checking for Play Service APK");
+        if (checkPlayServices()) {
+            gcm = GoogleCloudMessaging.getInstance(this);
+            regid = getRegistrationId(context);
+            if (regid.equals("")) {
+                registerInBackground();
+            }
+        } else {
+            Log.i(TAG, "No valid Google Play Services APK found.");
+            Toast.makeText(getApplicationContext(), "Play Services required for Push " +
+                    "Notifications.", Toast.LENGTH_LONG).show();
+        }
+
         setContentView(R.layout.activity_login);
 
         // Set up the login form.
-        mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
+        mEmailView = (AutoCompleteTextView)findViewById(R.id.email);
         populateAutoComplete();
 
         mPasswordView = (EditText) findViewById(R.id.password);
@@ -100,8 +121,24 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor>{
             }
         });
 
+        mRememberView = (CheckBox) findViewById(R.id.remember_me);
+        mRememberView.setChecked(true);
+        mRememberView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                boolean checked = ((CheckBox) v).isChecked();
+                if (checked) {
+                    rememberLogin = true;
+                    Log.i("RememberME", "Persistent login");
+                } else {
+                    rememberLogin = false;
+                    Log.i("RememberME", "One time login");
+                }
+            }
+        });
+
         Button mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
-        mEmailSignInButton.setOnClickListener(new OnClickListener() {
+        mEmailSignInButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 attemptLogin();
@@ -111,22 +148,27 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor>{
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
 
-        context = getApplicationContext();
-
-        // Check device for Play Services APK. (For GCM)
-        Log.wtf(TAG, "Checking for Play Service APK");
-        if (checkPlayServices()) {
-            gcm = GoogleCloudMessaging.getInstance(this);
-            regid = getRegistrationId(context);
-            if (regid.equals("")) {
-                Log.wtf(TAG, "No saved regid, registering in background");
-                registerInBackground();
+        // Check device for saved API key/pass
+        apikey = prefs.getString(PROPERTY_API_KEY, "");
+        if (!apikey.equals("")){
+            Log.i("API_login", "Stored API key found");
+            apipass = prefs.getString(PROPERTY_API_PASS, "");
+            if (apipass.equals("")) {
+                Log.i("API_login", "No stored API pass found, deleting key");
+                apikey = "";
             }
-            Log.wtf(TAG,"Got a regid here: " + regid);
         } else {
-            Log.wtf(TAG, "No valid Google Play Services APK found.");
-            Toast.makeText(getApplicationContext(), "Play Services required for Push " +
-                    "Notifications.", Toast.LENGTH_LONG).show();
+            Log.i("API_login", "No stored API key found");
+        }
+
+        // If stored API key/pass, auto login
+        if (!apikey.equals("")) {
+            apilogin = true;
+            showProgress(true);
+            mUserTask = new UserLoginTask(apikey, apipass);
+            mUserTask.execute((Void) null);
+        } else {
+            apilogin = false;
         }
     }
 
@@ -134,7 +176,6 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor>{
     @Override
     protected void onResume() {
         super.onResume();
-        Log.wtf(TAG, "Checking for Play Service APK");
         checkPlayServices();
     }
 
@@ -146,8 +187,6 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor>{
      * Check the device to make sure it has the Google Play Services APK. If
      * it doesn't, display a dialog that allows users to download the APK from
      * the Google Play Store or enable it in the device's system settings.
-     *
-     * (for GCM)
      */
     private boolean checkPlayServices() {
         int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
@@ -156,12 +195,11 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor>{
                 GooglePlayServicesUtil.getErrorDialog(resultCode, this,
                         PLAY_SERVICES_RESOLUTION_REQUEST).show();
             } else {
-                Log.wtf(TAG, "This device is not supported.");
-                //finish();
+                Log.i(TAG, "This device is not supported.");
+                finish();
             }
             return false;
         }
-        Log.wtf(TAG, "Play Services found.");
         return true;
     }
 
@@ -172,18 +210,14 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor>{
      *
      * @return registration ID, or empty string if there is no existing
      *         registration ID.
-     *
-     * (For GCM)
      */
     private String getRegistrationId(Context context) {
         prefs = getGCMPreferences(context);
-        Log.wtf(TAG,"Got prefs");
         String registrationId = prefs.getString(PROPERTY_REG_ID, "");
         if (registrationId.equals("")) {
-            Log.wtf(TAG, "Registration not found.");
+            Log.i(TAG, "Registration not found.");
             return "";
         }
-        Log.wtf(TAG, "Found it in the prefs");
         // Check if app was updated; if so, it must clear the registration ID
         // since the existing regID is not guaranteed to work with the new
         // app version.
@@ -191,10 +225,9 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor>{
 
         int currentVersion = getAppVersion(context);
         if (registeredVersion != currentVersion) {
-            Log.wtf(TAG, "App version changed.");
+            Log.i(TAG, "App version changed.");
             return "";
         }
-        Log.wtf(TAG, "Course that shit didn't change");
         return registrationId;
     }
 
@@ -225,11 +258,9 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor>{
      * <p>
      * Stores the registration ID and app versionCode in the application's
      * shared preferences.
-     *
-     * (For GCM)
      */
     private void registerInBackground() {
-        Log.wtf(TAG, "Anon AsyncTask.execute");
+        Log.i(TAG, "Registering new regid");
         new AsyncTask<Void, Void, String>() {
             @Override
             protected String doInBackground(Void... params) {
@@ -241,30 +272,17 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor>{
                     regid = gcm.register(SENDER_ID);
                     msg = "Device registered, registration ID=" + regid;
 
-                    // You should send the registration ID to your server over HTTP,
-                    // so it can use GCM/HTTP or CCS to send messages to your app.
-                    // The request to your server should be authenticated if your app
-                    // is using accounts.
-
-                    // For this demo: we don't need to send it because the device
-                    // will send upstream messages to a server that echo back the
-                    // message using the 'from' address in the message.
-
                     // Persist the regID - no need to register again.
                     storeRegistrationId(context, regid);
                 } catch (IOException ex) {
                     msg = "Error :" + ex.getMessage();
-                    // If there is an error, don't just keep trying to register.
-                    // Require the user to click a button again, or perform
-                    // exponential back-off.
                 }
                 return msg;
             }
 
             @Override
             protected void onPostExecute(String msg) {
-                Log.wtf(TAG, "YEAH, regid, BITCH " + msg);
-                //mDisplay.append(msg + "\n");
+                Log.i(TAG, msg);
             }
         }.execute(null, null, null);
     }
@@ -273,11 +291,9 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor>{
      * Sends the registration ID to your server over HTTP, so it can use GCM/HTTP
      * or CCS to send messages to your app. Not needed for this demo since the
      * device sends upstream messages to a server that echoes back the message
-     * using the 'from' address in the message. (For GCM)
+     * using the 'from' address in the message.
      */
     private void sendRegistrationIdToBackend() {
-        Log.wtf(TAG, "Im the one that sends the regid to the backend.");
-
         AccountAuthorize tickleAuthTask = new AccountAuthorize();
         tickleAuthTask.execute(regid);
     }
@@ -288,13 +304,11 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor>{
      *
      * @param context application's context.
      * @param regId registration ID
-     *
-     * (For GCM)
      */
     private void storeRegistrationId(Context context, String regId) {
         final SharedPreferences prefs = getGCMPreferences(context);
         int appVersion = getAppVersion(context);
-        Log.wtf(TAG, "Saving regId on app version " + appVersion);
+        Log.i(TAG, "Saving regId on app version " + appVersion);
         SharedPreferences.Editor editor = prefs.edit();
         editor.putString(PROPERTY_REG_ID, regId);
         editor.putInt(PROPERTY_APP_VERSION, appVersion);
@@ -321,7 +335,6 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor>{
 
         boolean cancel = false;
         View focusView = null;
-
 
         // Check for a valid password, if the user entered one.
         if (!TextUtils.isEmpty(password) && !isPasswordValid(password)) {
@@ -441,7 +454,6 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor>{
         int IS_PRIMARY = 1;
     }
 
-
     private void addEmailsToAutoComplete(List<String> emailAddressCollection) {
         //Create adapter to tell the AutoCompleteTextView what to show in its dropdown list.
         ArrayAdapter<String> adapter =
@@ -473,15 +485,21 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor>{
             HttpURLConnection urlConnection = null;
             BufferedReader reader = null;
             String LOG_TAG = "Test Info";
+            final String EMAIL_PARAM;
+            final String PASS_PARAM;
 
             final String BASE_URL = "http://davisengeler.gwdnow.com/user.php?login";
-            final String EMAIL_PARAM = "email";
-            final String PASS_PARAM = "pass";
+            if (apilogin) {
+                EMAIL_PARAM = "apikey";
+                PASS_PARAM = "apipass";
+            } else {
+                EMAIL_PARAM = "email";
+                PASS_PARAM = "pass";
+            }
             final String DEVICE_ID ="deviceID";
             String android_id = Secure.getString(getApplicationContext().getContentResolver(),
                     Secure.ANDROID_ID);
             JSONArray acctValidate;
-
 
             try
             {
@@ -561,6 +579,22 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor>{
 
                         acctType = Integer.parseInt(acctValidate.getJSONObject(0).getString(ACCT_ID));
                         userid = acctValidate.getJSONObject(0).getString("userID");
+                        apikey = acctValidate.getJSONObject(0).getString("apiKey");
+                        apipass = acctValidate.getJSONObject(0).getString("apiPass");
+                        Log.i("API_login", "API key/pass: " + apikey + " / " + apipass);
+                        if (rememberLogin) {
+                            Log.i("API_login", "Saving API key/pass");
+                            SharedPreferences.Editor editor = prefs.edit();
+                            editor.putString(PROPERTY_API_KEY, apikey);
+                            editor.putString(PROPERTY_API_PASS, apipass);
+                            editor.commit();
+                        }else {
+                            Log.i("API_login", "Saving API key/pass");
+                            SharedPreferences.Editor editor = prefs.edit();
+                            editor.putString(PROPERTY_API_KEY, "");
+                            editor.putString(PROPERTY_API_PASS, "");
+                            editor.commit();
+                        }
                     }
                     else
                     {
@@ -585,10 +619,9 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor>{
 //            mAuthTask = null;
             showProgress(false);
             if(regid.equals("")){
-                Log.wtf(TAG, "No regid, dumbass");
+                Log.wtf(TAG, "No regigd");
             }
             else {
-                Log.wtf(TAG, "Send that shit.");
                 sendRegistrationIdToBackend();
             }
 

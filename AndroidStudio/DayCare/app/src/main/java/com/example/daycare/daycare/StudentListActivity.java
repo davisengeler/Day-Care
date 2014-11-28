@@ -1,7 +1,9 @@
 package com.example.daycare.daycare;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -146,6 +148,7 @@ public class StudentListActivity extends Activity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.student_list, menu);
 
         return super.onCreateOptionsMenu(menu);
     }
@@ -158,8 +161,26 @@ public class StudentListActivity extends Activity {
         int id = item.getItemId();
         if (id == R.id.action_settings) {
             return true;
+        } else if (id == R.id.logout_option) {
+            SharedPreferences prefs = getPreferences(getApplicationContext());
+            SharedPreferences.Editor editor = prefs.edit();
+            editor.putString(LoginActivity.PROPERTY_API_KEY, "");
+            editor.putString(LoginActivity.PROPERTY_API_PASS, "");
+            editor.commit();
+            Intent loginIntent = new Intent(getApplicationContext(), LoginActivity.class);
+            startActivity(loginIntent);
+            finish();
+
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    /**
+     * @return Application's {@code SharedPreferences}.
+     */
+    private SharedPreferences getPreferences(Context context) {
+        return getSharedPreferences(LoginActivity.class.getSimpleName(),
+                Context.MODE_PRIVATE);
     }
 
     public class ChildLookup extends AsyncTask<String, Void, Boolean> {
