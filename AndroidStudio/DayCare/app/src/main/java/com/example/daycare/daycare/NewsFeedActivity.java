@@ -848,5 +848,3 @@ public class NewsFeedActivity extends Activity {
 
     }
 }
-
-

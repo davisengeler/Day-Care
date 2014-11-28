@@ -1,6 +1,7 @@
 package com.example.daycare.daycare;
 
 import android.app.IntentService;
+import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -52,10 +53,8 @@ public class GCMIntentService extends IntentService {
                 // If it's a regular GCM message, do some work.
             } else if (GoogleCloudMessaging.
                     MESSAGE_TYPE_MESSAGE.equals(messageType)) {
-                //TODO What to do with a tickle
-                Log.wtf("TICKLE", "Got a tickle");
-                sendNotification("New Note! Hooray! Tickle tickle!");
-                Log.wtf("TICKLE", "Handled my Bizness");
+                sendNotification(extras.toString());
+                Log.i("GCM", "Received push notification");
             }
         }
         // Release the wake lock provided by the WakefulBroadcastReceiver.
@@ -77,7 +76,8 @@ public class GCMIntentService extends IntentService {
                         .setContentTitle("New note!")
                         .setStyle(new NotificationCompat.BigTextStyle()
                                 .bigText(msg))
-                        .setContentText(msg);
+                        .setContentText(msg)
+                        .setDefaults(Notification.DEFAULT_ALL);
 
         mBuilder.setContentIntent(contentIntent);
         mNotificationManager.notify(NOTIFICATION_ID, mBuilder.build());
