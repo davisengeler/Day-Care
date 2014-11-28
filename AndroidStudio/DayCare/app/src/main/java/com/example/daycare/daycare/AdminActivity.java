@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -38,6 +39,7 @@ public class AdminActivity extends Activity
        {
     private static String [] typesList;
     private String actType;
+           private String apikey, apipass;
 
 
     private ListView mListView;
@@ -50,6 +52,9 @@ public class AdminActivity extends Activity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        SharedPreferences prefs = getPreferences(getApplicationContext());
+        apikey = prefs.getString(LoginActivity.PROPERTY_API_KEY, "");
+        apipass = prefs.getString(LoginActivity.PROPERTY_API_PASS, "");
         setContentView(R.layout.activity_admin);
         final String JSONString = this.getIntent().getStringExtra("JSONString");
         if(JSONString!=null)
@@ -182,14 +187,22 @@ public class AdminActivity extends Activity
             HttpURLConnection urlConnection = null;
             BufferedReader reader = null;
             String jsonStr = "";
-            try
-            {
-                String userUrl = "http://davisengeler.gwdnow.com/user.php?getaccounttypes";
-                URL url = new URL(userUrl);
+            final String DE = "http://davisengeler.gwdnow.com/user.php?getaccounttypes";
+            final String API_KEY_PARAM = "apikey";
+            final String API_PASS_PARAM = "apipass";
+            Uri builtUri = Uri.parse(DE).buildUpon()
+                    .appendQueryParameter(API_KEY_PARAM, apikey)
+                    .appendQueryParameter(API_PASS_PARAM, apipass).build();
+
+            try {
+
+                Log.v("Test Info", "Built URL " + builtUri.toString());
+                URL url = new URL(builtUri.toString());
 
                 urlConnection = (HttpURLConnection) url.openConnection();
                 urlConnection.setRequestMethod("GET");
                 urlConnection.connect();
+
 
                 // Read the input stream into a String
                 InputStream inputStream = urlConnection.getInputStream();
@@ -207,7 +220,7 @@ public class AdminActivity extends Activity
                     if (buffer.length() != 0)
                     {
                         jsonStr = buffer.toString();
-                        Log.v("JSON String: ", jsonStr);
+                        Log.i("JSON String: ", jsonStr);
                     }
                 }
             }

@@ -151,10 +151,10 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor>{
 
         // Check device for saved API key/pass
         apikey = prefs.getString(PROPERTY_API_KEY, "");
-        if (!apikey.equals("")){
+        if (!apikey.equals("") && apikey != null){
             Log.i("API_login", "Stored API key found");
             apipass = prefs.getString(PROPERTY_API_PASS, "");
-            if (apipass.equals("")) {
+            if (apipass.equals("") || apipass == null) {
                 Log.i("API_login", "No stored API pass found, deleting key");
                 apikey = "";
             }
@@ -580,17 +580,19 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor>{
                         userid = acctValidate.getJSONObject(0).getString("userID");
                         apikey = acctValidate.getJSONObject(0).getString("apiKey");
                         apipass = acctValidate.getJSONObject(0).getString("apiPass");
-                        Log.i("API_login", "API key/pass: " + apikey + " / " + apipass);
-                        Log.i("API_login", "Saving API key/pass");
-                        SharedPreferences.Editor editor = prefs.edit();
-                        editor.putString(PROPERTY_API_KEY, apikey);
-                        editor.putString(PROPERTY_API_PASS, apipass);
-                        if (rememberLogin) {
-                            editor.putBoolean(PROPERTY_API_LOGIN, true);
-                        } else {
-                            editor.putBoolean(PROPERTY_API_LOGIN, false);
+                        if(!apilogin) {
+                            Log.i("API_login", "API key/pass: " + apikey + " / " + apipass);
+                            Log.i("API_login", "Saving API key/pass");
+                            SharedPreferences.Editor editor = prefs.edit();
+                            editor.putString(PROPERTY_API_KEY, apikey);
+                            editor.putString(PROPERTY_API_PASS, apipass);
+                            if (rememberLogin) {
+                                editor.putBoolean(PROPERTY_API_LOGIN, true);
+                            } else {
+                                editor.putBoolean(PROPERTY_API_LOGIN, false);
+                            }
+                            editor.commit();
                         }
-                        editor.commit();
                     }
                     else
                     {
@@ -673,10 +675,12 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor>{
             String LOG_TAG = "Test Info";
 
             final String DE = "http://davisengeler.gwdnow.com/user.php?updategcm=";
+            final String API_KEY_PARAM = "apikey";
+            final String API_PASS_PARAM = "apipass";
             Uri builtUri = Uri.parse(DE).buildUpon().appendQueryParameter("userid", userid)
                     .appendQueryParameter("gcm", regid)
-                    .appendQueryParameter(PROPERTY_API_KEY, apikey)
-                    .appendQueryParameter(PROPERTY_API_PASS, apipass).build();
+                    .appendQueryParameter(API_KEY_PARAM, apikey)
+                    .appendQueryParameter(API_PASS_PARAM, apipass).build();
 
             try {
 
