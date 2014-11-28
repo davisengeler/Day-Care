@@ -59,6 +59,7 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor>{
     public static final String PROPERTY_REG_ID = "registration_id";
     public static final String PROPERTY_API_KEY = "api_key";
     public static final String PROPERTY_API_PASS = "api_password";
+    public static final String PROPERTY_API_LOGIN = "api_login";
     private static final String PROPERTY_APP_VERSION = "appVersion";
     private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
     private static final String SENDER_ID = "385041079398";
@@ -73,7 +74,7 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor>{
 
     private GoogleCloudMessaging gcm;
     private SharedPreferences prefs;
-    private Context context;
+    public static Context context;
     private boolean rememberLogin = true;
     private String userid;
     private String regid;
@@ -162,13 +163,11 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor>{
         }
 
         // If stored API key/pass, auto login
-        if (!apikey.equals("")) {
-            apilogin = true;
+        apilogin = prefs.getBoolean(PROPERTY_API_LOGIN, false);
+        if (apilogin) {
             showProgress(true);
             mUserTask = new UserLoginTask(apikey, apipass);
             mUserTask.execute((Void) null);
-        } else {
-            apilogin = false;
         }
     }
 
@@ -582,19 +581,16 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor>{
                         apikey = acctValidate.getJSONObject(0).getString("apiKey");
                         apipass = acctValidate.getJSONObject(0).getString("apiPass");
                         Log.i("API_login", "API key/pass: " + apikey + " / " + apipass);
+                        Log.i("API_login", "Saving API key/pass");
+                        SharedPreferences.Editor editor = prefs.edit();
+                        editor.putString(PROPERTY_API_KEY, apikey);
+                        editor.putString(PROPERTY_API_PASS, apipass);
                         if (rememberLogin) {
-                            Log.i("API_login", "Saving API key/pass");
-                            SharedPreferences.Editor editor = prefs.edit();
-                            editor.putString(PROPERTY_API_KEY, apikey);
-                            editor.putString(PROPERTY_API_PASS, apipass);
-                            editor.commit();
-                        }else {
-                            Log.i("API_login", "Saving API key/pass");
-                            SharedPreferences.Editor editor = prefs.edit();
-                            editor.putString(PROPERTY_API_KEY, "");
-                            editor.putString(PROPERTY_API_PASS, "");
-                            editor.commit();
+                            editor.putBoolean(PROPERTY_API_LOGIN, true);
+                        } else {
+                            editor.putBoolean(PROPERTY_API_LOGIN, false);
                         }
+                        editor.commit();
                     }
                     else
                     {
@@ -668,6 +664,7 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor>{
             showProgress(false);
         }
     }
+
     public class AccountAuthorize extends AsyncTask<String, Void, Boolean>{
         protected Boolean doInBackground(String... params) {
             HttpURLConnection urlConnection = null;
@@ -677,7 +674,9 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor>{
 
             final String DE = "http://davisengeler.gwdnow.com/user.php?updategcm=";
             Uri builtUri = Uri.parse(DE).buildUpon().appendQueryParameter("userid", userid)
-                    .appendQueryParameter("gcm", regid).build();
+                    .appendQueryParameter("gcm", regid)
+                    .appendQueryParameter(PROPERTY_API_KEY, apikey)
+                    .appendQueryParameter(PROPERTY_API_PASS, apipass).build();
 
             try {
 

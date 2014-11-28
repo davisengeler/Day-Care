@@ -40,6 +40,7 @@ public class AdminAddNote extends Activity {
     int noteIndex;
     private JSONObject cInfo;
     Button button;
+    private String apikey, apipass;
     private boolean bySSN = false;
     private static String [] teacherNames;
     private static JSONArray tList;
@@ -47,6 +48,9 @@ public class AdminAddNote extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        SharedPreferences prefs = getPreferences(getApplicationContext());
+        apikey = prefs.getString(LoginActivity.PROPERTY_API_KEY, "");
+        apipass = prefs.getString(LoginActivity.PROPERTY_API_PASS, "");
         setContentView(R.layout.activity_admin_add_note);
         Resources res = getResources();
         GetTeacherList teachAsync = new GetTeacherList();
@@ -207,6 +211,8 @@ public class AdminAddNote extends Activity {
             final String NOTE_ID = "notetype";
             final String SUBJECT_ID = "subjectid";
             final String CHILD_IDS = "children";
+            final String API_KEY_PARAM = "apikey";
+            final String API_PASS_PARAM = "apipass";
             HttpURLConnection urlConnection = null;
             BufferedReader reader = null;
             String jsonStr = "";
@@ -217,7 +223,10 @@ public class AdminAddNote extends Activity {
                         .appendQueryParameter(MESSAGE_ID, params[0])
                         .appendQueryParameter(SUBJECT_ID, params[1])
                         .appendQueryParameter(NOTE_ID, params[2])
-                        .appendQueryParameter(CHILD_IDS, params[3]).build();
+                        .appendQueryParameter(CHILD_IDS, params[3])
+                        .appendQueryParameter(API_KEY_PARAM, apikey)
+                        .appendQueryParameter(API_PASS_PARAM, apipass)
+                        .build();
 
                 Log.v("TEST:   ", builtUri.toString());
 
@@ -286,7 +295,8 @@ public class AdminAddNote extends Activity {
         {
 
             final String BASE_URL_LOGIN = "http://davisengeler.gwdnow.com/child.php?getinfo";
-
+            final String API_KEY_PARAM = "apikey";
+            final String API_PASS_PARAM = "apipass";
             final String SSN_PARAM = "ssn";
             HttpURLConnection urlConnection = null;
             BufferedReader reader = null;
@@ -294,7 +304,10 @@ public class AdminAddNote extends Activity {
 
             try {
                 Uri builtUri = Uri.parse(BASE_URL_LOGIN).buildUpon()
-                        .appendQueryParameter(SSN_PARAM, params[0]).build();
+                        .appendQueryParameter(SSN_PARAM, params[0])
+                        .appendQueryParameter(API_KEY_PARAM, apikey)
+                        .appendQueryParameter(API_PASS_PARAM, apipass)
+                        .build();
 
                 Log.v("Built URI " , builtUri.toString());
                 URL getID = new URL(builtUri.toString());
@@ -425,6 +438,8 @@ public class AdminAddNote extends Activity {
         protected Boolean doInBackground(String... params) {
 
             final String BASE_URL = "http://davisengeler.gwdnow.com/user.php?teacherlist";
+            final String API_KEY_PARAM = "apikey";
+            final String API_PASS_PARAM = "apipass";
 
             HttpURLConnection urlConnection = null;
             BufferedReader reader = null;
@@ -432,7 +447,10 @@ public class AdminAddNote extends Activity {
 
 
             try {
-                Uri builtUri = Uri.parse(BASE_URL).buildUpon().build();
+                Uri builtUri = Uri.parse(BASE_URL).buildUpon()
+                        .appendQueryParameter(API_KEY_PARAM, apikey)
+                        .appendQueryParameter(API_PASS_PARAM, apipass)
+                        .build();
 
                 Log.v("TEST:   ", builtUri.toString());
 

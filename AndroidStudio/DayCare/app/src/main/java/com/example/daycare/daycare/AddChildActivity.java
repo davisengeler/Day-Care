@@ -46,10 +46,14 @@ public class AddChildActivity extends Activity
     private static String inputInfo, JSONString;
     private String edit ="";
     private EditText cSsn, cFirstName, cLastName, cDob, classID;
+    private String apikey, apipass;
     Spinner dropdown;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        SharedPreferences prefs = getPreferences(getApplicationContext());
+        apikey = prefs.getString(LoginActivity.PROPERTY_API_KEY, "");
+        apipass = prefs.getString(LoginActivity.PROPERTY_API_PASS, "");
         setContentView(R.layout.activity_add_child);
         GetTeacherList list = new GetTeacherList();
         list.execute();
@@ -153,6 +157,7 @@ public class AddChildActivity extends Activity
             SharedPreferences.Editor editor = prefs.edit();
             editor.putString(LoginActivity.PROPERTY_API_KEY, "");
             editor.putString(LoginActivity.PROPERTY_API_PASS, "");
+            editor.putBoolean(LoginActivity.PROPERTY_API_LOGIN, false);
             editor.commit();
             Intent loginIntent = new Intent(getApplicationContext(), LoginActivity.class);
             startActivity(loginIntent);
@@ -178,13 +183,19 @@ public class AddChildActivity extends Activity
             String idNum = "";
             final String BASE_URL_LOGIN = "http://davisengeler.gwdnow.com/user.php?getaccountbyssn";
             final String SSN_PARAM = "ssn";
+            final String API_KEY_PARAM = "apikey";
+            final String API_PASS_PARAM = "apipass";
+
             HttpURLConnection urlConnection = null;
             BufferedReader reader = null;
             String jsonStr;
 
             try {
                 Uri builtUri = Uri.parse(BASE_URL_LOGIN).buildUpon()
-                        .appendQueryParameter(SSN_PARAM, params[0]).build();
+                        .appendQueryParameter(SSN_PARAM, params[0])
+                        .appendQueryParameter(API_KEY_PARAM, apikey)
+                        .appendQueryParameter(API_PASS_PARAM, apipass)
+                        .build();
 
                 Log.v("Built URI " , builtUri.toString());
                 URL getID = new URL(builtUri.toString());
@@ -267,6 +278,8 @@ public class AddChildActivity extends Activity
             PARENT_ID = "parentid";
             TEACH_ID = "teacherid"; //teacherID
             CHILD_ID = "childid";
+            final String API_KEY_PARAM = "apikey";
+            final String API_PASS_PARAM = "apipass";
             if(edit == null)
             {
                 BASE_URL = "http://davisengeler.gwdnow.com/child.php?add";
@@ -276,7 +289,10 @@ public class AddChildActivity extends Activity
                         .appendQueryParameter(LAST_NAME, params[2])
                         .appendQueryParameter(DOB, params[3])
                         .appendQueryParameter(PARENT_ID, params[4])
-                        .appendQueryParameter(TEACH_ID, params[5]).build();
+                        .appendQueryParameter(TEACH_ID, params[5])
+                        .appendQueryParameter(API_KEY_PARAM, apikey)
+                        .appendQueryParameter(API_PASS_PARAM, apipass)
+                        .build();
             }
             else
             {
@@ -288,7 +304,10 @@ public class AddChildActivity extends Activity
                         .appendQueryParameter(DOB, params[3])
                         .appendQueryParameter(PARENT_ID, params[4])
                         .appendQueryParameter(TEACH_ID, params[5])
-                        .appendQueryParameter(CHILD_ID, childID).build();
+                        .appendQueryParameter(CHILD_ID, childID)
+                        .appendQueryParameter(API_KEY_PARAM, apikey)
+                        .appendQueryParameter(API_PASS_PARAM, apipass)
+                        .build();
             }
 
             HttpURLConnection urlConnection = null;
@@ -442,6 +461,8 @@ public class AddChildActivity extends Activity
 
             final String BASE_URL_LOGIN = "http://davisengeler.gwdnow.com/child.php?getinfo";
             final String SSN_PARAM = "ssn";
+            final String API_KEY_PARAM = "apikey";
+            final String API_PASS_PARAM = "apipass";
             String param = "[" + params[0] + "]";
             HttpURLConnection urlConnection = null;
             BufferedReader reader = null;
@@ -449,7 +470,10 @@ public class AddChildActivity extends Activity
 
             try {
                 Uri builtUri = Uri.parse(BASE_URL_LOGIN).buildUpon()
-                        .appendQueryParameter(SSN_PARAM, param).build();
+                        .appendQueryParameter(SSN_PARAM, param)
+                        .appendQueryParameter(API_KEY_PARAM, apikey)
+                        .appendQueryParameter(API_PASS_PARAM, apipass)
+                        .build();
 
                 Log.v("Built URI " , builtUri.toString());
                 URL getID = new URL(builtUri.toString());
@@ -546,6 +570,8 @@ public class AddChildActivity extends Activity
         protected Boolean doInBackground(String... params) {
 
             final String BASE_URL = "http://davisengeler.gwdnow.com/user.php?teacherlist";
+            final String API_KEY_PARAM = "apikey";
+            final String API_PASS_PARAM = "apipass";
 
             HttpURLConnection urlConnection = null;
             BufferedReader reader = null;
@@ -553,7 +579,10 @@ public class AddChildActivity extends Activity
 
 
             try {
-                Uri builtUri = Uri.parse(BASE_URL).buildUpon().build();
+                Uri builtUri = Uri.parse(BASE_URL).buildUpon()
+                        .appendQueryParameter(API_KEY_PARAM, apikey)
+                        .appendQueryParameter(API_PASS_PARAM, apipass)
+                        .build();
 
                 Log.v("TEST:   ", builtUri.toString());
 

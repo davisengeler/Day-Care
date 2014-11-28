@@ -154,6 +154,7 @@ public class AdminActivity extends Activity
             SharedPreferences.Editor editor = prefs.edit();
             editor.putString(LoginActivity.PROPERTY_API_KEY, "");
             editor.putString(LoginActivity.PROPERTY_API_PASS, "");
+            editor.putBoolean(LoginActivity.PROPERTY_API_LOGIN, false);
             editor.commit();
             Intent loginIntent = new Intent(getApplicationContext(), LoginActivity.class);
             startActivity(loginIntent);

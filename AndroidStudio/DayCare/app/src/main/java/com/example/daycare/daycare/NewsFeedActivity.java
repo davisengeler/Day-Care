@@ -46,6 +46,7 @@ public class NewsFeedActivity extends Activity {
     private boolean progress = false;
     private static String[] childNames, students;
     private String childIDList;
+    private String apikey, apipass;
     private String teacherView = "";
     private static String IDs = "", sMethod = "", noteIDs = "";
 
@@ -54,6 +55,9 @@ public class NewsFeedActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        SharedPreferences prefs = getPreferences(getApplicationContext());
+        apikey = prefs.getString(LoginActivity.PROPERTY_API_KEY, "");
+        apipass = prefs.getString(LoginActivity.PROPERTY_API_PASS, "");
         setContentView(R.layout.activity_news_feed);
         mListView = (ListView) findViewById(android.R.id.list);
         mProgressView = (ProgressBar) findViewById(R.id.progress_bar_news);
@@ -115,6 +119,7 @@ public class NewsFeedActivity extends Activity {
             SharedPreferences.Editor editor = prefs.edit();
             editor.putString(LoginActivity.PROPERTY_API_KEY, "");
             editor.putString(LoginActivity.PROPERTY_API_PASS, "");
+            editor.putBoolean(LoginActivity.PROPERTY_API_LOGIN, false);
             editor.commit();
             Intent loginIntent = new Intent(getApplicationContext(), LoginActivity.class);
             startActivity(loginIntent);
@@ -139,6 +144,8 @@ public class NewsFeedActivity extends Activity {
             //showProgress(true);
             final String BASE_URL = "http://davisengeler.gwdnow.com/child.php?getnotes";
             final String CHILD_ID = "childids";
+            final String API_KEY_PARAM = "apikey";
+            final String API_PASS_PARAM = "apipass";
 //            final String DEVICE_ID = "deviceID";
 //            String android_id = Settings.Secure.getString(getApplicationContext().getContentResolver(),
 //                    Settings.Secure.ANDROID_ID);
@@ -151,6 +158,8 @@ public class NewsFeedActivity extends Activity {
             try {
                 Uri builtUri = Uri.parse(BASE_URL).buildUpon()
                         .appendQueryParameter(CHILD_ID, params[0])
+                        .appendQueryParameter(API_KEY_PARAM, apikey)
+                        .appendQueryParameter(API_PASS_PARAM, apipass)
                         .build();
 
                 Log.v("TEST:   ", builtUri.toString());
@@ -361,13 +370,18 @@ public class NewsFeedActivity extends Activity {
 
             final String BASE_URL = "http://davisengeler.gwdnow.com/child.php?getinfo";
             final String CHILD_ID = "childids";
+            final String API_KEY_PARAM = "apikey";
+            final String API_PASS_PARAM = "apipass";
             HttpURLConnection urlConnection = null;
             BufferedReader reader = null;
             String jsonStr = "";
 
             try {
                 Uri builtUri = Uri.parse(BASE_URL).buildUpon()
-                        .appendQueryParameter(CHILD_ID, params[0]).build();
+                        .appendQueryParameter(CHILD_ID, params[0])
+                        .appendQueryParameter(API_KEY_PARAM, apikey)
+                        .appendQueryParameter(API_PASS_PARAM, apipass)
+                        .build();
 
                 Log.v("TEST:   ", builtUri.toString());
 
@@ -468,13 +482,18 @@ public class NewsFeedActivity extends Activity {
                 BASE_URL = "http://davisengeler.gwdnow.com/child.php?signout";
                 ID = "attendids";
             }
+            final String API_KEY_PARAM = "apikey";
+            final String API_PASS_PARAM = "apipass";
             HttpURLConnection urlConnection = null;
             BufferedReader reader = null;
             String jsonStr = "";
 
             try {
                 Uri builtUri = Uri.parse(BASE_URL).buildUpon()
-                        .appendQueryParameter(ID, params[0]).build();
+                        .appendQueryParameter(ID, params[0])
+                        .appendQueryParameter(API_KEY_PARAM, apikey)
+                        .appendQueryParameter(API_PASS_PARAM, apipass)
+                        .build();
 
                 Log.v("TEST:   ", builtUri.toString());
 
@@ -592,10 +611,15 @@ public class NewsFeedActivity extends Activity {
 
     public String processQuery(HttpURLConnection urlConnection, BufferedReader reader, String BASE_URL, String idArray, String SEARCH) {
         String jsonStr = null;
+        final String API_KEY_PARAM = "apikey";
+        final String API_PASS_PARAM = "apipass";
 
         try {
             Uri builtUri = Uri.parse(BASE_URL).buildUpon()
-                    .appendQueryParameter(SEARCH, idArray).build();
+                    .appendQueryParameter(SEARCH, idArray)
+                    .appendQueryParameter(API_KEY_PARAM, apikey)
+                    .appendQueryParameter(API_PASS_PARAM, apipass)
+                    .build();
 
             Log.v("Built URI ", builtUri.toString());
             URL url = new URL(builtUri.toString());
@@ -750,6 +774,8 @@ public class NewsFeedActivity extends Activity {
             final String NOTE_ID = "notetype";
             final String SUBJECT_ID = "subjectid";
             final String CHILD_IDS = "children";
+            final String API_KEY_PARAM = "apikey";
+            final String API_PASS_PARAM = "apipass";
             HttpURLConnection urlConnection = null;
             BufferedReader reader = null;
             String jsonStr = "";
@@ -760,7 +786,10 @@ public class NewsFeedActivity extends Activity {
                         .appendQueryParameter(MESSAGE_ID, params[0])
                         .appendQueryParameter(SUBJECT_ID, params[1])
                         .appendQueryParameter(NOTE_ID, params[2])
-                        .appendQueryParameter(CHILD_IDS, params[3]).build();
+                        .appendQueryParameter(CHILD_IDS, params[3])
+                        .appendQueryParameter(API_KEY_PARAM, apikey)
+                        .appendQueryParameter(API_PASS_PARAM, apipass)
+                        .build();
 
                 Log.v("TEST:   ", builtUri.toString());
 
