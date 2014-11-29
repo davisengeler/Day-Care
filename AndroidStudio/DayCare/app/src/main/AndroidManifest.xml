@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.example.daycare.daycare" >
+
+    <uses-sdk
+        android:minSdkVersion="15"
+        android:targetSdkVersion="19" />
+
+    <!-- To auto-complete the email text field in the login form with the user's emails -->
+    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
+    <uses-permission android:name="android.permission.READ_PROFILE" />
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.READ_PHONE_STAT" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_CALL_LOG" />
+
+    <android:uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="18" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@drawable/ic_launcher"
+        android:label="@string/app_name"
+        android:theme="@style/AppTheme" >
+        <activity
+            android:name="com.example.daycare.daycare.LoginActivity"
+            android:label="@string/app_name"
+            android:windowSoftInputMode="adjustResize|stateVisible" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="com.example.daycare.daycare.StudentListActivity"
+            android:label="@string/title_activity_student_list"
+            android:screenOrientation="portrait" >
+            <intent-filter>
+
+                <!-- <action android:name="android.intent.action.MAIN" /> -->
+                <!-- <category android:name="android.intent.category.LAUNCHER" /> -->
+                <action android:name="android.intent.action.VIEW" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="com.example.daycare.daycare.AdminActivity"
+            android:label="@string/title_activity_admin" >
+            <intent-filter>
+
+                <!-- <action android:name="android.intent.action.MAIN"/> -->
+                <!-- <category android:name="android.intent.category.LAUNCHER"/> -->
+                <action android:name="android.intent.action.VIEW" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="com.example.daycare.daycare.dummy.AddAccountActivity"
+            android:label="@string/title_activity_add_account"
+            android:parentActivityName="com.example.daycare.daycare.AdminActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.daycare.daycare.AdminActivity" />
+        </activity>
+        <activity
+            android:name="com.example.daycare.daycare.NewsFeedActivity"
+            android:label="@string/title_activity_news_feed"
+            android:screenOrientation="portrait" >
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="com.example.daycare.daycare.StudentViewActivity"
+            android:label="@string/title_activity_student_view"
+            android:parentActivityName="com.example.daycare.daycare.StudentListActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.daycare.daycare.StudentListActivity" />
+        </activity>
+        <activity
+            android:name="com.example.daycare.daycare.AddChildActivity"
+            android:label="@string/title_activity_add_child"
+            android:parentActivityName="com.example.daycare.daycare.AdminActivity"
+            android:screenOrientation="portrait" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.daycare.daycare.AdminActivity" />
+        </activity>
+        <activity
+            android:name="com.example.daycare.daycare.AdminAddNote"
+            android:label="@string/title_activity_admin_add_note"
+            android:parentActivityName="com.example.daycare.daycare.AdminActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.daycare.daycare.AdminActivity" />
+        </activity>
+        <activity
+            android:name="com.example.daycare.daycare.ApproveAccounts"
+            android:label="@string/title_activity_approve_accounts"
+            android:parentActivityName="com.example.daycare.daycare.AdminActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.daycare.daycare.AdminActivity" />
+        </activity>
+        <activity
+            android:name="com.example.daycare.daycare.dummy.SignInOut"
+            android:label="@string/title_activity_sign_in_out" >
+        </activity>
+    </application>
+
+</manifest>
