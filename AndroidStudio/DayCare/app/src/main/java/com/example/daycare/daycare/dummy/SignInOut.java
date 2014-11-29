@@ -4,7 +4,9 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -17,6 +19,7 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.example.daycare.daycare.LoginActivity;
 import com.example.daycare.daycare.R;
 
 import org.json.JSONArray;
@@ -35,6 +38,7 @@ import java.util.ArrayList;
 public class SignInOut extends Activity {
     private static JSONArray userInfo, cInfo;
     private static String [] childNames;
+    private String apikey, apipass;
     private static boolean [] checkedChildren;
     private static String sMethod = "", IDs = "";
     private ProgressBar loader;
@@ -43,6 +47,9 @@ public class SignInOut extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        SharedPreferences prefs = getPreferences(getApplicationContext());
+        apikey = prefs.getString(LoginActivity.PROPERTY_API_KEY, "");
+        apipass = prefs.getString(LoginActivity.PROPERTY_API_PASS, "");
         setContentView(R.layout.activity_sign_in_out);
         loader = (ProgressBar) findViewById(R.id.progressBar2);
         mListView = (ListView) findViewById(R.id.container);
@@ -96,6 +103,14 @@ public class SignInOut extends Activity {
 //        });
 
 
+    }
+
+    /**
+     * @return Application's {@code SharedPreferences}.
+     */
+    private SharedPreferences getPreferences(Context context) {
+        return getSharedPreferences(LoginActivity.class.getSimpleName(),
+                Context.MODE_PRIVATE);
     }
 
     public static class SignInOutDialog extends DialogFragment {
@@ -221,12 +236,16 @@ public class SignInOut extends Activity {
             String jsonStr = "";
             final String USER_BASE_URL = "http://davisengeler.gwdnow.com/user.php?getaccountbyssn";
             final String SSN_PARAM = "ssn";
+            final String API_KEY_PARAM = "apikey";
+            final String API_PASS_PARAM = "apipass";
 
             try {
 
 
                 Uri builtUri = Uri.parse(USER_BASE_URL).buildUpon()
                         .appendQueryParameter(SSN_PARAM, params[0])
+                        .appendQueryParameter(API_KEY_PARAM, apikey)
+                        .appendQueryParameter(API_PASS_PARAM, apipass)
                         .build();
                 URL url = new URL(builtUri.toString());
 
@@ -299,6 +318,8 @@ public class SignInOut extends Activity {
 
             final String BASE_URL = "http://davisengeler.gwdnow.com/child.php?getinfo";
             final String CHILD_ID = "childids";
+            final String API_KEY_PARAM = "apikey";
+            final String API_PASS_PARAM = "apipass";
             HttpURLConnection urlConnection = null;
             BufferedReader reader = null;
             String jsonStr = "";
@@ -306,7 +327,10 @@ public class SignInOut extends Activity {
 
             try {
                 Uri builtUri = Uri.parse(BASE_URL).buildUpon()
-                        .appendQueryParameter(CHILD_ID, params[0]).build();
+                        .appendQueryParameter(CHILD_ID, params[0])
+                        .appendQueryParameter(API_KEY_PARAM, apikey)
+                        .appendQueryParameter(API_PASS_PARAM, apipass)
+                        .build();
 
                 Log.v("TEST:   ", builtUri.toString());
 
@@ -420,6 +444,8 @@ public class SignInOut extends Activity {
                 BASE_URL = "http://davisengeler.gwdnow.com/child.php?signout";
                 ID = "attendids";
             }
+            final String API_KEY_PARAM = "apikey";
+            final String API_PASS_PARAM = "apipass";
             HttpURLConnection urlConnection = null;
             BufferedReader reader = null;
             String jsonStr = "";
@@ -427,7 +453,10 @@ public class SignInOut extends Activity {
 
             try {
                 Uri builtUri = Uri.parse(BASE_URL).buildUpon()
-                        .appendQueryParameter(ID, params[0]).build();
+                        .appendQueryParameter(ID, params[0])
+                        .appendQueryParameter(API_KEY_PARAM, apikey)
+                        .appendQueryParameter(API_PASS_PARAM, apipass)
+                        .build();
 
                 Log.v("TEST:   ", builtUri.toString());
 

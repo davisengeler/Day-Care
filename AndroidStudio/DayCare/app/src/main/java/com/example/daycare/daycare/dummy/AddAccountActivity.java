@@ -5,8 +5,10 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -25,6 +27,7 @@ import android.widget.Toast;
 
 import com.example.daycare.daycare.AddChildActivity;
 import com.example.daycare.daycare.AdminActivity;
+import com.example.daycare.daycare.LoginActivity;
 import com.example.daycare.daycare.R;
 
 import org.json.JSONArray;
@@ -45,6 +48,7 @@ public class AddAccountActivity extends Activity {
     private JSONArray userInfo;
     private ProgressBar loader;
     private static String ssn, JSONString;
+    private String apikey, apipass;
     private String userID = "", accID = "", type;
     EditText fName, lName, sAddress, sCity, sState, sZip, emailAddress, pNum, s_Ssn, sPass;
     Spinner dropdown;
@@ -55,6 +59,9 @@ public class AddAccountActivity extends Activity {
         String [] test = this.getIntent().getStringArrayExtra("AcctTypeList");
         type = this.getIntent().getStringExtra("Edit");
         super.onCreate(savedInstanceState);
+        SharedPreferences prefs = getPreferences(getApplicationContext());
+        apikey = prefs.getString(LoginActivity.PROPERTY_API_KEY, "");
+        apipass = prefs.getString(LoginActivity.PROPERTY_API_PASS, "");
         setContentView(R.layout.activity_add_account);
         loader = (ProgressBar) findViewById(R.id.progressBar1);
         loader.setVisibility(View.GONE);
@@ -149,6 +156,13 @@ public class AddAccountActivity extends Activity {
         });
     }
 
+    /**
+     * @return Application's {@code SharedPreferences}.
+     */
+    private SharedPreferences getPreferences(Context context) {
+        return getSharedPreferences(LoginActivity.class.getSimpleName(),
+                Context.MODE_PRIVATE);
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -192,6 +206,8 @@ public class AddAccountActivity extends Activity {
             final String PHONE_PARAM = "phone";
             final String PASS_PARAM = "pass";
             final String TYPE_ID_PARAM = "accid";
+            final String API_KEY_PARAM = "apikey";
+            final String API_PASS_PARAM = "apipass";
             if(type == null)
             {
                 USER_BASE_URL = "http://davisengeler.gwdnow.com/user.php?add";
@@ -208,6 +224,8 @@ public class AddAccountActivity extends Activity {
                             .appendQueryParameter(PHONE_PARAM, params[5])
                             .appendQueryParameter(PASS_PARAM, params[6])
                             .appendQueryParameter(TYPE_ID_PARAM, params[7])
+                            .appendQueryParameter(API_KEY_PARAM, apikey)
+                            .appendQueryParameter(API_PASS_PARAM, apipass)
                             .build();
                 } catch (Exception e) {
                     System.out.println(e.getMessage());
@@ -229,6 +247,8 @@ public class AddAccountActivity extends Activity {
                                 .appendQueryParameter(PASS_PARAM, params[6])
                                 .appendQueryParameter(TYPE_ID_PARAM, params[7])
                                 .appendQueryParameter("userid", userID)
+                                .appendQueryParameter(API_KEY_PARAM, apikey)
+                                .appendQueryParameter(API_PASS_PARAM, apipass)
                                 .build();
                     }
                     else
@@ -243,6 +263,8 @@ public class AddAccountActivity extends Activity {
                                 //no password update
                                 .appendQueryParameter(TYPE_ID_PARAM, params[7])
                                 .appendQueryParameter("userid", userID)
+                                .appendQueryParameter(API_KEY_PARAM, apikey)
+                                .appendQueryParameter(API_PASS_PARAM, apipass)
                                 .build();
                     }
                 } catch (Exception e) {
@@ -362,12 +384,16 @@ public class AddAccountActivity extends Activity {
             String jsonStr = "";
             final String USER_BASE_URL = "http://davisengeler.gwdnow.com/user.php?getaccountbyssn";
             final String SSN_PARAM = "ssn";
+            final String API_KEY_PARAM = "apikey";
+            final String API_PASS_PARAM = "apipass";
 
             try {
 
 
                 Uri builtUri = Uri.parse(USER_BASE_URL).buildUpon()
                         .appendQueryParameter(SSN_PARAM, params[0])
+                        .appendQueryParameter(API_KEY_PARAM, apikey)
+                        .appendQueryParameter(API_PASS_PARAM, apipass)
                         .build();
                 URL url = new URL(builtUri.toString());
 
@@ -446,8 +472,11 @@ public class AddAccountActivity extends Activity {
             String addyString = j1.getString("address");
             String[] splitAddy = addyString.split(",");
             sAddress.setText(splitAddy[0], TextView.BufferType.EDITABLE);
+            if (splitAddy.length > 1)
             sCity.setText(splitAddy[1], TextView.BufferType.EDITABLE);
+            if (splitAddy.length > 2)
             sState.setText(splitAddy[2], TextView.BufferType.EDITABLE);
+            if (splitAddy.length > 3)
             sZip.setText(splitAddy[3], TextView.BufferType.EDITABLE);
             s_Ssn.setText(j1.getString("ssn"), TextView.BufferType.EDITABLE);
             pNum.setText(j1.getString("phone"), TextView.BufferType.EDITABLE);

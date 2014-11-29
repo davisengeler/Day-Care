@@ -30,6 +30,7 @@ import java.net.URL;
 
 public class StudentListActivity extends Activity {
     private ListView mListView;
+    private String apikey, apipass;
     String[] students;
     JSONArray jArray;
     JSONArray teach;
@@ -38,6 +39,9 @@ public class StudentListActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        SharedPreferences prefs = getPreferences(getApplicationContext());
+        apikey = prefs.getString(LoginActivity.PROPERTY_API_KEY, "");
+        apipass = prefs.getString(LoginActivity.PROPERTY_API_PASS, "");
         setContentView(R.layout.activity_student_list);
         pLoader = (ProgressBar) findViewById(R.id.progressBarList);
         if(JSONString == null)
@@ -166,6 +170,7 @@ public class StudentListActivity extends Activity {
             SharedPreferences.Editor editor = prefs.edit();
             editor.putString(LoginActivity.PROPERTY_API_KEY, "");
             editor.putString(LoginActivity.PROPERTY_API_PASS, "");
+            editor.putBoolean(LoginActivity.PROPERTY_API_LOGIN, false);
             editor.commit();
             Intent loginIntent = new Intent(getApplicationContext(), LoginActivity.class);
             startActivity(loginIntent);
@@ -229,10 +234,15 @@ public class StudentListActivity extends Activity {
     public String processQuery(HttpURLConnection urlConnection, BufferedReader reader, String BASE_URL, String idArray, String SEARCH)
     {
         String jsonStr = null;
+        final String API_KEY_PARAM = "apikey";
+        final String API_PASS_PARAM = "apipass";
 
         try {
             Uri builtUri = Uri.parse(BASE_URL).buildUpon()
-                    .appendQueryParameter(SEARCH, idArray).build();
+                    .appendQueryParameter(SEARCH, idArray)
+                    .appendQueryParameter(API_KEY_PARAM, apikey)
+                    .appendQueryParameter(API_PASS_PARAM, apipass)
+                    .build();
 
             Log.v("Built URI " , builtUri.toString());
             URL url = new URL(builtUri.toString());

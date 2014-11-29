@@ -38,9 +38,13 @@ public class ApproveAccounts extends Activity {
     private static int listChoice;
     private String []approveList, toDisplay, acctTypeList;
     private static JSONArray account_Type;
+    private String apikey, apipass;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        SharedPreferences prefs = getPreferences(getApplicationContext());
+        apikey = prefs.getString(LoginActivity.PROPERTY_API_KEY, "");
+        apipass = prefs.getString(LoginActivity.PROPERTY_API_PASS, "");
         setContentView(R.layout.activity_approve_accounts);
         mListView = (ListView) findViewById(R.id.container);
         AcctApprovals a = new AcctApprovals();
@@ -97,6 +101,7 @@ public class ApproveAccounts extends Activity {
             SharedPreferences.Editor editor = prefs.edit();
             editor.putString(LoginActivity.PROPERTY_API_KEY, "");
             editor.putString(LoginActivity.PROPERTY_API_PASS, "");
+            editor.putBoolean(LoginActivity.PROPERTY_API_LOGIN, false);
             editor.commit();
             Intent loginIntent = new Intent(getApplicationContext(), LoginActivity.class);
             startActivity(loginIntent);
@@ -122,14 +127,21 @@ public class ApproveAccounts extends Activity {
             HttpURLConnection urlConnection = null;
             BufferedReader reader = null;
             String jsonStr = "";
-            try
-            {
                 String userUrl = "http://davisengeler.gwdnow.com/user.php?getpendingaccounts";
-                URL url = new URL(userUrl);
+                final String API_KEY_PARAM = "apikey";
+                final String API_PASS_PARAM = "apipass";
+                try {
+                    Uri builtUri = Uri.parse(userUrl).buildUpon()
+                            .appendQueryParameter(API_KEY_PARAM, apikey)
+                            .appendQueryParameter(API_PASS_PARAM, apipass)
+                            .build();
 
-                urlConnection = (HttpURLConnection) url.openConnection();
-                urlConnection.setRequestMethod("GET");
-                urlConnection.connect();
+                    Log.v("Built URI ", builtUri.toString());
+                    URL url = new URL(builtUri.toString());
+
+                    urlConnection = (HttpURLConnection) url.openConnection();
+                    urlConnection.setRequestMethod("GET");
+                    urlConnection.connect();
 
                 // Read the input stream into a String
                 InputStream inputStream = urlConnection.getInputStream();
@@ -285,6 +297,8 @@ public class ApproveAccounts extends Activity {
             BASE_URL = "http://davisengeler.gwdnow.com/user.php?setapproval";
             USER_ID = "userid";
             DECISION = "decision";
+            final String API_KEY_PARAM = "apikey";
+            final String API_PASS_PARAM = "apipass";
             HttpURLConnection urlConnection = null;
             BufferedReader reader = null;
             String jsonStr = "";
@@ -293,7 +307,10 @@ public class ApproveAccounts extends Activity {
             try {
                 Uri builtUri = Uri.parse(BASE_URL).buildUpon()
                         .appendQueryParameter(USER_ID, params[0])
-                        .appendQueryParameter(DECISION, params[1]).build();
+                        .appendQueryParameter(DECISION, params[1])
+                        .appendQueryParameter(API_KEY_PARAM, apikey)
+                        .appendQueryParameter(API_PASS_PARAM, apipass)
+                        .build();
 
                 Log.v("TEST:   ", builtUri.toString());
 

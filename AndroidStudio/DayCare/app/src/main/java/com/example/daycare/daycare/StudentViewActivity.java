@@ -44,9 +44,13 @@ public class StudentViewActivity extends Activity {
     private static JSONArray tList;
     private static JSONObject childInfo;
     private String JSONString;
+    private String apikey, apipass;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        SharedPreferences prefs = getPreferences(getApplicationContext());
+        apikey = prefs.getString(LoginActivity.PROPERTY_API_KEY, "");
+        apipass = prefs.getString(LoginActivity.PROPERTY_API_PASS, "");
         setContentView(R.layout.activity_student_view);
         JSONString = this.getIntent().getStringExtra("JSONString");
         String chosenStudent = this.getIntent().getStringExtra("chosenStudent");
@@ -161,6 +165,7 @@ public class StudentViewActivity extends Activity {
             SharedPreferences.Editor editor = prefs.edit();
             editor.putString(LoginActivity.PROPERTY_API_KEY, "");
             editor.putString(LoginActivity.PROPERTY_API_PASS, "");
+            editor.putBoolean(LoginActivity.PROPERTY_API_LOGIN, false);
             editor.commit();
             Intent loginIntent = new Intent(getApplicationContext(), LoginActivity.class);
             startActivity(loginIntent);
@@ -296,6 +301,8 @@ public class StudentViewActivity extends Activity {
 
             final String BASE_URL = "http://davisengeler.gwdnow.com/user.php?getaccountbyuserid";
             final String USER_ID = "userid";
+            final String API_KEY_PARAM = "apikey";
+            final String API_PASS_PARAM = "apipass";
             HttpURLConnection urlConnection = null;
             BufferedReader reader = null;
             String jsonStr = "";
@@ -303,7 +310,10 @@ public class StudentViewActivity extends Activity {
 
             try {
                 Uri builtUri = Uri.parse(BASE_URL).buildUpon()
-                        .appendQueryParameter(USER_ID, params[0]).build();
+                        .appendQueryParameter(USER_ID, params[0])
+                        .appendQueryParameter(API_KEY_PARAM, apikey)
+                        .appendQueryParameter(API_PASS_PARAM, apipass)
+                        .build();
 
                 Log.v("TEST:   ", builtUri.toString());
 
@@ -386,6 +396,8 @@ public class StudentViewActivity extends Activity {
         protected Boolean doInBackground(String... params) {
 
             final String BASE_URL = "http://davisengeler.gwdnow.com/user.php?teacherlist";
+            final String API_KEY_PARAM = "apikey";
+            final String API_PASS_PARAM = "apipass";
 
             HttpURLConnection urlConnection = null;
             BufferedReader reader = null;
@@ -393,7 +405,10 @@ public class StudentViewActivity extends Activity {
 
 
             try {
-                Uri builtUri = Uri.parse(BASE_URL).buildUpon().build();
+                Uri builtUri = Uri.parse(BASE_URL).buildUpon()
+                        .appendQueryParameter(API_KEY_PARAM, apikey)
+                        .appendQueryParameter(API_PASS_PARAM, apipass)
+                        .build();
 
                 Log.v("TEST:   ", builtUri.toString());
 
@@ -482,6 +497,8 @@ public class StudentViewActivity extends Activity {
             final String BASE_URL = "http://davisengeler.gwdnow.com/child.php?setclass";
             final String TEACH_ID = "teacherid";
             final String CHILD_ID = "childid";
+            final String API_KEY_PARAM = "apikey";
+            final String API_PASS_PARAM = "apipass";
             HttpURLConnection urlConnection = null;
             BufferedReader reader = null;
             String jsonStr = "";
@@ -490,7 +507,10 @@ public class StudentViewActivity extends Activity {
             try {
                 Uri builtUri = Uri.parse(BASE_URL).buildUpon()
                         .appendQueryParameter(TEACH_ID, params[0])
-                        .appendQueryParameter(CHILD_ID, params[1]).build();
+                        .appendQueryParameter(CHILD_ID, params[1])
+                        .appendQueryParameter(API_KEY_PARAM, apikey)
+                        .appendQueryParameter(API_PASS_PARAM, apipass)
+                        .build();
 
                 Log.v("TEST:   ", builtUri.toString());
 
@@ -558,6 +578,8 @@ public class StudentViewActivity extends Activity {
             final String NOTE_ID = "notetype";
             final String SUBJECT_ID = "subjectid";
             final String CHILD_IDS = "children";
+            final String API_KEY_PARAM = "apikey";
+            final String API_PASS_PARAM = "apipass";
             HttpURLConnection urlConnection = null;
             BufferedReader reader = null;
             String jsonStr = "";
@@ -568,7 +590,10 @@ public class StudentViewActivity extends Activity {
                         .appendQueryParameter(MESSAGE_ID, params[0])
                         .appendQueryParameter(SUBJECT_ID, params[1])
                         .appendQueryParameter(NOTE_ID, params[2])
-                        .appendQueryParameter(CHILD_IDS, params[3]).build();
+                        .appendQueryParameter(CHILD_IDS, params[3])
+                        .appendQueryParameter(API_KEY_PARAM, apikey)
+                        .appendQueryParameter(API_PASS_PARAM, apipass)
+                        .build();
 
                 Log.v("TEST:   ", builtUri.toString());
 
