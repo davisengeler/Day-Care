@@ -52,7 +52,7 @@ public class GCMIntentService extends IntentService {
                         extras.toString());
                 // If it's a regular GCM message, do some work.
             } else if (GoogleCloudMessaging.
-                    MESSAGE_TYPE_MESSAGE.equals(messageType)) {
+                    MESSAGE_TYPE_MESSAGE.equals("New notes from Daycare!")) {
                 sendNotification(extras.toString());
                 Log.i("GCM", "Received push notification");
             }
@@ -77,7 +77,8 @@ public class GCMIntentService extends IntentService {
                         .setStyle(new NotificationCompat.BigTextStyle()
                                 .bigText(msg))
                         .setContentText(msg)
-                        .setDefaults(Notification.DEFAULT_ALL);
+                        .setDefaults(Notification.DEFAULT_ALL)
+                        .setAutoCancel(true);
 
         mBuilder.setContentIntent(contentIntent);
         mNotificationManager.notify(NOTIFICATION_ID, mBuilder.build());
