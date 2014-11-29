@@ -36,13 +36,13 @@ import java.net.URL;
 import java.util.ArrayList;
 
 public class SignInOut extends Activity {
-    private static JSONArray userInfo, cInfo;
-    private static String [] childNames;
-    private String apikey, apipass;
-    private static boolean [] checkedChildren;
-    private static String sMethod = "", IDs = "";
-    private ProgressBar loader;
-    private ListView mListView;
+    protected static JSONArray userInfo, cInfo;
+    protected static String [] childNames;
+    protected static boolean [] checkedChildren;
+    protected static String apikey, apipass;
+    protected static String sMethod = "", IDs = "";
+    protected ProgressBar loader;
+    protected ListView mListView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -101,14 +101,12 @@ public class SignInOut extends Activity {
 //
 //            }
 //        });
-
-
     }
 
     /**
      * @return Application's {@code SharedPreferences}.
      */
-    private SharedPreferences getPreferences(Context context) {
+    protected SharedPreferences getPreferences(Context context) {
         return getSharedPreferences(LoginActivity.class.getSimpleName(),
                 Context.MODE_PRIVATE);
     }

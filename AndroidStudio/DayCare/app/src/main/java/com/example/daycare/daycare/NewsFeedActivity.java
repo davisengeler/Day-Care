@@ -48,6 +48,7 @@ public class NewsFeedActivity extends Activity {
     private String childIDList;
     private String apikey, apipass;
     private String teacherView = "";
+    private boolean nfcStart = false;
     private static String IDs = "", sMethod = "", noteIDs = "";
 
     private ArrayList<ChildrenNotes> cNotes = new ArrayList<ChildrenNotes>();
@@ -61,11 +62,11 @@ public class NewsFeedActivity extends Activity {
         setContentView(R.layout.activity_news_feed);
         mListView = (ListView) findViewById(android.R.id.list);
         mProgressView = (ProgressBar) findViewById(R.id.progress_bar_news);
-
         teacherView = this.getIntent().getStringExtra("teacherView");
-        JSONArray passedJSON = null;
-        GetNotes note = new GetNotes();
-
+        nfcStart = this.getIntent().getBooleanExtra("nfcStart", false);
+        Log.i("NFC", "nfcStart is " + nfcStart);
+            JSONArray passedJSON = null;
+            GetNotes note = new GetNotes();
         try {
             if (teacherView == null) {
                 passedJSON = new JSONArray(this.getIntent().getStringExtra("JSONString"));
@@ -78,6 +79,11 @@ public class NewsFeedActivity extends Activity {
             note.execute(childIDList);
         } catch (JSONException e) {
             Log.e("JSON String: ", e.getMessage());
+        }
+        if(nfcStart) {
+            Log.i("NFC", "Jump to signin/out.");
+            GetChildInfo info = new GetChildInfo();
+            info.execute(childIDList);
         }
 
 

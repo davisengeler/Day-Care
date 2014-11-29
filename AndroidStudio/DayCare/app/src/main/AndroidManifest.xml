@@ -36,6 +36,17 @@
             </intent-filter>
         </activity>
         <activity
+            android:name=".NFC"
+            android:label="@string/app_name">
+            android:parentActivityName="com.example.daycare.daycare.NewsFeedActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.daycare.daycare.NewsFeedActivity" />
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+            </intent-filter>
+        </activity>
+        <activity
             android:name="com.example.daycare.daycare.StudentListActivity"
             android:label="@string/title_activity_student_list"
             android:screenOrientation="portrait" >
@@ -68,9 +79,10 @@
             android:name="com.example.daycare.daycare.NewsFeedActivity"
             android:label="@string/title_activity_news_feed"
             android:screenOrientation="portrait" >
-            <!--<intent-filter>-->
-                <!--<action android:name="android.intent.action.VIEW" />-->
-            <!--</intent-filter>-->
+
+            <!-- <intent-filter> -->
+            <!-- <action android:name="android.intent.action.VIEW" /> -->
+            <!-- </intent-filter> -->
         </activity>
         <activity
             android:name="com.example.daycare.daycare.StudentViewActivity"
@@ -108,24 +120,33 @@
         <activity
             android:name="com.example.daycare.daycare.dummy.SignInOut"
             android:label="@string/title_activity_sign_in_out" >
+            <intent-filter>
+
+                <!-- <action android:name="android.intent.action.MAIN"/> -->
+                <!-- <category android:name="android.intent.category.LAUNCHER"/> -->
+                <action android:name="android.intent.action.VIEW" />
+            </intent-filter>
         </activity>
 
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
 
-         <receiver
-         android:name=".GcmBroadcastReceiver"
-         android:permission="com.google.android.c2dm.permission.SEND" >
-         <intent-filter>
-         <action android:name="com.google.android.c2dm.intent.RECEIVE" />
-         <category android:name="com.example.gcm" />
-         </intent-filter>
-         </receiver>
+        <receiver
+            android:name="com.example.daycare.daycare.GcmBroadcastReceiver"
+            android:permission="com.google.android.c2dm.permission.SEND" >
+            <intent-filter>
+                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+
+                <category android:name="com.example.gcm" />
+            </intent-filter>
+        </receiver>
+
         <service
             android:name="com.example.daycare.daycare.GCMIntentService"
             android:exported="false" >
         </service>
+
     </application>
 
 </manifest>

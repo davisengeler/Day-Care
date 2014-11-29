@@ -71,5 +71,7 @@
     <string name="enter_message">Enter Message Here</string>
     <string name="title_activity_approve_accounts">Approve Accounts</string>
     <string name="title_activity_sign_in_out">Sign In and Out</string>
+    <string name="title_activity_triggered_signin">TriggeredSignin</string>
+    <string name="title_activity_nfc">NFC</string>
 
 </resources>

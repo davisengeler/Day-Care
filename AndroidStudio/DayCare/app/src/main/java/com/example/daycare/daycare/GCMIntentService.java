@@ -20,9 +20,7 @@ import com.google.android.gms.gcm.GoogleCloudMessaging;
  */
 public class GCMIntentService extends IntentService {
     public static final int NOTIFICATION_ID = 1;
-    static final String TAG = "GCM::";
     private NotificationManager mNotificationManager;
-    NotificationCompat.Builder builder;
 
     public GCMIntentService() {
         super("GcmIntentService");
@@ -52,8 +50,8 @@ public class GCMIntentService extends IntentService {
                         extras.toString());
                 // If it's a regular GCM message, do some work.
             } else if (GoogleCloudMessaging.
-                    MESSAGE_TYPE_MESSAGE.equals("New notes from Daycare!")) {
-                sendNotification(extras.toString());
+                    MESSAGE_TYPE_MESSAGE.equals(messageType)) {
+                sendNotification("New notes from Daycare!");
                 Log.i("GCM", "Received push notification");
             }
         }
@@ -78,7 +76,8 @@ public class GCMIntentService extends IntentService {
                                 .bigText(msg))
                         .setContentText(msg)
                         .setDefaults(Notification.DEFAULT_ALL)
-                        .setAutoCancel(true);
+                        .setAutoCancel(true)
+                        .setDeleteIntent(contentIntent);
 
         mBuilder.setContentIntent(contentIntent);
         mNotificationManager.notify(NOTIFICATION_ID, mBuilder.build());

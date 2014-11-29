@@ -53,7 +53,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-
 public class LoginActivity extends Activity implements LoaderCallbacks<Cursor>{
 
     public static final String PROPERTY_REG_ID = "registration_id";
@@ -81,11 +80,13 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor>{
     private boolean apilogin;
     private String apikey;
     private String apipass;
+    private boolean nfcStart= false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         context = getApplicationContext();
+        nfcStart = this.getIntent().getBooleanExtra("nfcStart", false);
 
         // Check device for Play Services APK. (For GCM)
         Log.i(TAG, "Checking for Play Service APK");
@@ -641,6 +642,7 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor>{
                     case 3:
                         Intent parentIntent = new Intent(getApplicationContext(), NewsFeedActivity.class);
                         parentIntent.putExtra("JSONString", jsonStr);
+                        parentIntent.putExtra("nfcStart", nfcStart);
                         startActivity(parentIntent);
                         finish();
                         break;
