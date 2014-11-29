@@ -1,7 +1,9 @@
 package com.example.daycare.daycare;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -12,10 +14,10 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -28,17 +30,31 @@ import java.net.URL;
 
 public class StudentListActivity extends Activity {
     private ListView mListView;
-    String[] students = {"Coby", "Rachel", "Seth", "Collin"};
+    private String apikey, apipass;
+    String[] students;
+    JSONArray jArray;
+    JSONArray teach;
+    ProgressBar pLoader;
+    private String JSONString;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        SharedPreferences prefs = getPreferences(getApplicationContext());
+        apikey = prefs.getString(LoginActivity.PROPERTY_API_KEY, "");
+        apipass = prefs.getString(LoginActivity.PROPERTY_API_PASS, "");
         setContentView(R.layout.activity_student_list);
-        String JSONString = this.getIntent().getStringExtra("JSONString");
+        pLoader = (ProgressBar) findViewById(R.id.progressBarList);
+        if(JSONString == null)
+        {
+            JSONString = this.getIntent().getStringExtra("JSONString");
+        }
+
         try
         {
-            JSONArray teach = new JSONArray(JSONString);
+            teach = new JSONArray(JSONString);
             String childIDs = teach.getJSONObject(0).getString("children").toString().replaceAll("\"", "");
             ChildLookup lookup = new ChildLookup();
+            pLoader.setVisibility(View.VISIBLE);
             lookup.execute(childIDs);
         }
         catch (JSONException e)
@@ -50,22 +66,93 @@ public class StudentListActivity extends Activity {
 
 
         mListView = (ListView) findViewById(R.id.container);
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1, students);
-        mListView.setAdapter(adapter);
+
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 Intent intent = new Intent(getApplicationContext(), StudentViewActivity.class);
-                intent.putExtra("chosenStudent", students[i]);
-                startActivity(intent);
+                try
+                {
+                    intent.putExtra("teacherInfo", teach.getJSONObject(0).toString());
+                    intent.putExtra("chosenStudent", jArray.getJSONObject(i).toString());
+                    intent.putExtra("JSONString", JSONString);
+                    startActivity(intent);
+                }
+                catch(JSONException e)
+                {
+                    Log.e("JSON", e.getMessage());
+                }
+
         }
     });
 
     }
+    public void setAdapterList()
+    {
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1, students);
+        mListView.setAdapter(adapter);
+    }
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 1) {
+            if (resultCode == Activity.RESULT_OK) {
+                    Bundle b = data.getExtras();
+                    JSONString = this.getIntent().getStringExtra("JSONString");
+                    Log.v("JSON ACTIVITY", JSONString);
+                }
+            }
+        }
 
+
+    public void onResume() //do a new search by teach id call async then call array list to udpate
+    {
+        super.onResume();
+        pLoader = (ProgressBar) findViewById(R.id.progressBarList);
+        if(JSONString == null)
+        {
+            JSONString = this.getIntent().getStringExtra("JSONString");
+        }
+
+        try
+        {
+            teach = new JSONArray(JSONString);
+            pLoader.setVisibility(View.VISIBLE);
+            TeacherLookup teachLookup = new TeacherLookup();
+            teachLookup.execute(teach.getJSONObject(0).getString("ssn"));
+
+        }
+        catch (JSONException e)
+        {
+            Log.v("Stuff" , e.getMessage());
+        }
+
+        mListView = (ListView) findViewById(R.id.container);
+
+        mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                Intent intent = new Intent(getApplicationContext(), StudentViewActivity.class);
+                try
+                {
+                    intent.putExtra("teacherInfo", teach.getJSONObject(0).toString());
+                    intent.putExtra("chosenStudent", jArray.getJSONObject(i).toString());
+                    intent.putExtra("JSONString", JSONString);
+                    startActivity(intent);
+                }
+                catch(JSONException e)
+                {
+                    Log.e("JSON", e.getMessage());
+                }
+
+            }
+        });
+
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.student_list, menu);
 
         return super.onCreateOptionsMenu(menu);
     }
@@ -78,8 +165,27 @@ public class StudentListActivity extends Activity {
         int id = item.getItemId();
         if (id == R.id.action_settings) {
             return true;
+        } else if (id == R.id.logout_option) {
+            SharedPreferences prefs = getPreferences(getApplicationContext());
+            SharedPreferences.Editor editor = prefs.edit();
+            editor.putString(LoginActivity.PROPERTY_API_KEY, "");
+            editor.putString(LoginActivity.PROPERTY_API_PASS, "");
+            editor.putBoolean(LoginActivity.PROPERTY_API_LOGIN, false);
+            editor.commit();
+            Intent loginIntent = new Intent(getApplicationContext(), LoginActivity.class);
+            startActivity(loginIntent);
+            finish();
+
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    /**
+     * @return Application's {@code SharedPreferences}.
+     */
+    private SharedPreferences getPreferences(Context context) {
+        return getSharedPreferences(LoginActivity.class.getSimpleName(),
+                Context.MODE_PRIVATE);
     }
 
     public class ChildLookup extends AsyncTask<String, Void, Boolean> {
@@ -93,14 +199,21 @@ public class StudentListActivity extends Activity {
             HttpURLConnection urlConnection = null;
             BufferedReader reader = null;
             final String BASE_URL = "http://davisengeler.gwdnow.com/child.php?getinfo";
+            String CHILD_PARAM = "childids";
 
-            jsonStr += processQuery(urlConnection, reader, BASE_URL, params[0]);
+            jsonStr = processQuery(urlConnection, reader, BASE_URL, params[0], CHILD_PARAM);
+
 
             try
             {
-                JSONObject j = new JSONObject(jsonStr);
-                JSONArray jArray = new JSONArray(jsonStr);
-                Log.v("Object/Array", j.toString() + "\n");
+                jArray = new JSONArray(jsonStr);
+                Log.v("Object/Array", jArray.toString() + "\n");
+                students = new String[jArray.length()];
+                for(int i=0; i<students.length; ++i)
+                {
+                    students[i] = jArray.getJSONObject(i).getString("firstName") + " " +
+                            jArray.getJSONObject(i).getString("lastName");
+                }
 
             }
             catch (JSONException e)
@@ -111,15 +224,25 @@ public class StudentListActivity extends Activity {
 
             return true;
         }
+        protected void onPostExecute(Boolean success)
+        {
+            pLoader.setVisibility(View.GONE);
+            setAdapterList();
+        }
 
     }
-    public String processQuery(HttpURLConnection urlConnection, BufferedReader reader, String BASE_URL, String idArray)
+    public String processQuery(HttpURLConnection urlConnection, BufferedReader reader, String BASE_URL, String idArray, String SEARCH)
     {
         String jsonStr = null;
-        String CHILD_PARAM = "childid";
+        final String API_KEY_PARAM = "apikey";
+        final String API_PASS_PARAM = "apipass";
+
         try {
             Uri builtUri = Uri.parse(BASE_URL).buildUpon()
-                    .appendQueryParameter(CHILD_PARAM, idArray).build();
+                    .appendQueryParameter(SEARCH, idArray)
+                    .appendQueryParameter(API_KEY_PARAM, apikey)
+                    .appendQueryParameter(API_PASS_PARAM, apipass)
+                    .build();
 
             Log.v("Built URI " , builtUri.toString());
             URL url = new URL(builtUri.toString());
@@ -163,5 +286,45 @@ public class StudentListActivity extends Activity {
 
         }
         return jsonStr;
+    }
+
+    public class TeacherLookup extends AsyncTask<String, Void, Boolean> {
+        private String jsonStr;
+        protected final String VALIDATE = "verified", ACCT_ID = "accID";
+        String childIDs="";
+
+        @Override
+        protected Boolean doInBackground(String... params) {
+
+            HttpURLConnection urlConnection = null;
+            BufferedReader reader = null;
+            final String BASE_URL = "http://davisengeler.gwdnow.com/user.php?getaccountbyssn";
+            String ID_PARAM = "ssn";
+
+            jsonStr = processQuery(urlConnection, reader, BASE_URL, params[0], ID_PARAM);
+
+
+            try
+            {
+                teach = new JSONArray(jsonStr);
+                Log.v("Teach Lookup", jArray.toString() + "\n");
+                childIDs = teach.getJSONObject(0).getString("children").toString().replaceAll("\"", "");
+
+
+            }
+            catch (JSONException e)
+            {
+                Log.e("Error", e.getMessage());
+            }
+
+
+            return true;
+        }
+        protected void onPostExecute(Boolean success)
+        {
+            ChildLookup lookup = new ChildLookup();
+            lookup.execute(childIDs);
+        }
+
     }
 }

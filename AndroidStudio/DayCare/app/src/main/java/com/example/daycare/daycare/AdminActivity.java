@@ -7,6 +7,8 @@ import android.app.DialogFragment;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -18,6 +20,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 import com.example.daycare.daycare.dummy.AddAccountActivity;
+import com.example.daycare.daycare.dummy.SignInOut;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -36,6 +39,7 @@ public class AdminActivity extends Activity
        {
     private static String [] typesList;
     private String actType;
+           private String apikey, apipass;
 
 
     private ListView mListView;
@@ -48,8 +52,11 @@ public class AdminActivity extends Activity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        SharedPreferences prefs = getPreferences(getApplicationContext());
+        apikey = prefs.getString(LoginActivity.PROPERTY_API_KEY, "");
+        apipass = prefs.getString(LoginActivity.PROPERTY_API_PASS, "");
         setContentView(R.layout.activity_admin);
-        String JSONString = this.getIntent().getStringExtra("JSONString");
+        final String JSONString = this.getIntent().getStringExtra("JSONString");
         if(JSONString!=null)
         {
             processJSON(JSONString);
@@ -66,24 +73,33 @@ public class AdminActivity extends Activity
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 Intent intent;
-                switch(i) { //add acct, edit acct, add child, edit child, acct approve, notes, meds, sign inout
+                switch(i) { //add acct, edit acct, add child, edit child, acct approve, notes, sign inout
                     case 0:
                         intent = new Intent(getApplicationContext(), AddAccountActivity.class);
                         intent.putExtra("AcctTypeList", typesList);
+                        intent.putExtra("JSONString", JSONString);
                         startActivity(intent);
                         break;
                     case 1:
+                        intent = new Intent(getApplicationContext(), AddAccountActivity.class);
+                        intent.putExtra("AcctTypeList", typesList);
+                        intent.putExtra("Edit", "Edit");
+                        startActivity(intent);
                         break;
                     case 2:
                         intent = new Intent(getApplicationContext(), AddChildActivity.class);
                         startActivity(intent);
                         break;
                     case 3:
+                        intent = new Intent(getApplicationContext(), AddChildActivity.class);
+                        intent.putExtra("Edit", "Edit");
+                        startActivity(intent);
                         break;
                     case 4:
                         if(actType.compareTo("1")!=0)
                         {
                             intent = new Intent(getApplicationContext(), ApproveAccounts.class);
+                            intent.putExtra("AcctTypeList", typesList);
                             startActivity(intent);
                         }
                         else
@@ -94,20 +110,12 @@ public class AdminActivity extends Activity
                         break;
                     case 5:
                         intent = new Intent(getApplicationContext(), AdminAddNote.class);
+                        intent.putExtra("JSONString", JSONString);
                         startActivity(intent);
                         break;
                     case 6:
-                        if(actType.compareTo("1")!=0)
-                        {
-
-                        }
-                        else
-                        {
-                            RestrictDialog dialog = new RestrictDialog();
-                            dialog.show(getFragmentManager(), "restrict");
-                        }
-                        break;
-                    case 7:
+                        intent = new Intent(getApplicationContext(), SignInOut.class);
+                        startActivity(intent);
                         break;
                     default:
                         break;
@@ -134,10 +142,8 @@ public class AdminActivity extends Activity
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
 
-            getMenuInflater().inflate(R.menu.admin, menu);
-
-
-        return super.onCreateOptionsMenu(menu);
+        getMenuInflater().inflate(R.menu.admin, menu);
+        return true;
     }
 
     @Override
@@ -148,9 +154,27 @@ public class AdminActivity extends Activity
         int id = item.getItemId();
         if (id == R.id.action_settings) {
             return true;
+        } else if (id == R.id.logout_option) {
+            SharedPreferences prefs = getPreferences(getApplicationContext());
+            SharedPreferences.Editor editor = prefs.edit();
+            editor.putString(LoginActivity.PROPERTY_API_KEY, "");
+            editor.putString(LoginActivity.PROPERTY_API_PASS, "");
+            editor.putBoolean(LoginActivity.PROPERTY_API_LOGIN, false);
+            editor.commit();
+            Intent loginIntent = new Intent(getApplicationContext(), LoginActivity.class);
+            startActivity(loginIntent);
+            finish();
         }
         return super.onOptionsItemSelected(item);
     }
+
+           /**
+            * @return Application's {@code SharedPreferences}. (For GCM)
+            */
+           private SharedPreferences getPreferences(Context context) {
+               return getSharedPreferences(LoginActivity.class.getSimpleName(),
+                       Context.MODE_PRIVATE);
+           }
 
     /**
      * A placeholder fragment containing a simple view.
@@ -163,14 +187,22 @@ public class AdminActivity extends Activity
             HttpURLConnection urlConnection = null;
             BufferedReader reader = null;
             String jsonStr = "";
-            try
-            {
-                String userUrl = "http://davisengeler.gwdnow.com/user.php?getaccounttypes";
-                URL url = new URL(userUrl);
+            final String DE = "http://davisengeler.gwdnow.com/user.php?getaccounttypes";
+            final String API_KEY_PARAM = "apikey";
+            final String API_PASS_PARAM = "apipass";
+            Uri builtUri = Uri.parse(DE).buildUpon()
+                    .appendQueryParameter(API_KEY_PARAM, apikey)
+                    .appendQueryParameter(API_PASS_PARAM, apipass).build();
+
+            try {
+
+                Log.v("Test Info", "Built URL " + builtUri.toString());
+                URL url = new URL(builtUri.toString());
 
                 urlConnection = (HttpURLConnection) url.openConnection();
                 urlConnection.setRequestMethod("GET");
                 urlConnection.connect();
+
 
                 // Read the input stream into a String
                 InputStream inputStream = urlConnection.getInputStream();
@@ -188,7 +220,7 @@ public class AdminActivity extends Activity
                     if (buffer.length() != 0)
                     {
                         jsonStr = buffer.toString();
-                        Log.v("JSON String: ", jsonStr);
+                        Log.i("JSON String: ", jsonStr);
                     }
                 }
             }

@@ -40,7 +40,21 @@
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
+            <TextView
+                android:id="@+id/teacher_names"
+                android:text="Teacher: "
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingTop="16dp"/>
 
+
+            <Spinner
+                android:id="@+id/spinner"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:spinnerMode="dropdown"
+                android:layout_toRightOf="@id/teacher_names"
+                android:paddingTop="16dp"/>
             <Button
                 android:id="@+id/cSubmitButton"
                 android:layout_width="wrap_content"

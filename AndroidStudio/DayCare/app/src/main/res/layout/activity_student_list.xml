@@ -7,8 +7,13 @@
     android:layout_height="match_parent"
     tools:context="com.example.daycare.daycare.StudentListActivity">
 
-    <!-- As the main content view, the view below consumes the entire
-         space available using match_parent in both dimensions. -->
+    <ProgressBar
+        android:id="@+id/progressBarList"
+        style="?android:attr/progressBarStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_gravity="center"/>
     <ListView
         android:id="@id/container"
         android:layout_width="match_parent"

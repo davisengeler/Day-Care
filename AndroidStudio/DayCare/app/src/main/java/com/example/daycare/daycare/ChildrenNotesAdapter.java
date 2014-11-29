@@ -29,7 +29,7 @@ public class ChildrenNotesAdapter extends ArrayAdapter<ChildrenNotes> {
         TextView tv1 = (TextView) convertView.findViewById(android.R.id.text1);
         TextView tv2 = (TextView) convertView.findViewById(android.R.id.text2);
 
-        tv1.setText(notes.getSubject());
+        tv1.setText(notes.getSubject() + " (" + notes.getChildName() + ")");
         tv2.setText(notes.getMessage());
 
         return convertView;

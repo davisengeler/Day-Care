@@ -1,11 +1,14 @@
 package com.example.daycare.daycare.dummy;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -17,41 +20,66 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.daycare.daycare.AddChildActivity;
 import com.example.daycare.daycare.AdminActivity;
+import com.example.daycare.daycare.LoginActivity;
 import com.example.daycare.daycare.R;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 
 public class AddAccountActivity extends Activity {
 
     Button submitButton;
+    private int choice;
     private int typeID;
-
+    private JSONArray userInfo;
+    private ProgressBar loader;
+    private static String ssn, JSONString;
+    private String apikey, apipass;
+    private String userID = "", accID = "", type;
+    EditText fName, lName, sAddress, sCity, sState, sZip, emailAddress, pNum, s_Ssn, sPass;
+    Spinner dropdown;
     @Override
+    @TargetApi(17)
     protected void onCreate(Bundle savedInstanceState)
     {
         String [] test = this.getIntent().getStringArrayExtra("AcctTypeList");
+        type = this.getIntent().getStringExtra("Edit");
         super.onCreate(savedInstanceState);
+        SharedPreferences prefs = getPreferences(getApplicationContext());
+        apikey = prefs.getString(LoginActivity.PROPERTY_API_KEY, "");
+        apipass = prefs.getString(LoginActivity.PROPERTY_API_PASS, "");
         setContentView(R.layout.activity_add_account);
+        loader = (ProgressBar) findViewById(R.id.progressBar1);
+        loader.setVisibility(View.GONE);
         Spinner s1 = (Spinner) findViewById(R.id.spinner1);
-
-        Spinner dropdown = (Spinner)findViewById(R.id.spinner1);
+        JSONString = this.getIntent().getStringExtra("JSONString");
+        dropdown = (Spinner)findViewById(R.id.spinner1);
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, test);
         dropdown.setAdapter(adapter);
-
+        fName = (EditText) findViewById(R.id.first_name);
+        lName = (EditText) findViewById(R.id.last_name);
+        sAddress = (EditText) findViewById(R.id.street_address);
+        sCity = (EditText) findViewById(R.id.city);
+        sState = (EditText) findViewById(R.id.state);
+        sZip = (EditText) findViewById(R.id.zip);
+        emailAddress = (EditText) findViewById(R.id.email);
+        pNum = (EditText) findViewById(R.id.phone);
+        s_Ssn = (EditText) findViewById(R.id.ssn);
+        sPass = (EditText) findViewById(R.id.pass);
         s1.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
 
@@ -66,23 +94,39 @@ public class AddAccountActivity extends Activity {
 
             }
         });
-        final EditText fName = (EditText) findViewById(R.id.first_name);
-        final EditText lName = (EditText) findViewById(R.id.last_name);
-        final EditText sAddress = (EditText) findViewById(R.id.street_address);
-        final EditText sCity = (EditText) findViewById(R.id.city);
-        final EditText sState = (EditText) findViewById(R.id.state);
-        final EditText sZip = (EditText) findViewById(R.id.zip);
-        final EditText emailAddress = (EditText) findViewById(R.id.email);
-        final EditText pNum = (EditText) findViewById(R.id.phone);
-        final EditText s_Ssn = (EditText) findViewById(R.id.ssn);
-        final EditText sPass = (EditText) findViewById(R.id.pass);
+
+
+        if(type != null)
+        {
+            final GetUserInfo g = new GetUserInfo();
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            final EditText pSSN = new EditText(this);
+            pSSN.setHint("Enter SSN Here");
+            pSSN.setInputType(2);
+            builder.setTitle("Account Search")
+                    .setMessage("Please Enter SSN")
+                    .setView(pSSN)
+                    .setPositiveButton("Search", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            loader.setVisibility(View.VISIBLE);
+                            g.execute(pSSN.getText().toString());
+
+                        }
+                    });
+            builder.create();
+            builder.show();
+        }
+
+        //send editaccount
+
 
         submitButton = (Button) findViewById(R.id.submitButton);
         submitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 //take the info and send to php
-                String firstName, lastName, fullAddress, email, phone, ssn, pass, sTypeID;
+                String firstName, lastName, fullAddress, email, phone, pass, sTypeID;
                 firstName = fName.getText().toString();
                 lastName = lName.getText().toString();
                 fullAddress = sAddress.getText().toString() +"," + sCity.getText().toString() + ","+
@@ -93,18 +137,37 @@ public class AddAccountActivity extends Activity {
                 sTypeID = Integer.toString(typeID);
                 ssn = s_Ssn.getText().toString();
                 SendUserInfo sendInfo = new SendUserInfo();
-                sendInfo.execute(ssn, firstName, lastName, fullAddress, email, phone, pass, sTypeID);
+                if(type != null)
+                {
+                    sendInfo.execute(ssn, firstName, lastName, fullAddress, email, phone, pass, sTypeID);
+                }
+                else
+                {
+                    if(pass != null && ssn != null)
+                    {
+                        sendInfo.execute(ssn, firstName, lastName, fullAddress, email, phone, pass, sTypeID);
+                    }
+                }
+
+
 
 
             }
         });
     }
 
+    /**
+     * @return Application's {@code SharedPreferences}.
+     */
+    private SharedPreferences getPreferences(Context context) {
+        return getSharedPreferences(LoginActivity.class.getSimpleName(),
+                Context.MODE_PRIVATE);
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.add_account, menu);
+        //getMenuInflater().inflate(R.menu.add_account, menu);
         return true;
     }
 
@@ -125,13 +188,16 @@ public class AddAccountActivity extends Activity {
     {
         private final String LOG_TAG = SendUserInfo.class.getSimpleName();
         private String acctID, idNum;
+        private String USER_BASE_URL;
+        private JSONObject jObj;
+
         protected String doInBackground(String...params) {
             acctID = params[7];
             HttpURLConnection urlConnection = null;
             BufferedReader reader = null;
             String jsonStr;
             String suc = "";
-            final String USER_BASE_URL = "http://davisengeler.gwdnow.com/user.php?add";
+            Uri builtUri = null;
             final String SSN_PARAM = "ssn";
             final String F_NAME_PARAM = "firstname";
             final String L_NAME_PARAM = "lastname";
@@ -140,18 +206,194 @@ public class AddAccountActivity extends Activity {
             final String PHONE_PARAM = "phone";
             final String PASS_PARAM = "pass";
             final String TYPE_ID_PARAM = "accid";
+            final String API_KEY_PARAM = "apikey";
+            final String API_PASS_PARAM = "apipass";
+            if(type == null)
+            {
+                USER_BASE_URL = "http://davisengeler.gwdnow.com/user.php?add";
+
+                try {
+
+
+                    builtUri = Uri.parse(USER_BASE_URL).buildUpon()
+                            .appendQueryParameter(SSN_PARAM, params[0])
+                            .appendQueryParameter(F_NAME_PARAM, params[1])
+                            .appendQueryParameter(L_NAME_PARAM, params[2])
+                            .appendQueryParameter(ADDRESS_PARAM, params[3])
+                            .appendQueryParameter(EMAIL_PARAM, params[4])
+                            .appendQueryParameter(PHONE_PARAM, params[5])
+                            .appendQueryParameter(PASS_PARAM, params[6])
+                            .appendQueryParameter(TYPE_ID_PARAM, params[7])
+                            .appendQueryParameter(API_KEY_PARAM, apikey)
+                            .appendQueryParameter(API_PASS_PARAM, apipass)
+                            .build();
+                } catch (Exception e) {
+                    System.out.println(e.getMessage());
+                }
+
+            }
+            else {
+                USER_BASE_URL = "http://davisengeler.gwdnow.com/user.php?edit";
+                try {
+                    if(params[6].compareTo("")!=0) {
+
+                        builtUri = Uri.parse(USER_BASE_URL).buildUpon()
+                                .appendQueryParameter(SSN_PARAM, params[0])
+                                .appendQueryParameter(F_NAME_PARAM, params[1])
+                                .appendQueryParameter(L_NAME_PARAM, params[2])
+                                .appendQueryParameter(ADDRESS_PARAM, params[3])
+                                .appendQueryParameter(EMAIL_PARAM, params[4])
+                                .appendQueryParameter(PHONE_PARAM, params[5])
+                                .appendQueryParameter(PASS_PARAM, params[6])
+                                .appendQueryParameter(TYPE_ID_PARAM, params[7])
+                                .appendQueryParameter("userid", userID)
+                                .appendQueryParameter(API_KEY_PARAM, apikey)
+                                .appendQueryParameter(API_PASS_PARAM, apipass)
+                                .build();
+                    }
+                    else
+                    {
+                        builtUri = Uri.parse(USER_BASE_URL).buildUpon()
+                                .appendQueryParameter(SSN_PARAM, params[0])
+                                .appendQueryParameter(F_NAME_PARAM, params[1])
+                                .appendQueryParameter(L_NAME_PARAM, params[2])
+                                .appendQueryParameter(ADDRESS_PARAM, params[3])
+                                .appendQueryParameter(EMAIL_PARAM, params[4])
+                                .appendQueryParameter(PHONE_PARAM, params[5])
+                                //no password update
+                                .appendQueryParameter(TYPE_ID_PARAM, params[7])
+                                .appendQueryParameter("userid", userID)
+                                .appendQueryParameter(API_KEY_PARAM, apikey)
+                                .appendQueryParameter(API_PASS_PARAM, apipass)
+                                .build();
+                    }
+                } catch (Exception e) {
+                    System.out.println(e.getMessage());
+                }
+
+            }
+            try
+            {
+
+                URL url = new URL(builtUri.toString());
+                urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection.setRequestMethod("GET");
+                urlConnection.connect();
+                Log.v("URL ", builtUri.toString());
+                InputStream inputStream = urlConnection.getInputStream();
+                StringBuffer buffer = new StringBuffer();
+
+                if (inputStream != null) {
+                    reader = new BufferedReader(new InputStreamReader(inputStream));
+
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        //makes easy to read in logs
+                        buffer.append(line + "\n");
+                    }
+                    if (buffer.length() != 0) {
+                        jsonStr = buffer.toString();
+                        Log.v("JSON String: ", jsonStr);
+                        jObj = new JSONObject(jsonStr);
+                        suc = jObj.getString("successful");
+                    }
+                }
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
+
+            return suc;
+        }
+
+        protected void onPostExecute(String message)
+        {
+            if(message.compareTo("true")==0)
+            {
+                try
+                {
+                    Toast.makeText(getApplicationContext(), jObj.getString("statusMessage"), Toast.LENGTH_LONG).show();
+                }
+                catch(JSONException e)
+                {
+                    Log.e("JSON", e.getMessage());
+                }
+
+                if(acctID.compareTo("3")==0 && type == null)
+                {
+                    Bundle b = new Bundle();
+                    b.putString("idNum", idNum);
+                    ChildDialogFragment dialog = new ChildDialogFragment();
+                    dialog.setArguments(b);
+                    dialog.show(getFragmentManager(), "child");
+                }
+                else
+                {
+                    Intent intent = new Intent(getApplicationContext(), AdminActivity.class);
+                    intent.putExtra("JSONString", JSONString);
+                    //startActivity(intent);
+                    finish();
+
+                }
+            }
+            else
+            {
+                try
+                {
+                    Toast.makeText(getApplicationContext(), jObj.getString("statusMessage"), Toast.LENGTH_LONG).show();
+                }
+                catch(JSONException e)
+                {
+                    Log.e("JSON", e.getMessage());
+                }
+            }
+        }
+    }
+    public static class ChildDialogFragment extends DialogFragment {
+
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            final String idNum = getArguments().getString("idNum");
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setTitle("Add a Child")
+                    .setMessage("Do you want to add a child now?")
+                    .setPositiveButton(R.string.yes_label, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                           Intent cIntent = new Intent(getActivity(), AddChildActivity.class);
+                            cIntent.putExtra("UserSSN", ssn);
+                            cIntent.putExtra("JSONString", JSONString);
+
+                           startActivity(cIntent);
+                        }
+                    })
+                    .setNegativeButton(R.string.cancel_label, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            ChildDialogFragment.this.getDialog().cancel();
+                            getActivity().finish();
+                        }
+                    });
+            return builder.create();
+        }
+    }
+    public class GetUserInfo extends AsyncTask<String, Void, Boolean>
+    {
+        protected Boolean doInBackground(String...params) {
+
+            HttpURLConnection urlConnection = null;
+            BufferedReader reader = null;
+            String jsonStr = "";
+            final String USER_BASE_URL = "http://davisengeler.gwdnow.com/user.php?getaccountbyssn";
+            final String SSN_PARAM = "ssn";
+            final String API_KEY_PARAM = "apikey";
+            final String API_PASS_PARAM = "apipass";
+
             try {
 
 
                 Uri builtUri = Uri.parse(USER_BASE_URL).buildUpon()
                         .appendQueryParameter(SSN_PARAM, params[0])
-                        .appendQueryParameter(F_NAME_PARAM, params[1])
-                        .appendQueryParameter(L_NAME_PARAM, params[2])
-                        .appendQueryParameter(ADDRESS_PARAM, params[3])
-                        .appendQueryParameter(EMAIL_PARAM, params[4])
-                        .appendQueryParameter(PHONE_PARAM, params[5])
-                        .appendQueryParameter(PASS_PARAM, params[6])
-                        .appendQueryParameter(TYPE_ID_PARAM, params[7])
+                        .appendQueryParameter(API_KEY_PARAM, apikey)
+                        .appendQueryParameter(API_PASS_PARAM, apipass)
                         .build();
                 URL url = new URL(builtUri.toString());
 
@@ -173,119 +415,83 @@ public class AddAccountActivity extends Activity {
                     if (buffer.length() != 0) {
                         jsonStr = buffer.toString();
                         Log.v("JSON String: ", jsonStr);
-                        JSONObject jObj = new JSONObject(jsonStr);
-                        suc = jObj.getString("successful");
                     }
                 }
             } catch (Exception e) {
                 System.out.println(e.getMessage());
             }
-            final String BASE_URL_LOGIN = "http://davisengeler.gwdnow.com/user.php?login";
+            try{
+                userInfo = new JSONArray(jsonStr);
 
-
-            try {
-                Uri builtUri = Uri.parse(BASE_URL_LOGIN).buildUpon()
-                        .appendQueryParameter(EMAIL_PARAM, params[4])
-                        .appendQueryParameter(PASS_PARAM,params[6]).build();
-
-                Log.v(LOG_TAG, "Built URI " + builtUri.toString());
-                URL getID = new URL(builtUri.toString());
-
-                urlConnection = (HttpURLConnection) getID.openConnection();
-                urlConnection.setRequestMethod("GET");
-                urlConnection.connect();
-
-                // Read the input stream into a String
-                InputStream inputStream = urlConnection.getInputStream();
-                StringBuffer buffer = new StringBuffer();
-                if (inputStream != null) {
-                    reader = new BufferedReader(new InputStreamReader(inputStream));
-
-                    String line;
-                    while ((line = reader.readLine()) != null) {
-                        //makes easy to read in logs
-                        buffer.append(line + "\n");
-                    }
-                    if (buffer.length() != 0) {
-                        jsonStr = buffer.toString();
-                        Log.v(LOG_TAG, "JSON String: " + jsonStr);
-                        JSONObject userID = new JSONObject(jsonStr);
-                        idNum = userID.getString("UserID");
-                    }
-                }
-
-
-            } catch (MalformedURLException e) {
-                Log.e(LOG_TAG, "Error with URL: " + e.getMessage());
-
-            } catch (IOException e) {
-                // If the code didn't successfully get the data,
-                Log.e(LOG_TAG, "Error: " + e.getMessage());
-
-            } catch (JSONException e)
+                return true;
+            }
+            catch(JSONException e)
             {
-                Log.e("JSON ERROR", e.getMessage());
-            }
-            finally {
-                urlConnection.disconnect();
-                try {
-                    reader.close();
-                } catch (final IOException e) {
-                    Log.e(LOG_TAG, "Error closing stream", e);
-                }
+                Log.e("JSON", e.getMessage());
             }
 
-            return suc;
+
+            return false;
         }
 
-        protected void onPostExecute(String message)
+        protected void onPostExecute(Boolean success)
         {
-            if(message.compareTo("true")==0)
+            if(success)
             {
-                Toast.makeText(getApplicationContext(), "Added Parent", Toast.LENGTH_LONG).show();
-                if(acctID.compareTo("3")==0)
+                Toast.makeText(getApplicationContext(), "Found User", Toast.LENGTH_LONG).show();
+                try
                 {
-                    Bundle b = new Bundle();
-                    b.putString("idNum", idNum);
-                    ChildDialogFragment dialog = new ChildDialogFragment();
-                    dialog.setArguments(b);
-                    dialog.show(getFragmentManager(), "child");
+                    JSONObject j1 = new JSONObject(userInfo.getJSONObject(0).toString());
+                    setValues(j1);
+
+
                 }
-                else
+                catch(JSONException e)
                 {
-                    Intent intent = new Intent(getApplicationContext(), AdminActivity.class);
-                    startActivity(intent);
+                    Log.e("JSON ", e.getMessage());
                 }
+
             }
             else
             {
-                Toast.makeText(getApplicationContext(), "Try Again", Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), "Couldn't Find User", Toast.LENGTH_LONG).show();
+                loader.setVisibility(View.GONE);
             }
-        }
-    }
-    public static class ChildDialogFragment extends DialogFragment {
 
-        public Dialog onCreateDialog(Bundle savedInstanceState) {
-            final String idNum = getArguments().getString("idNum");
-            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-            builder.setTitle("Add a Child")
-                    .setMessage("Do you want to add a child now?")
-                    .setPositiveButton(R.string.yes_label, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                           Intent cIntent = new Intent(getActivity(), AddChildActivity.class);
-                            cIntent.putExtra("UserID", idNum);
-                            Log.v("Parent ID; ", idNum);
-                           startActivity(cIntent);
-                        }
-                    })
-                    .setNegativeButton(R.string.cancel_label, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            ChildDialogFragment.this.getDialog().cancel();
-                        }
-                    });
-            return builder.create();
         }
     }
+    public void setValues(JSONObject j1)
+    {
+        try
+        {
+            userID = j1.getString("userID");
+            accID = j1.getString("accID");
+            Log.v("WTF : ", j1.toString() + " " + userID + " " + accID);
+            fName.setText(j1.getString("firstName"), TextView.BufferType.EDITABLE);
+            lName.setText(j1.getString("lastName"), TextView.BufferType.EDITABLE);
+            String addyString = j1.getString("address");
+            String[] splitAddy = addyString.split(",");
+            sAddress.setText(splitAddy[0], TextView.BufferType.EDITABLE);
+            if (splitAddy.length > 1)
+            sCity.setText(splitAddy[1], TextView.BufferType.EDITABLE);
+            if (splitAddy.length > 2)
+            sState.setText(splitAddy[2], TextView.BufferType.EDITABLE);
+            if (splitAddy.length > 3)
+            sZip.setText(splitAddy[3], TextView.BufferType.EDITABLE);
+            s_Ssn.setText(j1.getString("ssn"), TextView.BufferType.EDITABLE);
+            pNum.setText(j1.getString("phone"), TextView.BufferType.EDITABLE);
+            emailAddress.setText(j1.getString("email"), TextView.BufferType.EDITABLE);
+            choice = Integer.parseInt(accID);
+            dropdown.setSelection(choice-1);
+            loader.setVisibility(View.GONE);
+        }
+        catch(JSONException e)
+        {
+            Log.e("JSON ", e.getMessage());
+        }
+
+
+    }
+
+
 }
