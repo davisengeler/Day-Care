@@ -141,6 +141,9 @@
   // Returns a User object
   function getAccount($database, $type, $params)
   {
+    $includeAPIinfo = false;        // Won't include API login information on requests that don't need it
+    $includeEncryptedPass = false;  // Needed for changing an edited account when no password change is made
+
     switch ($type)
     {
       case "ssn":
@@ -150,11 +153,13 @@
       case "userID":
         $userID = $params[0];
         $databaseCall = "CALL get_account_by_userid($userID)";
+        if ($params[1] == true) $includeEncryptedPass = true;
         break;
       case "login":
         $email = $params[0];
         $pass = $params[1];
         $databaseCall = "CALL get_account('$email', '$pass');";
+        $includeAPIinfo = true; // This is only used when loggin in, so it needs to be given api login info
         break;
       case "api":
         $key = $params[0];
@@ -176,10 +181,19 @@
       $account->email = $row["Email"];
       $account->accID = $row["AccID"];
       $account->verified = $row["Verified"];
-      $account->apiKey = $row["APIKey"];
-      $account->apiPass = $row["APIPass"];
-      $account->pass = $row["Pass"];
       $account->gcm = $row["GCM"];
+
+      if ($includeAPIinfo)
+      {
+        // if it has been set to include the API login information
+        $account->apiKey = $row["APIKey"];
+        $account->apiPass = $row["APIPass"];
+      }
+
+      if ($includeEncryptedPass)
+      {
+        $account->pass = $row["Pass"];
+      }
 
       // Frees up mysqli for another request
       mysqli_next_result($database);
@@ -260,16 +274,6 @@
     }
   }
 
-  function generateResult($successful, $message)
-  {
-    $response = array(
-      "successful" => $successful,
-      "statusMessage" => $message
-      );
-
-    return $response;
-  }
-
 
 
 
@@ -277,67 +281,9 @@
   // ===================================================
 
 
-  // What is the request for?
-  // Get Account Types
-  if (isset($_GET['getaccounttypes']))
-  {
-    echo json_encode(getAccountTypes($database));
-  }
-    else if (isset($_GET['getpendingaccounts']))
-  {
-    echo json_encode(getPendingAccounts($database));
-  }
-  // Add New Account
-  else if (isset($_GET['add']))
-  {
-    $apiResponse = addAccount(
-      $database,
-      $_GET["ssn"],
-      $_GET["firstname"],
-      $_GET["lastname"],
-      $_GET["address"],
-      $_GET["phone"],
-      $_GET["email"],
-      md5($_GET["pass"]),
-      $_GET["accid"]
-      );
 
-    echo json_encode($apiResponse);
-  }
-  // Edit Account
-  else if (isset($_GET['edit']))
-  {
-    // If the password has been changed, encrypt and save it. Otherwise, use the currently encrypted password for the account.
-    // Password initialized here for proper scope.
-    $pass = "";
-    if (isset($_GET['pass']))
-    {
-      $pass = md5($_GET['pass']);
-    }
-    else
-    {
-      $user = getAccount($database, "userID", array($_GET['userid']));
-      $pass = $user->pass; // will already be encrypted
-    }
-
-    mysqli_next_result($database);
-
-    $apiResponse = updateAccount(
-      $database,
-      $_GET["userid"],
-      $_GET["ssn"],
-      $_GET["firstname"],
-      $_GET["lastname"],
-      $_GET["address"],
-      $_GET["phone"],
-      $_GET["email"],
-      $pass,
-      $_GET["accid"]);
-
-    echo json_encode($apiResponse);
-  }
-  // Log In
-  else if (isset($_GET['login']))
+  // Log In: doesn't need valid API Key / Pass to log in
+  if (isset($_GET['login']))
   {
     if (isset($_GET["apikey"]))
     {
@@ -356,42 +302,129 @@
     $apiResponse = array(getAccount($database, $type, $params));
     echo json_encode($apiResponse);
   }
-  // Get Account by SSN
-  else if (isset($_GET['getaccountbyssn']))
+  else
   {
-    $type = "ssn";
-    $params = array($_GET["ssn"]);
-    // needs to be an array for android...
-    $apiResponse = array(getAccount($database, $type, $params));
-    echo json_encode($apiResponse);
-  }
-  // Get Account by UserID
-  else if (isset($_GET['getaccountbyuserid']))
-  {
-    $type = "userID";
-    $params = array($_GET["userid"]);
-    // needs to be an array for android...
-    $apiResponse = array(getAccount($database, $type, $params));
-    echo json_encode($apiResponse);
-  }
-  // Setting Approval
-  else if (isset($_GET['setapproval']))
-  {
-    // Accepts "approve" or "deny"
-    $apiResponse = setApproval($database, $_GET['userid'], $_GET['decision']);
-    echo json_encode($apiResponse);
-  }
-  // Get List of Teachers
-  else if (isset($_GET['teacherlist']))
-  {
-    $apiResponse = getTeacherList($database);
-    echo json_encode($apiResponse);
-  }
-  // Add GCM ID
-  else if (isset($_GET['updategcm']))
-  {
-    $apiResponse = updateGCM($database, $_GET['userid'], $_GET['gcm']);
-    echo json_encode($apiResponse);
+
+    // Make sure the call to the API was authorized
+    // The if statement looks weird, but it makes sense. There are two instances in which
+    //   the account may not be authorized to make calls. If the apikey/apipass does point
+    //   to an account, it must make sure it's verified. It should also fail if the
+    //   apikey/apipass is just totally wrong.
+    $authorized = getAccount($database, "api", array($_GET['apikey'], $_GET['apipass']));
+    mysqli_next_result($database);
+    if (gettype($authorized) == "array" && $authorized['successful'] == false)
+    {
+      // The account was not authorized because the api key/pass was wrong
+      echo json_encode(generateResult(false, "You are not authorized to proceed. The API Key and API Pass combination was not correct."));
+    }
+    else if (gettype($authorized) == "object" && $authorized->verified != 1)
+    {
+      // The account was not authorized because the it hasn't been verified by an admin.
+      echo json_encode(generateResult(false, "Can not proceed. Your account has not been verified."));
+    }
+    else
+    {
+      // The api key/pass was valid and the account is verified
+
+      // What is the request for?
+      // Get Account Types
+      if (isset($_GET['getaccounttypes']))
+      {
+        echo json_encode(getAccountTypes($database));
+      }
+      else if (isset($_GET['getpendingaccounts']))
+      {
+        echo json_encode(getPendingAccounts($database));
+      }
+      // Add New Account
+      else if (isset($_GET['add']))
+      {
+        $apiResponse = addAccount(
+        $database,
+        $_GET["ssn"],
+        $_GET["firstname"],
+        $_GET["lastname"],
+        $_GET["address"],
+        $_GET["phone"],
+        $_GET["email"],
+        md5($_GET["pass"]),
+        $_GET["accid"]
+      );
+
+      echo json_encode($apiResponse);
+      }
+      // Edit Account
+      else if (isset($_GET['edit']))
+      {
+        // If the password has been changed, encrypt and save it. Otherwise, use the currently encrypted password for the account.
+        // Password initialized here for proper scope.
+        $pass = "";
+        if (isset($_GET['pass']))
+        {
+          $pass = md5($_GET['pass']);
+        }
+        else
+        {
+          $user = getAccount($database, "userID", array($_GET['userid'], true));
+          $pass = $user->pass; // will already be encrypted
+        }
+
+        mysqli_next_result($database);
+
+        $apiResponse = updateAccount(
+        $database,
+        $_GET["userid"],
+        $_GET["ssn"],
+        $_GET["firstname"],
+        $_GET["lastname"],
+        $_GET["address"],
+        $_GET["phone"],
+        $_GET["email"],
+        $pass,
+        $_GET["accid"]);
+
+        echo json_encode($apiResponse);
+      }
+      // Get Account by SSN
+      else if (isset($_GET['getaccountbyssn']))
+      {
+        $type = "ssn";
+        $params = array($_GET["ssn"]);
+        // needs to be an array for android...
+        $apiResponse = array(getAccount($database, $type, $params));
+        echo json_encode($apiResponse);
+      }
+      // Get Account by UserID
+      else if (isset($_GET['getaccountbyuserid']))
+      {
+        $type = "userID";
+        $params = array($_GET["userid"]);
+        // needs to be an array for android...
+        $apiResponse = array(getAccount($database, $type, $params));
+        echo json_encode($apiResponse);
+      }
+      // Setting Approval
+      else if (isset($_GET['setapproval']))
+      {
+        // Accepts "approve" or "deny"
+        $apiResponse = setApproval($database, $_GET['userid'], $_GET['decision']);
+        echo json_encode($apiResponse);
+      }
+      // Get List of Teachers
+      else if (isset($_GET['teacherlist']))
+      {
+        $apiResponse = getTeacherList($database);
+        echo json_encode($apiResponse);
+      }
+      // Add GCM ID
+      else if (isset($_GET['updategcm']))
+      {
+        $apiResponse = updateGCM($database, $_GET['userid'], $_GET['gcm']);
+        echo json_encode($apiResponse);
+      }
+
+    }
+
   }
 
 ?>

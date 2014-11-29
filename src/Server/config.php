@@ -44,28 +44,15 @@
     return $connection;
   }
 
-  // Provides a check to make sure the device making calls to the API is a verified device
-  function deviceIsVerified($database, $deviceID)
+  // Standard result to return
+  function generateResult($successful, $message)
   {
-    if ($result = mysqli_query($database, "CALL device_verified($deviceID)"))
-    {
-      $row = mysqli_fetch_array($result);
-      if ($row["Verified"] == 1)
-      {
-        // the device is verified
-        return true;
-      }
-      else
-      {
-        // the device was denied or still pending
-        return false;
-      }
-    }
-    else
-    {
-      // Had an issue with the database
-      return false;
-    }
+    $response = array(
+      "successful" => $successful,
+      "statusMessage" => $message
+    );
+
+    return $response;
   }
 
 ?>
