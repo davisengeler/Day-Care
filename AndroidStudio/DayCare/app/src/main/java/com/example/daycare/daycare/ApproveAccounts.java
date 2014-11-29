@@ -127,14 +127,21 @@ public class ApproveAccounts extends Activity {
             HttpURLConnection urlConnection = null;
             BufferedReader reader = null;
             String jsonStr = "";
-            try
-            {
                 String userUrl = "http://davisengeler.gwdnow.com/user.php?getpendingaccounts";
-                URL url = new URL(userUrl);
+                final String API_KEY_PARAM = "apikey";
+                final String API_PASS_PARAM = "apipass";
+                try {
+                    Uri builtUri = Uri.parse(userUrl).buildUpon()
+                            .appendQueryParameter(API_KEY_PARAM, apikey)
+                            .appendQueryParameter(API_PASS_PARAM, apipass)
+                            .build();
 
-                urlConnection = (HttpURLConnection) url.openConnection();
-                urlConnection.setRequestMethod("GET");
-                urlConnection.connect();
+                    Log.v("Built URI ", builtUri.toString());
+                    URL url = new URL(builtUri.toString());
+
+                    urlConnection = (HttpURLConnection) url.openConnection();
+                    urlConnection.setRequestMethod("GET");
+                    urlConnection.connect();
 
                 // Read the input stream into a String
                 InputStream inputStream = urlConnection.getInputStream();
