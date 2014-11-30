@@ -1,38 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.daycare.daycare" >
-
-    <uses-sdk
-        android:minSdkVersion="15"
-        android:targetSdkVersion="19" />
+          package="com.example.daycare.daycare">
 
     <!-- To auto-complete the email text field in the login form with the user's emails -->
-    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
-    <uses-permission android:name="android.permission.READ_PROFILE" />
-    <uses-permission android:name="android.permission.READ_CONTACTS" />
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.READ_PHONE_STAT" />
-    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.READ_CALL_LOG" />
-    <uses-permission android:name="android.permission.CALL_PHONE" />
-    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
-    <uses-permission android:name="android.permission.WAKE_LOCK" />
-    <uses-permission android:name="com.example.daycare.daycare.permission.C2D_MESSAGE" />
+    <uses-permission android:name="android.permission.GET_ACCOUNTS"/>
+    <uses-permission android:name="android.permission.READ_PROFILE"/>
+    <uses-permission android:name="android.permission.READ_CONTACTS"/>
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.READ_PHONE_STAT"/>
+    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.READ_CALL_LOG"/>
+    <uses-permission android:name="android.permission.CALL_PHONE"/>
+    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    <uses-permission android:name="com.example.daycare.daycare.permission.C2D_MESSAGE"/>
 
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme" >
+        android:theme="@style/AppTheme">
         <activity
             android:name="com.example.daycare.daycare.LoginActivity"
             android:label="@string/app_name"
-            android:windowSoftInputMode="adjustResize|stateVisible" >
+            android:windowSoftInputMode="adjustResize|stateVisible">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+                <action android:name="android.intent.action.MAIN"/>
 
-                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
         <activity
@@ -41,44 +37,44 @@
             android:parentActivityName="com.example.daycare.daycare.NewsFeedActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.example.daycare.daycare.NewsFeedActivity" />
+                android:value="com.example.daycare.daycare.NewsFeedActivity"/>
             <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
+                <action android:name="android.intent.action.VIEW"/>
             </intent-filter>
         </activity>
         <activity
             android:name="com.example.daycare.daycare.StudentListActivity"
             android:label="@string/title_activity_student_list"
-            android:screenOrientation="portrait" >
+            android:screenOrientation="portrait">
             <intent-filter>
 
                 <!-- <action android:name="android.intent.action.MAIN" /> -->
                 <!-- <category android:name="android.intent.category.LAUNCHER" /> -->
-                <action android:name="android.intent.action.VIEW" />
+                <action android:name="android.intent.action.VIEW"/>
             </intent-filter>
         </activity>
         <activity
             android:name="com.example.daycare.daycare.AdminActivity"
-            android:label="@string/title_activity_admin" >
+            android:label="@string/title_activity_admin">
             <intent-filter>
 
                 <!-- <action android:name="android.intent.action.MAIN"/> -->
                 <!-- <category android:name="android.intent.category.LAUNCHER"/> -->
-                <action android:name="android.intent.action.VIEW" />
+                <action android:name="android.intent.action.VIEW"/>
             </intent-filter>
         </activity>
         <activity
-            android:name="com.example.daycare.daycare.dummy.AddAccountActivity"
+            android:name=".AddAccountActivity"
             android:label="@string/title_activity_add_account"
-            android:parentActivityName="com.example.daycare.daycare.AdminActivity" >
+            android:parentActivityName="com.example.daycare.daycare.AdminActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.example.daycare.daycare.AdminActivity" />
+                android:value="com.example.daycare.daycare.AdminActivity"/>
         </activity>
         <activity
             android:name="com.example.daycare.daycare.NewsFeedActivity"
             android:label="@string/title_activity_news_feed"
-            android:screenOrientation="portrait" >
+            android:screenOrientation="portrait">
 
             <!-- <intent-filter> -->
             <!-- <action android:name="android.intent.action.VIEW" /> -->
@@ -87,64 +83,64 @@
         <activity
             android:name="com.example.daycare.daycare.StudentViewActivity"
             android:label="@string/title_activity_student_view"
-            android:parentActivityName="com.example.daycare.daycare.StudentListActivity" >
+            android:parentActivityName="com.example.daycare.daycare.StudentListActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.example.daycare.daycare.StudentListActivity" />
+                android:value="com.example.daycare.daycare.StudentListActivity"/>
         </activity>
         <activity
             android:name="com.example.daycare.daycare.AddChildActivity"
             android:label="@string/title_activity_add_child"
             android:parentActivityName="com.example.daycare.daycare.AdminActivity"
-            android:screenOrientation="portrait" >
+            android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.example.daycare.daycare.AdminActivity" />
+                android:value="com.example.daycare.daycare.AdminActivity"/>
         </activity>
         <activity
             android:name="com.example.daycare.daycare.AdminAddNote"
             android:label="@string/title_activity_admin_add_note"
-            android:parentActivityName="com.example.daycare.daycare.AdminActivity" >
+            android:parentActivityName="com.example.daycare.daycare.AdminActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.example.daycare.daycare.AdminActivity" />
+                android:value="com.example.daycare.daycare.AdminActivity"/>
         </activity>
         <activity
             android:name="com.example.daycare.daycare.ApproveAccounts"
             android:label="@string/title_activity_approve_accounts"
-            android:parentActivityName="com.example.daycare.daycare.AdminActivity" >
+            android:parentActivityName="com.example.daycare.daycare.AdminActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.example.daycare.daycare.AdminActivity" />
+                android:value="com.example.daycare.daycare.AdminActivity"/>
         </activity>
         <activity
-            android:name="com.example.daycare.daycare.dummy.SignInOut"
-            android:label="@string/title_activity_sign_in_out" >
+            android:name=".SignInOut"
+            android:label="@string/title_activity_sign_in_out">
             <intent-filter>
 
                 <!-- <action android:name="android.intent.action.MAIN"/> -->
                 <!-- <category android:name="android.intent.category.LAUNCHER"/> -->
-                <action android:name="android.intent.action.VIEW" />
+                <action android:name="android.intent.action.VIEW"/>
             </intent-filter>
         </activity>
 
         <meta-data
             android:name="com.google.android.gms.version"
-            android:value="@integer/google_play_services_version" />
+            android:value="@integer/google_play_services_version"/>
 
         <receiver
             android:name="com.example.daycare.daycare.GcmBroadcastReceiver"
-            android:permission="com.google.android.c2dm.permission.SEND" >
+            android:permission="com.google.android.c2dm.permission.SEND">
             <intent-filter>
-                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+                <action android:name="com.google.android.c2dm.intent.RECEIVE"/>
 
-                <category android:name="com.example.gcm" />
+                <category android:name="com.example.gcm"/>
             </intent-filter>
         </receiver>
 
         <service
             android:name="com.example.daycare.daycare.GCMIntentService"
-            android:exported="false" >
+            android:exported="false">
         </service>
 
     </application>

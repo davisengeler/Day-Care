@@ -4,10 +4,13 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
+
     <ImageView
         android:id="@android:id/icon"
         android:layout_width="50dp"
-        android:layout_height="50dp" />
+        android:layout_height="50dp"
+        android:contentDescription="@string/icon_content_description"/>
+
     <TextView
         android:id="@android:id/text1"
         android:layout_width="match_parent"
@@ -18,6 +21,6 @@
         android:paddingEnd="?android:attr/listPreferredItemPaddingEnd"
         android:paddingRight="?android:attr/listPreferredItemPaddingRight"
         android:paddingLeft="?android:attr/listPreferredItemPaddingLeft"
-        android:minHeight="?android:attr/listPreferredItemHeightSmall" />
+        android:minHeight="?android:attr/listPreferredItemHeightSmall"/>
 
 </LinearLayout>

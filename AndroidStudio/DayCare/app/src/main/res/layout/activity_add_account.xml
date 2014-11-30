@@ -1,14 +1,15 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/container_id"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:paddingLeft="16dp"
-    android:paddingRight="16dp"
-    android:paddingTop="16dp"
-    android:paddingBottom="16dp"
-    android:orientation="vertical"
-    tools:context="com.example.daycare.daycare.dummy.AddAccountActivity">
+              xmlns:tools="http://schemas.android.com/tools"
+              android:id="@+id/container_id"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:paddingLeft="16dp"
+              android:paddingRight="16dp"
+              android:paddingTop="16dp"
+              android:paddingBottom="16dp"
+              android:orientation="vertical"
+              tools:context="com.example.daycare.daycare.AddAccountActivity">
+
     <ProgressBar
         android:id="@+id/progressBar1"
         style="?android:attr/progressBarStyleSmall"
@@ -16,12 +17,13 @@
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_gravity="center"/>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
-       <EditText
+        <EditText
             android:id="@+id/first_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -41,10 +43,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
-    
-       <EditText
+
+        <EditText
             android:id="@+id/street_address"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="8"
             android:inputType="textPostalAddress|textCapWords|textNoSuggestions"
@@ -89,7 +91,7 @@
 
         <EditText
             android:id="@+id/email"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="2"
             android:inputType="textEmailAddress"
@@ -102,9 +104,9 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
-       <EditText
+        <EditText
             android:id="@+id/phone"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:inputType="phone"
@@ -118,7 +120,7 @@
 
         <EditText
             android:id="@+id/ssn"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:inputType="number"
@@ -134,7 +136,7 @@
 
         <EditText
             android:id="@+id/pass"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="2"
             android:inputType="textPassword"
@@ -146,9 +148,11 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
+
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
+
             <TextView
                 android:id="@+id/text_view_ID"
                 android:text="@string/acctType_label"
@@ -169,7 +173,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
-                android:text="Submit" />
+                android:text="@string/submit"/>
 
 
         </RelativeLayout>

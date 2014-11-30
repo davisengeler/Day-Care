@@ -12,6 +12,9 @@
     <string name="action_settings">Settings</string>
     <string name="sign_in_out">Sign In or Out</string>
     <string name="logout_title">Logout User</string>
+    <string name="teach">Teacher: </string>
+    <string name="submit">Submit</string>
+    <string name="icon_content_description">Teddy Bear</string>
 
     <string-array name="navigation_drawer">
         <item name="roster">Class Roster</item>

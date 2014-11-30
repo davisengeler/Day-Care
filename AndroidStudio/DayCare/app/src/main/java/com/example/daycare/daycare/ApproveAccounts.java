@@ -32,350 +32,381 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+public class ApproveAccounts extends Activity
+{
+	private static int listChoice;
+	private static JSONArray account_Type;
+	private ListView mListView;
+	private String[] approveList;
+	private String[] acctTypeList;
+	private String apikey, apipass;
 
-public class ApproveAccounts extends Activity {
-    private ListView mListView;
-    private static int listChoice;
-    private String []approveList, toDisplay, acctTypeList;
-    private static JSONArray account_Type;
-    private String apikey, apipass;
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        SharedPreferences prefs = getPreferences(getApplicationContext());
-        apikey = prefs.getString(LoginActivity.PROPERTY_API_KEY, "");
-        apipass = prefs.getString(LoginActivity.PROPERTY_API_PASS, "");
-        setContentView(R.layout.activity_approve_accounts);
-        mListView = (ListView) findViewById(R.id.container);
-        AcctApprovals a = new AcctApprovals();
-        a.execute();
-        try
-        {
-            acctTypeList = this.getIntent().getStringArrayExtra("AcctTypeList");
-        }
-        catch (Exception e)
-        {
-            Log.e("Getting acct types", e.getMessage());
-        }
+	@Override
+	protected void onCreate(Bundle savedInstanceState)
+	{
+		super.onCreate(savedInstanceState);
+		SharedPreferences prefs = getPreferences();
+		apikey = prefs.getString(LoginActivity.PROPERTY_API_KEY, "");
+		apipass = prefs.getString(LoginActivity.PROPERTY_API_PASS, "");
+		setContentView(R.layout.activity_approve_accounts);
+		mListView = (ListView) findViewById(R.id.container);
+		AcctApprovals a = new AcctApprovals();
+		a.execute();
+		try
+		{
+			acctTypeList = this.getIntent().getStringArrayExtra("AcctTypeList");
+		} catch (Exception e)
+		{
+			Log.e("Getting acct types", e.getMessage());
+		}
 
-        mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+		mListView.setOnItemClickListener(new AdapterView.OnItemClickListener()
+		{
+			@Override
+			public void onItemClick(AdapterView<?> adapterView, View view, int i, long l)
+			{
 
-                listChoice = i;
-                ApproveDialog dialog = new ApproveDialog();
-                dialog.show(getFragmentManager(), "approve");
+				listChoice = i;
+				ApproveDialog dialog = new ApproveDialog();
+				dialog.show(getFragmentManager(), "approve");
 
-            }
-        });
+			}
+		});
 
+	}
 
-    }
-    public void setList(String[] toDisplay)
-    {
+	void setList(String[] toDisplay)
+	{
 
+		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, toDisplay);
+		mListView.setAdapter(adapter);
+	}
 
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, toDisplay);
-        mListView.setAdapter(adapter);
-    }
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu)
+	{
+		// Inflate the menu; this adds items to the action bar if it is present.
+		getMenuInflater().inflate(R.menu.menu_approve_accounts, menu);
+		return true;
+	}
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_approve_accounts, menu);
-        return true;
-    }
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item)
+	{
+		// Handle action bar item clicks here. The action bar will
+		// automatically handle clicks on the Home/Up button, so long
+		// as you specify a parent activity in AndroidManifest.xml.
+		int id = item.getItemId();
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
+		//noinspection SimplifiableIfStatement
+		if (id == R.id.action_settings)
+		{
+			return true;
+		} else if (id == R.id.logout_option)
+		{
+			SharedPreferences prefs = getPreferences();
+			SharedPreferences.Editor editor = prefs.edit();
+			editor.putString(LoginActivity.PROPERTY_API_KEY, "");
+			editor.putString(LoginActivity.PROPERTY_API_PASS, "");
+			editor.putBoolean(LoginActivity.PROPERTY_API_LOGIN, false);
+			editor.apply();
+			Intent loginIntent = new Intent(getApplicationContext(), LoginActivity.class);
+			startActivity(loginIntent);
+			finish();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        } else if (id == R.id.logout_option) {
-            SharedPreferences prefs = getPreferences(getApplicationContext());
-            SharedPreferences.Editor editor = prefs.edit();
-            editor.putString(LoginActivity.PROPERTY_API_KEY, "");
-            editor.putString(LoginActivity.PROPERTY_API_PASS, "");
-            editor.putBoolean(LoginActivity.PROPERTY_API_LOGIN, false);
-            editor.commit();
-            Intent loginIntent = new Intent(getApplicationContext(), LoginActivity.class);
-            startActivity(loginIntent);
-            finish();
+		}
+		return super.onOptionsItemSelected(item);
+	}
 
-        }
-        return super.onOptionsItemSelected(item);
-    }
+	/**
+	 * @return Application's {@code SharedPreferences}.
+	 */
+	private SharedPreferences getPreferences()
+	{
+		return getSharedPreferences(LoginActivity.class.getSimpleName(),
+									Context.MODE_PRIVATE);
+	}
 
-    /**
-     * @return Application's {@code SharedPreferences}.
-     */
-    private SharedPreferences getPreferences(Context context) {
-        return getSharedPreferences(LoginActivity.class.getSimpleName(),
-                Context.MODE_PRIVATE);
-    }
+	void recallList()
+	{
+		AcctApprovals app = new AcctApprovals();
+		app.execute();
+	}
 
-    public class AcctApprovals extends AsyncTask<Void, Void, Boolean>
-    {
+	void accountAsync(String userID, String decision)
+	{
+		SendAccountApproval s1 = new SendAccountApproval();
+		s1.execute(userID, decision);
+	}
 
-        protected Boolean doInBackground(Void... params)
-        {
-            HttpURLConnection urlConnection = null;
-            BufferedReader reader = null;
-            String jsonStr = "";
-                String userUrl = "http://davisengeler.gwdnow.com/user.php?getpendingaccounts";
-                final String API_KEY_PARAM = "apikey";
-                final String API_PASS_PARAM = "apipass";
-                try {
-                    Uri builtUri = Uri.parse(userUrl).buildUpon()
-                            .appendQueryParameter(API_KEY_PARAM, apikey)
-                            .appendQueryParameter(API_PASS_PARAM, apipass)
-                            .build();
+	public static class ApproveDialog extends DialogFragment
+	{
+		private final String[] temp = {"Approve", "Deny"};
+		private String userID, decision;
 
-                    Log.v("Built URI ", builtUri.toString());
-                    URL url = new URL(builtUri.toString());
+		public Dialog onCreateDialog(Bundle savedInstanceState)
+		{
+			try
+			{
+				userID = account_Type.getJSONObject(listChoice).getString("userID");
 
-                    urlConnection = (HttpURLConnection) url.openConnection();
-                    urlConnection.setRequestMethod("GET");
-                    urlConnection.connect();
+			} catch (JSONException e)
+			{
+				Log.e("JSON APPROVE", e.getMessage());
+			}
+			AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+			builder.setTitle("Approve Account")
+				   .setItems(temp, new DialogInterface.OnClickListener()
+							 {
+								 public void onClick(DialogInterface dialog, int which)
+								 {
 
-                // Read the input stream into a String
-                InputStream inputStream = urlConnection.getInputStream();
-                StringBuffer buffer = new StringBuffer();
-                if (inputStream != null)
-                {
-                    reader = new BufferedReader(new InputStreamReader(inputStream));
+									 if (which == 0)
+									 {
+										 decision = "approve";
 
-                    String line;
-                    while ((line = reader.readLine()) != null)
-                    {
-                        //makes easy to read in logs
-                        buffer.append(line + "\n");
-                    }
-                    if (buffer.length() != 0)
-                    {
-                        jsonStr = buffer.toString();
-                        Log.v("JSON String: ", jsonStr);
-                    }
-                }
-            }
-            catch (MalformedURLException e)
-            {
-                Log.e("URL Error: ", e.getMessage());
-            }
-            catch (IOException e)
-            {
-                Log.e("Connection: ", e.getMessage());
-            }
-            finally
-            {
-                urlConnection.disconnect();
-                try
-                {
-                    if (reader != null)
-                        reader.close();
-                } catch (IOException e)
-                {
-                    Log.e("Error closing stream", e.getMessage());
-                }
-            }
+									 } else
+									 {
+										 decision = "deny";
+									 }
+									 ((ApproveAccounts) getActivity()).accountAsync(userID, decision);
+								 }
+							 }
+				   );
+			return builder.create();
+		}
 
-            try
-            {
+		public void onDismiss(DialogInterface dialog)
+		{
+			((ApproveAccounts) getActivity()).recallList();
+			ApproveDialog.this.getDialog().cancel();
+		}
+	}
 
-                account_Type = new JSONArray(jsonStr);
+	private class AcctApprovals extends AsyncTask<Void, Void, Boolean>
+	{
 
-                approveList = new String[account_Type.length()];
-                for(int i=0; i<account_Type.length(); ++i)
-                {
-                    approveList[i] = account_Type.get(i).toString();
-                }
-                return true;
-            }
-            catch(JSONException e)
-            {
-                Log.e("JSON Error: ", e.getMessage());
-            }
+		protected Boolean doInBackground(Void... params)
+		{
+			HttpURLConnection urlConnection = null;
+			BufferedReader reader = null;
+			String jsonStr = "";
+			String userUrl = "http://davisengeler.gwdnow.com/user.php?getpendingaccounts";
+			final String API_KEY_PARAM = "apikey";
+			final String API_PASS_PARAM = "apipass";
+			try
+			{
+				Uri builtUri = Uri.parse(userUrl).buildUpon()
+								  .appendQueryParameter(API_KEY_PARAM, apikey)
+								  .appendQueryParameter(API_PASS_PARAM, apipass)
+								  .build();
 
-            return false;
-        }
+				Log.v("Built URI ", builtUri.toString());
+				URL url = new URL(builtUri.toString());
 
-        protected void onPostExecute(Boolean success)
-        {
-            if(success)
-            {
-                toDisplay = new String[account_Type.length()];
-                try
-                {
+				urlConnection = (HttpURLConnection) url.openConnection();
+				urlConnection.setRequestMethod("GET");
+				urlConnection.connect();
 
-                    for(int i=0; i<account_Type.length(); ++i)
-                    {
-                        JSONObject j = new JSONObject(approveList[i]);
-                        toDisplay[i] = j.getString("firstName");
-                        toDisplay[i] +=  " " + j.getString("lastName");
-                        toDisplay[i] += " - " +  "Account: ";
-                        int idNum = Integer.parseInt(j.getString("accID"));
-                        toDisplay[i] += acctTypeList[idNum-1];
+				// Read the input stream into a String
+				InputStream inputStream = urlConnection.getInputStream();
+				StringBuilder buffer = new StringBuilder();
+				if (inputStream != null)
+				{
+					reader = new BufferedReader(new InputStreamReader(inputStream));
 
-                        Log.v("toDisplay " ,acctTypeList[idNum-1] + idNum);
-                    }
-                }
-                catch (Exception e)
-                {
-                    e.getMessage();
-                }
-                setList(toDisplay);
-            }
-        }
+					String line;
+					while ((line = reader.readLine()) != null)
+					{
+						//makes easy to read in logs
+						buffer.append(line).append("\n");
+					}
+					if (buffer.length() != 0)
+					{
+						jsonStr = buffer.toString();
+						Log.v("JSON String: ", jsonStr);
+					}
+				}
+			} catch (MalformedURLException e)
+			{
+				Log.e("URL Error: ", e.getMessage());
+			} catch (IOException e)
+			{
+				Log.e("Connection: ", e.getMessage());
+			} finally
+			{
+				assert urlConnection != null;
+				urlConnection.disconnect();
+				try
+				{
+					if (reader != null)
+					{
+						reader.close();
+					}
+				} catch (IOException e)
+				{
+					Log.e("Error closing stream", e.getMessage());
+				}
+			}
 
-    }
-    public static class ApproveDialog extends DialogFragment
-    {
-        private String[] temp = {"Approve", "Deny"};
-        private String userID, decision;
-        public Dialog onCreateDialog(Bundle savedInstanceState)
-        {
-            try
-            {
-                userID = account_Type.getJSONObject(listChoice).getString("userID");
+			try
+			{
 
-            }
-            catch (JSONException e)
-            {
-                Log.e("JSON APPROVE", e.getMessage());
-            }
-            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-            builder.setTitle("Approve Account")
-                    .setItems(temp, new DialogInterface.OnClickListener()
-                            {
-                                public void onClick(DialogInterface dialog, int which)
-                                {
+				account_Type = new JSONArray(jsonStr);
 
-                                    if(which == 0)
-                                    {
-                                        decision = "approve";
+				approveList = new String[account_Type.length()];
+				for (int i = 0; i < account_Type.length(); ++i)
+				{
+					approveList[i] = account_Type.get(i).toString();
+				}
+				return true;
+			} catch (JSONException e)
+			{
+				Log.e("JSON Error: ", e.getMessage());
+			}
 
-                                    }
-                                    else
-                                    {
-                                        decision = "deny";
-                                    }
-                                    ((ApproveAccounts)getActivity()).accountAsync(userID, decision);
-                            }
-                            }
-                    );
-            return builder.create();
-        }
-        public void onDismiss(DialogInterface dialog)
-        {
-            ((ApproveAccounts)getActivity()).recallList();
-            ApproveDialog.this.getDialog().cancel();
-        }
-    }
+			return false;
+		}
 
-    public void recallList()
-    {
-        AcctApprovals app = new AcctApprovals();
-        app.execute();
-    }
-    public void accountAsync(String userID, String decision)
-    {
-        SendAccountApproval s1 = new SendAccountApproval();
-        s1.execute(userID, decision);
-    }
+		protected void onPostExecute(Boolean success)
+		{
+			if (success)
+			{
+				String[] toDisplay = new String[account_Type.length()];
+				try
+				{
 
-    public class SendAccountApproval extends AsyncTask<String, Void, Boolean> {
-        JSONObject statement;
+					for (int i = 0; i < account_Type.length(); ++i)
+					{
+						JSONObject j = new JSONObject(approveList[i]);
+						toDisplay[i] = j.getString("firstName");
+						toDisplay[i] += " " + j.getString("lastName");
+						toDisplay[i] += " - " + "Account: ";
+						int idNum = Integer.parseInt(j.getString("accID"));
+						toDisplay[i] += acctTypeList[idNum - 1];
 
-        protected Boolean doInBackground(String... params) {
-            boolean success = false;
-            String BASE_URL, USER_ID, DECISION;
-            BASE_URL = "http://davisengeler.gwdnow.com/user.php?setapproval";
-            USER_ID = "userid";
-            DECISION = "decision";
-            final String API_KEY_PARAM = "apikey";
-            final String API_PASS_PARAM = "apipass";
-            HttpURLConnection urlConnection = null;
-            BufferedReader reader = null;
-            String jsonStr = "";
+						Log.v("toDisplay ", acctTypeList[idNum - 1] + idNum);
+					}
+				} catch (Exception e)
+				{
+					e.getMessage();
+				}
+				setList(toDisplay);
+			}
+		}
 
+	}
 
-            try {
-                Uri builtUri = Uri.parse(BASE_URL).buildUpon()
-                        .appendQueryParameter(USER_ID, params[0])
-                        .appendQueryParameter(DECISION, params[1])
-                        .appendQueryParameter(API_KEY_PARAM, apikey)
-                        .appendQueryParameter(API_PASS_PARAM, apipass)
-                        .build();
+	public class SendAccountApproval extends AsyncTask<String, Void, Boolean>
+	{
+		JSONObject statement;
 
-                Log.v("TEST:   ", builtUri.toString());
+		protected Boolean doInBackground(String... params)
+		{
+			boolean success = false;
+			String BASE_URL, USER_ID, DECISION;
+			BASE_URL = "http://davisengeler.gwdnow.com/user.php?setapproval";
+			USER_ID = "userid";
+			DECISION = "decision";
+			final String API_KEY_PARAM = "apikey";
+			final String API_PASS_PARAM = "apipass";
+			HttpURLConnection urlConnection = null;
+			BufferedReader reader = null;
+			String jsonStr = "";
 
-                URL url = new URL(builtUri.toString());
+			try
+			{
+				Uri builtUri = Uri.parse(BASE_URL).buildUpon()
+								  .appendQueryParameter(USER_ID, params[0])
+								  .appendQueryParameter(DECISION, params[1])
+								  .appendQueryParameter(API_KEY_PARAM, apikey)
+								  .appendQueryParameter(API_PASS_PARAM, apipass)
+								  .build();
 
-                urlConnection = (HttpURLConnection) url.openConnection();
-                urlConnection.setRequestMethod("GET");
-                urlConnection.connect();
+				Log.v("TEST:   ", builtUri.toString());
 
-                // Read the input stream into a String
-                InputStream inputStream = urlConnection.getInputStream();
-                StringBuffer buffer = new StringBuffer();
-                if (inputStream != null) {
-                    reader = new BufferedReader(new InputStreamReader(inputStream));
+				URL url = new URL(builtUri.toString());
 
-                    String line;
-                    while ((line = reader.readLine()) != null) {
-                        //makes easy to read in logs
-                        buffer.append(line + "\n");
-                    }
-                    if (buffer.length() != 0) {
-                        jsonStr += buffer.toString();
-                    }
-                }
-            } catch (MalformedURLException e) {
-                Log.e("URL Error: ", e.getMessage());
-            } catch (IOException e) {
-                Log.e("Connection: ", e.getMessage());
-            } finally {
-                urlConnection.disconnect();
-                try {
-                    if (reader != null)
-                        reader.close();
-                } catch (IOException e) {
-                    Log.e("Error closing stream", e.getMessage());
-                }
-            }
+				urlConnection = (HttpURLConnection) url.openConnection();
+				urlConnection.setRequestMethod("GET");
+				urlConnection.connect();
 
-            try {
-                statement = new JSONObject(jsonStr);
-                success = statement.getBoolean("successful");
+				// Read the input stream into a String
+				InputStream inputStream = urlConnection.getInputStream();
+				StringBuilder buffer = new StringBuilder();
+				if (inputStream != null)
+				{
+					reader = new BufferedReader(new InputStreamReader(inputStream));
 
-            } catch (JSONException e) {
-                Log.e("JSON Error: ", e.getMessage());
-            }
+					String line;
+					while ((line = reader.readLine()) != null)
+					{
+						//makes easy to read in logs
+						buffer.append(line).append("\n");
+					}
+					if (buffer.length() != 0)
+					{
+						jsonStr += buffer.toString();
+					}
+				}
+			} catch (MalformedURLException e)
+			{
+				Log.e("URL Error: ", e.getMessage());
+			} catch (IOException e)
+			{
+				Log.e("Connection: ", e.getMessage());
+			} finally
+			{
+				assert urlConnection != null;
+				urlConnection.disconnect();
+				try
+				{
+					if (reader != null)
+					{
+						reader.close();
+					}
+				} catch (IOException e)
+				{
+					Log.e("Error closing stream", e.getMessage());
+				}
+			}
 
-            return success;
-        }
+			try
+			{
+				statement = new JSONObject(jsonStr);
+				success = statement.getBoolean("successful");
 
-        protected void onPostExecute(Boolean success) {
-            if (success) {
-                try {
-                    Toast.makeText(getApplicationContext(), statement.getString("statusMessage"), Toast.LENGTH_LONG).show();
-                } catch (JSONException e) {
-                    Log.v("JSON", e.getMessage());
-                }
+			} catch (JSONException e)
+			{
+				Log.e("JSON Error: ", e.getMessage());
+			}
 
-            } else {
-                try {
-                    Toast.makeText(getApplicationContext(), statement.getString("statusMessage"), Toast.LENGTH_LONG).show();
-                } catch (JSONException e) {
-                    Log.v("JSON", e.getMessage());
-                }
-            }
-        }
+			return success;
+		}
 
-    }
+		protected void onPostExecute(Boolean success)
+		{
+			if (success)
+			{
+				try
+				{
+					Toast.makeText(getApplicationContext(), statement.getString("statusMessage"), Toast.LENGTH_LONG).show();
+				} catch (JSONException e)
+				{
+					Log.v("JSON", e.getMessage());
+				}
+
+			} else
+			{
+				try
+				{
+					Toast.makeText(getApplicationContext(), statement.getString("statusMessage"), Toast.LENGTH_LONG).show();
+				} catch (JSONException e)
+				{
+					Log.v("JSON", e.getMessage());
+				}
+			}
+		}
+
+	}
 }

@@ -1,69 +1,71 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    android:orientation="vertical"
-    tools:context="com.example.daycare.daycare.AddChildActivity">
+              xmlns:tools="http://schemas.android.com/tools"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:paddingLeft="@dimen/activity_horizontal_margin"
+              android:paddingRight="@dimen/activity_horizontal_margin"
+              android:paddingTop="@dimen/activity_vertical_margin"
+              android:paddingBottom="@dimen/activity_vertical_margin"
+              android:orientation="vertical"
+              tools:context="com.example.daycare.daycare.AddChildActivity">
 
-        <EditText
-            android:id="@+id/cfirst_name"
-            android:layout_width="match_parent"
+    <EditText
+        android:id="@+id/cfirst_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/first_name_label"
+        android:inputType="textCapWords"/>
+
+    <EditText
+        android:id="@+id/clast_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/last_name_label"
+        android:inputType="textCapWords"/>
+
+    <EditText
+        android:id="@+id/date_of_birth"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="date"
+        android:hint="@string/DOB_label"/>
+
+    <EditText
+        android:id="@+id/cSsn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="number"
+        android:hint="@string/ssn_label"/>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/teacher_names"
+            android:text="@string/teach"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:hint="@string/first_name_label"
-            android:inputType="textCapWords"/>
+            android:paddingTop="16dp"/>
 
-        <EditText
-            android:id="@+id/clast_name"
-            android:layout_width="match_parent"
+
+        <Spinner
+            android:id="@+id/spinner"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:hint="@string/last_name_label"
-            android:inputType="textCapWords"/>
+            android:spinnerMode="dropdown"
+            android:layout_toRightOf="@id/teacher_names"
+            android:paddingTop="16dp"/>
 
-        <EditText
-            android:id="@+id/date_of_birth"
-            android:layout_width="match_parent"
+        <Button
+            android:id="@+id/cSubmitButton"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:inputType="date"
-            android:hint="@string/DOB_label"/>
-
-        <EditText
-            android:id="@+id/cSsn"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:inputType="number"
-            android:hint="@string/ssn_label"/>
-
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-            <TextView
-                android:id="@+id/teacher_names"
-                android:text="Teacher: "
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingTop="16dp"/>
+            android:layout_alignParentRight="true"
+            android:text="@string/submit"/>
 
 
-            <Spinner
-                android:id="@+id/spinner"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:spinnerMode="dropdown"
-                android:layout_toRightOf="@id/teacher_names"
-                android:paddingTop="16dp"/>
-            <Button
-                android:id="@+id/cSubmitButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:text="Submit" />
-
-
-        </RelativeLayout>
+    </RelativeLayout>
 
 
 </LinearLayout>
