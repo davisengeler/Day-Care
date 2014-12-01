@@ -402,7 +402,7 @@ public class AddChildActivity extends Activity
 			final String API_PASS_PARAM = "apipass";
 			if (edit == null)
 			{
-				BASE_URL = "http://davisengeler.gwdnow.com/child.php?add";
+				BASE_URL = "http://davisengeler.gwdnow.com/child.php?addchild";
 				builtUri = Uri.parse(BASE_URL).buildUpon()
 							  .appendQueryParameter(SSN_PARAM, params[0])
 							  .appendQueryParameter(FIRST_NAME, params[1])
@@ -415,7 +415,7 @@ public class AddChildActivity extends Activity
 							  .build();
 			} else
 			{
-				BASE_URL = "http://davisengeler.gwdnow.com/child.php?edit";
+				BASE_URL = "http://davisengeler.gwdnow.com/child.php?editchild";
 				builtUri = Uri.parse(BASE_URL).buildUpon()
 							  .appendQueryParameter(SSN_PARAM, params[0])
 							  .appendQueryParameter(FIRST_NAME, params[1])

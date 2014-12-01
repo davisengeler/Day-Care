@@ -286,7 +286,7 @@ public class AddAccountActivity extends Activity
 			final String API_PASS_PARAM = "apipass";
 			if (type == null)
 			{
-				USER_BASE_URL = "http://davisengeler.gwdnow.com/user.php?add";
+				USER_BASE_URL = "http://davisengeler.gwdnow.com/user.php?addaccount";
 
 				try
 				{
@@ -310,7 +310,7 @@ public class AddAccountActivity extends Activity
 
 			} else
 			{
-				USER_BASE_URL = "http://davisengeler.gwdnow.com/user.php?edit";
+				USER_BASE_URL = "http://davisengeler.gwdnow.com/user.php?editaccount";
 				try
 				{
 					if (params[6].compareTo("") != 0)
