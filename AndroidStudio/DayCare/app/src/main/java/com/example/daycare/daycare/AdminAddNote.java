@@ -177,10 +177,7 @@ public class AdminAddNote extends Activity
 		int id = item.getItemId();
 
 		//noinspection SimplifiableIfStatement
-		if (id == R.id.action_settings)
-		{
-			return true;
-		} else if (id == R.id.logout_option)
+		if (id == R.id.logout_option)
 		{
 			SharedPreferences prefs = getPreferences();
 			SharedPreferences.Editor editor = prefs.edit();
