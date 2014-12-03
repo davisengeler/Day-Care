@@ -274,7 +274,7 @@ public class AddChildActivity extends Activity
 						   Intent intent = new Intent(getActivity(), AdminActivity.class);
 						   intent.putExtra("JSONString", JSONString);
 						   startActivity(intent);
-
+						   getActivity().finish();
 					   }
 				   });
 			return builder.create();

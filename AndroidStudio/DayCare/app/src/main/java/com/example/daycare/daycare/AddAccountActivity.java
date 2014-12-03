@@ -243,6 +243,8 @@ public class AddAccountActivity extends Activity
 						   cIntent.putExtra("JSONString", JSONString);
 
 						   startActivity(cIntent);
+						   getActivity().finish();
+
 					   }
 				   })
 				   .setNegativeButton(R.string.cancel_label, new DialogInterface.OnClickListener()
