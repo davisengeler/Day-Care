@@ -1,12 +1,9 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
       xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    tools:context="com.example.daycare.daycare.dummy.SignInOut">
-    <item android:id="@+id/logout_option"
-          android:title="@string/logout_title"
-          android:orderInCategory="1"/>
-    <item android:id="@+id/action_settings"
-          android:title="@string/action_settings"
-          android:orderInCategory="100"
-          app:showAsAction="never" />
+      xmlns:tools="http://schemas.android.com/tools"
+      tools:context="com.example.daycare.daycare.SignInOut">
+    <item
+        android:id="@+id/logout_option"
+        android:title="@string/logout_title"
+        android:orderInCategory="1"/>
 </menu>

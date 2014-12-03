@@ -1,178 +1,180 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/container_id"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:paddingLeft="16dp"
-    android:paddingRight="16dp"
-    android:paddingTop="16dp"
-    android:paddingBottom="16dp"
-    android:orientation="vertical"
-    tools:context="com.example.daycare.daycare.dummy.AddAccountActivity">
-    <ProgressBar
-        android:id="@+id/progressBar1"
-        style="?android:attr/progressBarStyleSmall"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_gravity="center"/>
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
+			  xmlns:tools="http://schemas.android.com/tools"
+			  android:id="@+id/container_id"
+			  android:layout_width="match_parent"
+			  android:layout_height="match_parent"
+			  android:paddingLeft="16dp"
+			  android:paddingRight="16dp"
+			  android:paddingTop="16dp"
+			  android:paddingBottom="16dp"
+			  android:orientation="vertical"
+			  tools:context="com.example.daycare.daycare.AddAccountActivity">
 
-       <EditText
-            android:id="@+id/first_name"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:hint="@string/first_name_label"/>
+	<ProgressBar
+		android:id="@+id/progressBar1"
+		style="?android:attr/progressBarStyleSmall"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_centerHorizontal="true"
+		android:layout_gravity="center"/>
 
-        <EditText
-            android:id="@+id/last_name"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:hint="@string/last_name_label"/>
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:orientation="horizontal">
 
-    </LinearLayout>
+		<EditText
+			android:id="@+id/first_name"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_weight="1"
+			android:hint="@string/first_name_label"/>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-    
-       <EditText
-            android:id="@+id/street_address"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="8"
-            android:inputType="textPostalAddress|textCapWords|textNoSuggestions"
-            android:hint="@string/street_address_label"/>
-    </LinearLayout>
+		<EditText
+			android:id="@+id/last_name"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_weight="1"
+			android:hint="@string/last_name_label"/>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
+	</LinearLayout>
 
-        <EditText
-            android:id="@+id/city"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="7"
-            android:inputType="textCapWords"
-            android:hint="@string/city_label"/>
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:orientation="horizontal">
 
-        <EditText
-            android:id="@+id/state"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:inputType="textCapCharacters"
-            android:hint="@string/state_label"/>
+		<EditText
+			android:id="@+id/street_address"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:layout_weight="8"
+			android:inputType="textPostalAddress|textCapWords|textNoSuggestions"
+			android:hint="@string/street_address_label"/>
+	</LinearLayout>
 
-        <EditText
-            android:id="@+id/zip"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="3"
-            android:inputType="number"
-            android:hint="@string/zip_code_label"/>
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:orientation="horizontal">
 
-    </LinearLayout>
+		<EditText
+			android:id="@+id/city"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_weight="7"
+			android:inputType="textCapWords"
+			android:hint="@string/city_label"/>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
+		<EditText
+			android:id="@+id/state"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_weight="1"
+			android:inputType="textCapCharacters"
+			android:hint="@string/state_label"/>
 
-        <EditText
-            android:id="@+id/email"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="2"
-            android:inputType="textEmailAddress"
-            android:hint="@string/email_label"/>
+		<EditText
+			android:id="@+id/zip"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_weight="3"
+			android:inputType="number"
+			android:hint="@string/zip_code_label"/>
 
-    </LinearLayout>
+	</LinearLayout>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:orientation="horizontal">
 
-       <EditText
-            android:id="@+id/phone"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:inputType="phone"
-            android:hint="@string/phone_number_label"/>
-    </LinearLayout>
+		<EditText
+			android:id="@+id/email"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:layout_weight="2"
+			android:inputType="textEmailAddress"
+			android:hint="@string/email_label"/>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
+	</LinearLayout>
 
-        <EditText
-            android:id="@+id/ssn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:inputType="number"
-            android:hint="@string/ssn_label"/>
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:orientation="horizontal">
 
+		<EditText
+			android:id="@+id/phone"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:layout_weight="1"
+			android:inputType="phone"
+			android:hint="@string/phone_number_label"/>
+	</LinearLayout>
 
-    </LinearLayout>
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:orientation="horizontal">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
+		<EditText
+			android:id="@+id/ssn"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:layout_weight="1"
+			android:inputType="number"
+			android:hint="@string/ssn_label"/>
 
-        <EditText
-            android:id="@+id/pass"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="2"
-            android:inputType="textPassword"
-            android:hint="@string/pass_label"/>
+	</LinearLayout>
 
-    </LinearLayout>
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:orientation="horizontal">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-            <TextView
-                android:id="@+id/text_view_ID"
-                android:text="@string/acctType_label"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingTop="16dp"/>
+		<EditText
+			android:id="@+id/pass"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:layout_weight="2"
+			android:inputType="textPassword"
+			android:hint="@string/pass_label"/>
 
-            <Spinner
-                android:id="@+id/spinner1"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:spinnerMode="dropdown"
-                android:layout_toRightOf="@id/text_view_ID"
-                android:paddingTop="16dp"/>
+	</LinearLayout>
 
-            <Button
-                android:id="@+id/submitButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:text="Submit" />
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:orientation="horizontal">
 
+		<RelativeLayout
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content">
 
-        </RelativeLayout>
-    </LinearLayout>
+			<TextView
+				android:id="@+id/text_view_ID"
+				android:text="@string/acctType_label"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:paddingTop="16dp"/>
+
+			<Spinner
+				android:id="@+id/spinner1"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:spinnerMode="dropdown"
+				android:layout_toRightOf="@id/text_view_ID"
+				android:paddingTop="16dp"/>
+
+			<Button
+				android:id="@+id/submitButton"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_alignParentRight="true"
+				android:text="@string/submit"/>
+
+		</RelativeLayout>
+	</LinearLayout>
 
 </LinearLayout>
