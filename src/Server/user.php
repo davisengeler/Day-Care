@@ -337,7 +337,7 @@
         echo json_encode(getPendingAccounts($database));
       }
       // Add New Account
-      else if (isset($_GET['add']))
+      else if (isset($_GET['addaccount']))
       {
         $apiResponse = addAccount(
         $database,
@@ -354,7 +354,7 @@
       echo json_encode($apiResponse);
       }
       // Edit Account
-      else if (isset($_GET['edit']))
+      else if (isset($_GET['editaccount']))
       {
         // If the password has been changed, encrypt and save it. Otherwise, use the currently encrypted password for the account.
         // Password initialized here for proper scope.

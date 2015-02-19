@@ -333,7 +333,7 @@
     // Everything is okay and the user is allowed to proceed
 
     // Add New Child
-    if (isset($_GET['add']))
+    if (isset($_GET['addchild']))
     {
       $apiResponse = addChild(
       $database,
@@ -346,7 +346,7 @@
       echo json_encode($apiResponse);
     }
 
-    if (isset($_GET['edit']))
+    if (isset($_GET['editchild']))
     {
       $apiResponse = editChild(
       $database,
